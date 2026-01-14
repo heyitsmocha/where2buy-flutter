@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
-import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
+import 'package:w2b_flutter/features/search/presentation/search_page.dart';
+import 'package:w2b_flutter/features/respond/presentation/respond_list_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -19,7 +20,7 @@ class _MainAppState extends State<MainApp> {
 
   final List<Widget> _views = const [
     SearchPage(),
-    RespondPage(),
+      RespondListPage(),
     ProfilePage(),
   ];
 
@@ -40,6 +41,9 @@ class _MainAppState extends State<MainApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
       ),
+      routes: {
+        '/respond': (context) => const RespondPage(),
+      },
       home: Scaffold(
         body: _views[_currentIndex],
         bottomNavigationBar: NavigationBar(
