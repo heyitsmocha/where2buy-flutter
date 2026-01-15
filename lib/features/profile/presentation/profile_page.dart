@@ -37,6 +37,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const Divider(height: 50,),
+          const Expanded(child: Text('Placeholder')),
+          const Divider(height: 50,),
           // TODO: Display login/logout button based on authentication status
           ElevatedButton(
             onPressed: () {},
