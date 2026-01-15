@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
+import 'package:w2b_flutter/features/request/presentation/request_list_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_list_page.dart';
@@ -16,12 +17,19 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
+  final GlobalKey<ScaffoldState> _mainScaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<Widget> _views = const [
-    SearchPage(),
-      RespondListPage(),
-    ProfilePage(),
+  late final List<Widget> _views = [
+      RequestListPage(mainScaffoldKey: _mainScaffoldKey),
+      SearchPage(mainScaffoldKey: _mainScaffoldKey),
+      RespondListPage(mainScaffoldKey: _mainScaffoldKey),
+  ];
+
+  final List<Widget> _destinations = const [
+    NavigationDestination(icon: Icon(Icons.list_alt_outlined), selectedIcon: Icon(Icons.list_alt), label: 'Requests'),
+    NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
+    NavigationDestination(icon: Icon(Icons.pin_drop_outlined), selectedIcon: Icon(Icons.pin_drop), label: 'Respond'),
   ];
 
   void _onItemTapped(int index) {
@@ -45,15 +53,15 @@ class _MainAppState extends State<MainApp> {
         '/respond': (context) => const RespondPage(),
       },
       home: Scaffold(
+        key: _mainScaffoldKey,
         body: _views[_currentIndex],
+        drawer: const Drawer(
+          child: ProfilePage(),
+        ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: _onItemTapped,
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
-            NavigationDestination(icon: Icon(Icons.pin_drop_outlined), selectedIcon: Icon(Icons.pin_drop), label: 'Respond'),
-            NavigationDestination(icon: Icon(Icons.person_outlined), selectedIcon: Icon(Icons.person), label: 'Profile'),
-          ],
+          destinations: _destinations,
         ),
       ),
     );

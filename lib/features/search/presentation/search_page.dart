@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/base_search_bar.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  const SearchPage({super.key, required this.mainScaffoldKey});
+
+  final GlobalKey<ScaffoldState> mainScaffoldKey;
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -18,50 +21,47 @@ class _SearchPageState extends State<SearchPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          IntrinsicHeight(
-            child: SearchBar(
-              hintText: 'Search for items...',
-              trailing: [
-                const Icon(Icons.search),
-                const VerticalDivider(),
-                IconButton(
-                  onPressed: () {
-                    if (_isLoggedIn) {
-                      // Navigate to request new item page
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Navigating to Request New Item Page...')),
-                      );
-                    } else {
-                      // Prompt user to log in
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please log in to post a new item request.')),
-                      );
-                    }
-                  }, 
-                  icon: const Icon(Icons.post_add), 
-                  tooltip: "Request new item",
+          BaseSearchBar(
+            mainScaffoldKey: widget.mainScaffoldKey,
+            hintText: 'Search for items...',
+            trailing: [
+              IconButton(
+                onPressed: () {
+                  if (_isLoggedIn) {
+                    // Navigate to request new item page
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Navigating to Request New Item Page...')),
+                    );
+                  } else {
+                    // Prompt user to log in
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please log in to post a new item request.')),
+                    );
+                  }
+                }, 
+                icon: const Icon(Icons.post_add), 
+                tooltip: "Request new item",
+                ),
+            ],
+            onChanged: (value) {
+              // Handle search input change
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Display suggestions for: $value'),
+                  //dismiss
+                  action: SnackBarAction(
+                    label: 'Dismiss',
+                    onPressed: () {},
                   ),
-              ],
-              onChanged: (value) {
-                // Handle search input change
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Display suggestions for: $value'),
-                    //dismiss
-                    action: SnackBarAction(
-                      label: 'Dismiss',
-                      onPressed: () {},
-                    ),
-                    duration: const Duration(milliseconds: 50),
-                ));
-              },
-              onSubmitted: (value) {
-                // Handle search submission
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Searching for: $value')),
-                );
-              },
-            ),
+                  duration: const Duration(milliseconds: 50),
+              ));
+            },
+            onSubmitted: (value) {
+              // Handle search submission
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Searching for: $value')),
+              );
+            },
           ),
           // Google Map here
           const Expanded(
