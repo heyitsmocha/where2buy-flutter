@@ -21,8 +21,8 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
   double _currentZoom = 12;
 
   final bool _isLoggedIn = false; // Placeholder for user authentication status
-  late LatLng _currentLatLng = const LatLng(37.7749, -122.4194); // Default to San Francisco
-  late LatLng _tempLatLng;
+  late LatLng _currentLatLng = const LatLng(3.157445974699537, 101.71153740166021); // Default to KL Twin Towers
+  late LatLng _tempLatLng = _currentLatLng;
   GoogleMapController? _mapController;
 
   @override
@@ -93,7 +93,7 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
                 }, 
                 icon: const Icon(Icons.post_add), 
                 tooltip: "Request new item",
-                ),
+              ),
             ],
             onChanged: (value) {
               // Handle search input change
@@ -106,7 +106,8 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
                     onPressed: () {},
                   ),
                   duration: const Duration(milliseconds: 50),
-              ));
+                )
+              );
             },
             onSubmitted: (value) {
               // Handle search submission
@@ -126,7 +127,10 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
                   _moveToCurrentLocation();
                 },
                 myLocationButtonEnabled: true,
-                onCameraMove: (position) => _tempLatLng = position.target,
+                myLocationEnabled: true,
+                onCameraMove: (position) => setState(() {
+                  _tempLatLng = position.target;
+                }),
                 onCameraIdle: () => setState(() {
                   _currentLatLng = _tempLatLng;
                 }),
@@ -134,8 +138,8 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
                   Marker(
                     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
                     markerId: const MarkerId('current_location'),
-                    position: _currentLatLng,
-                    infoWindow: const InfoWindow(title: 'Current Location'),
+                    position: _tempLatLng,
+                    infoWindow: const InfoWindow(title: 'Search Location'),
                   ),
                 },
                 circles: {
