@@ -52,16 +52,18 @@ class _MainAppState extends State<MainApp> {
       routes: {
         '/respond': (context) => const RespondPage(),
       },
-      home: Scaffold(
-        key: _mainScaffoldKey,
-        body: _views[_currentIndex],
-        drawer: const Drawer(
-          child: ProfilePage(),
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _currentIndex,
-          onDestinationSelected: _onItemTapped,
-          destinations: _destinations,
+      home: SafeArea(
+        child: Scaffold(
+          key: _mainScaffoldKey,
+          body: _views[_currentIndex],
+          drawer: const Drawer(
+            child: ProfilePage(),
+          ),
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _currentIndex,
+            onDestinationSelected: _onItemTapped,
+            destinations: _destinations,
+          ),
         ),
       ),
     );

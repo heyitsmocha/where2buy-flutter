@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:w2b_flutter/components/widget_with_button.dart';
 
 class RespondPage extends StatefulWidget {
