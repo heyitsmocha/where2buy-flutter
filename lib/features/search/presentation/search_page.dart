@@ -16,34 +16,24 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> with SearchPageLogic {
-  double _currentSliderValue = 5;
-  double _currentZoom = 12;
-
+class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTickerProviderStateMixin {
   final bool _isLoggedIn = false; // Placeholder for user authentication status
-  late LatLng _currentLatLng = const LatLng(3.157445974699537, 101.71153740166021); // Default to KL Twin Towers
+
+  // Map variables
+  double _currentSliderValue = 0;
+  double _currentZoom = 12;
+  LatLng _currentLatLng = const LatLng(3.157445974699537, 101.71153740166021); // Default to KL Twin Towers
   late LatLng _tempLatLng = _currentLatLng;
   GoogleMapController? _mapController;
 
-  @override
-  void initState() {
-    super.initState();
+  // Animation variables
+  late AnimationController _pinAnimationController;
+  late Animation<double> _xAnimation;
+  late Animation<double> _yAnimation;
+  late Animation<double> _rotationAnimation;
 
-    // Set _currentLatLng to current location 
-    getCurrentLocation().then((position) {
-      log('Current location: ${position.latitude}, ${position.longitude}');
-      setState(() {
-        _currentLatLng = LatLng(position.latitude, position.longitude);
-      });
-
-      // Try to move/animate the map to the user's location if controller exists
-      _moveToCurrentLocation(animate: false);
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error getting location: $error')),
-      );
-    });
-  }
+  late Animation<double> _shadowOpacity;
+  late Animation<double> _shadowScale;
 
   // Move or animate the map camera to the current location when possible.
   // Safe to call from either `initState` (after location) or `onMapCreated`.
@@ -68,7 +58,72 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    // Initialise animations
+    _pinAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    
+    // Moves the pin up by 20 pixels
+    _yAnimation = Tween<double>(begin: 0, end: -20).animate(
+      CurvedAnimation(
+        parent: _pinAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    // Moves the pin right by 10 pixels
+    _xAnimation = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(
+        parent: _pinAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    // Rotates the pin by 15 degrees
+    _rotationAnimation = Tween<double>(begin: 0, end: 0.26).animate(
+      CurvedAnimation(
+        parent: _pinAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _shadowOpacity = Tween<double>(begin: 0.0, end: 0.4).animate(
+      CurvedAnimation(
+        parent: _pinAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _shadowScale = Tween<double>(begin: 0.5, end: 1.2).animate(
+      CurvedAnimation(
+        parent: _pinAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    // Set _currentLatLng to current location 
+    getCurrentLocation().then((position) {
+      log('Current location: ${position.latitude}, ${position.longitude}');
+      setState(() {
+        _currentLatLng = LatLng(position.latitude, position.longitude);
+      });
+
+      // Try to move/animate the map to the user's location if controller exists
+      _moveToCurrentLocation(animate: false);
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error getting location: $error')),
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // TODO: my location FloatingActionButton
     return BaseLayout( 
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -120,43 +175,80 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: GoogleMap(
-                onMapCreated: (controller) {
-                  _mapController = controller;
-                  // Position the camera now that the controller exists
-                  _moveToCurrentLocation();
+              child: AnimatedBuilder(
+                animation: _pinAnimationController,
+                builder: (context, child) {
+                  return Stack(
+                    children: [
+                      child!,
+                      // Pin Icon
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 32.0),
+                        child: Center(
+                          child: Transform(
+                            alignment: Alignment.bottomCenter,
+                            transform: Matrix4.identity()
+                              ..translate(_xAnimation.value, _yAnimation.value)
+                              ..rotateZ(_rotationAnimation.value),
+                            child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+                          ),
+                        ),
+                      ),
+                      // Pin Shadow
+                      Transform.translate(
+                        offset: const Offset(0, 4),
+                        child: Opacity(
+                          opacity: _shadowOpacity.value,
+                          child: Center(
+                            child: Transform.scale(
+                              scale: _shadowScale.value,
+                              child: Container(
+                                width: 20,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: const BorderRadius.all(Radius.elliptical(12, 4)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 4,
+                                    )
+                                  ]
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
                 },
-                myLocationButtonEnabled: true,
-                myLocationEnabled: true,
-                onCameraMove: (position) => setState(() {
-                  _tempLatLng = position.target;
-                }),
-                onCameraIdle: () => setState(() {
-                  _currentLatLng = _tempLatLng;
-                }),
-                markers: {
-                  Marker(
-                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-                    markerId: const MarkerId('current_location'),
-                    position: _tempLatLng,
-                    infoWindow: const InfoWindow(title: 'Search Location'),
+                child: GoogleMap(
+                  myLocationButtonEnabled: true,
+                  onMapCreated: (controller) {
+                    _mapController = controller;
+                    // Position the camera now that the controller exists
+                    _moveToCurrentLocation();
+                  },
+                  onCameraMoveStarted: () => _pinAnimationController.forward(),
+                  onCameraIdle: () => _pinAnimationController.reverse(),
+                  onCameraMove: (position) => setState(() => _currentLatLng = position.target),
+                  initialCameraPosition: CameraPosition(
+                    target: _currentLatLng, 
+                    zoom: _currentZoom,
                   ),
-                },
-                circles: {
-                  Circle(
-                    circleId: const CircleId('search_range'),
-                    center: _currentLatLng,
-                    radius: _currentSliderValue * 1000, // Convert km to meters
-                    fillColor: Colors.blue.withOpacity(0.1),
-                    strokeColor: Colors.blueAccent,
-                    strokeWidth: 2,
-                  ),
-                },
-                initialCameraPosition: CameraPosition(
-                  target: _currentLatLng, 
-                  zoom: _currentZoom,
+                  circles: {
+                    Circle(
+                      circleId: const CircleId('search_range'),
+                      center: _currentLatLng,
+                      radius: _currentSliderValue * 1000, // Convert km to meters
+                      fillColor: Colors.blue.withOpacity(0.1),
+                      strokeColor: Colors.blueAccent,
+                      strokeWidth: 2,
+                    ),
+                  },
                 ),
-              )
+              ),
             ),
           ),
           // Maximum Range Slider here
@@ -196,5 +288,11 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pinAnimationController.dispose();
+    super.dispose();
   }
 }
