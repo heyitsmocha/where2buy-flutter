@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:math' as math;
 
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
@@ -19,21 +20,26 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTickerProviderStateMixin {
   final bool _isLoggedIn = false; // Placeholder for user authentication status
 
-  // Map variables
+  // Slider and range variables
   double _currentSliderValue = 0;
+  final double _maxRangeKm = 80;
+
+  // Calculate the actual range to make the slider exponential (smaller ranges at the start, larger ranges at the end)
+  double get _actualRangeKm => _maxRangeKm * math.pow(_currentSliderValue, 2);
+
+  // Map variables
   double _currentZoom = 12;
   LatLng _currentLatLng = const LatLng(3.157445974699537, 101.71153740166021); // Default to KL Twin Towers
-  late LatLng _tempLatLng = _currentLatLng;
   GoogleMapController? _mapController;
 
   // Animation variables
   late AnimationController _pinAnimationController;
-  late Animation<double> _xAnimation;
-  late Animation<double> _yAnimation;
-  late Animation<double> _rotationAnimation;
-
-  late Animation<double> _shadowOpacity;
-  late Animation<double> _shadowScale;
+  late Animation<double> 
+    _xAnimation,
+    _yAnimation,
+    _rotationAnimation,
+    _shadowOpacity,
+    _shadowScale;
 
   // Move or animate the map camera to the current location when possible.
   // Safe to call from either `initState` (after location) or `onMapCreated`.
@@ -42,7 +48,7 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
     if (_mapController == null) return;
 
     final mapWidth = MediaQuery.of(context).size.width - 16; // approximate padding
-    final zoom = zoomLevelForRadius(_currentSliderValue * 1000, _currentLatLng, mapWidth);
+    final zoom = zoomLevelForRadius(_actualRangeKm * 1000, _currentLatLng, mapWidth);
 
     setState(() => _currentZoom = zoom);
 
@@ -241,7 +247,7 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
                     Circle(
                       circleId: const CircleId('search_range'),
                       center: _currentLatLng,
-                      radius: _currentSliderValue * 1000, // Convert km to meters
+                      radius: _actualRangeKm * 1000, // Convert km to meters
                       fillColor: Colors.blue.withOpacity(0.1),
                       strokeColor: Colors.blueAccent,
                       strokeWidth: 2,
@@ -257,18 +263,18 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  Text('Search Range: ${_currentSliderValue > 0 ? '${_currentSliderValue.round()} km' : 'Exact Location'}'),
+                  // If range is 0, show "Exact Location", else show range in km or m
+                  Text('Search Range: ${_actualRangeKm == 0 ? 'Exact Location': _actualRangeKm >= 1 ? '${_actualRangeKm.round()} km' : '${(_actualRangeKm * 1000).round()} m'}'),
                   Slider(
                     value: _currentSliderValue,
                     min: 0,
-                    max: 100,
-                    divisions: 20,
+                    max: 1,
                     onChanged: (double value) {
                       setState(() {
                         _currentSliderValue = value;
                         // update zoom to match the new range (value in km -> meters)
                         final mapWidth = MediaQuery.of(context).size.width - 16;
-                        _currentZoom = zoomLevelForRadius(value * 1000, _currentLatLng, mapWidth);
+                        _currentZoom = zoomLevelForRadius(_actualRangeKm * 1000, _currentLatLng, mapWidth);
                       });
 
                       // animate the camera to the new zoom
