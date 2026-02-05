@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class RespondFilterDrawer extends StatefulWidget {
-  const RespondFilterDrawer({super.key});
+class AnswerFilterDrawer extends StatefulWidget {
+  const AnswerFilterDrawer({super.key});
 
   @override
-  State<RespondFilterDrawer> createState() => _RespondFilterDrawerState();
+  State<AnswerFilterDrawer> createState() => _AnswerFilterDrawerState();
 }
 
-class _RespondFilterDrawerState extends State<RespondFilterDrawer> {
+class _AnswerFilterDrawerState extends State<AnswerFilterDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(

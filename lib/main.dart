@@ -4,7 +4,7 @@ import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/inquiry/presentation/inquiries_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
-import 'package:w2b_flutter/features/respond/presentation/respond_list_page.dart';
+import 'package:w2b_flutter/features/answer/presentation/answers_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -26,13 +26,13 @@ class _MainAppState extends State<MainApp> {
   late final List<Widget> _views = [
       InquiriesPage(dio, mainScaffoldKey: _mainScaffoldKey),
       SearchPage(dio, mainScaffoldKey: _mainScaffoldKey),
-      RespondListPage(mainScaffoldKey: _mainScaffoldKey),
+      AnswersPage(dio, mainScaffoldKey: _mainScaffoldKey),
   ];
 
   final List<Widget> _destinations = const [
     NavigationDestination(icon: Icon(Icons.list_alt_outlined), selectedIcon: Icon(Icons.list_alt), label: 'Requests'),
     NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
-    NavigationDestination(icon: Icon(Icons.pin_drop_outlined), selectedIcon: Icon(Icons.pin_drop), label: 'Respond'),
+    NavigationDestination(icon: Icon(Icons.chat_outlined), selectedIcon: Icon(Icons.chat), label: 'Respond'),
   ];
 
   void _onItemTapped(int index) {

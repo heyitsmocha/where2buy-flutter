@@ -1,25 +1,27 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
-import 'package:w2b_flutter/features/respond/presentation/respond_list_filter_drawer.dart';
+import 'package:w2b_flutter/features/answer/presentation/answers_filter_drawer.dart';
 
-class RespondListPage extends StatefulWidget {
-  const RespondListPage({super.key, required this.mainScaffoldKey});
+class AnswersPage extends StatefulWidget {
+  const AnswersPage(this.dio, {super.key, required this.mainScaffoldKey});
 
   final GlobalKey<ScaffoldState> mainScaffoldKey;
+  final Dio dio;
 
   @override
-  State<RespondListPage> createState() => _RespondListPageState();
+  State<AnswersPage> createState() => _AnswersPageState();
 }
 
-class _RespondListPageState extends State<RespondListPage> {
-  final GlobalKey<ScaffoldState> _respondScaffoldKey = GlobalKey<ScaffoldState>();
+class _AnswersPageState extends State<AnswersPage> {
+  final GlobalKey<ScaffoldState> _answersScaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _respondScaffoldKey,
-      endDrawer: const RespondFilterDrawer(),
+      key: _answersScaffoldKey,
+      endDrawer: const AnswerFilterDrawer(),
       body: BaseLayout(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -37,10 +39,10 @@ class _RespondListPageState extends State<RespondListPage> {
             trailing: [
               IconButton(
                 onPressed: () {
-                  // TODO: temporary: go to respond page
-                  // Navigator.pushNamed(context, '/respond');
+                  // TODO: temporary: go to answer page
+                  Navigator.pushNamed(context, '/respond');
           
-                  _respondScaffoldKey.currentState?.openEndDrawer();
+                  // _answersScaffoldKey.currentState?.openEndDrawer();
                 }, 
                 icon: const Icon(Icons.filter_alt_outlined), 
                 tooltip: "Filter requests",
