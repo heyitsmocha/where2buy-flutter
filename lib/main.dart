@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/request/presentation/request_list_page.dart';
@@ -20,9 +21,11 @@ class _MainAppState extends State<MainApp> {
   int _currentIndex = 1;
   final GlobalKey<ScaffoldState> _mainScaffoldKey = GlobalKey<ScaffoldState>();
 
+  late final Dio dio;
+
   late final List<Widget> _views = [
       RequestListPage(mainScaffoldKey: _mainScaffoldKey),
-      SearchPage(mainScaffoldKey: _mainScaffoldKey),
+      SearchPage(dio, mainScaffoldKey: _mainScaffoldKey),
       RespondListPage(mainScaffoldKey: _mainScaffoldKey),
   ];
 
@@ -41,6 +44,19 @@ class _MainAppState extends State<MainApp> {
   // https://www.color-hex.com/color-palette/1017208
   // static const Color primaryColor = Color(0xFF3100A2);
   static const Color primaryColor = Color(0xFF4500E2);
+
+  @override
+  void initState() {
+    super.initState();
+
+    dio = Dio(
+      BaseOptions(
+        baseUrl: "http://192.168.0.81:8000/api",
+      ),
+    );
+
+    // final inquityService = 
+  }
 
   @override
   Widget build(BuildContext context) {

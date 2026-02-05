@@ -1,36 +1,43 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math' as math;
 
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
-import 'package:w2b_flutter/features/search/logic/search_page_logic.dart';
+import 'package:w2b_flutter/components/map/map_widget.dart';
+import 'package:w2b_flutter/features/search/logic/search_page_mixin.dart';
+import 'package:w2b_flutter/util/location_util.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key, required this.mainScaffoldKey});
+  const SearchPage(this.dio, {super.key, required this.mainScaffoldKey});
 
   final GlobalKey<ScaffoldState> mainScaffoldKey;
+  final Dio dio;
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTickerProviderStateMixin {
+class _SearchPageState extends State<SearchPage> with SearchPageLogicMixin, SingleTickerProviderStateMixin {
   final bool _isLoggedIn = false; // Placeholder for user authentication status
 
   // Slider and range variables
-  double _currentSliderValue = 0;
+  double _currentSliderValue = 0.08;
   final double _maxRangeKm = 80;
 
-  // Calculate the actual range to make the slider exponential (smaller ranges at the start, larger ranges at the end)
-  double get _actualRangeKm => _maxRangeKm * math.pow(_currentSliderValue, 2);
+  // Calculate the actual range to make the slider exponential (smaller increments at the start, larger increments at the end)
+  double get _searchRangeKm => _maxRangeKm * math.pow(_currentSliderValue, 2);
 
   // Map variables
   double _currentZoom = 12;
-  LatLng _currentLatLng = const LatLng(3.157445974699537, 101.71153740166021); // Default to KL Twin Towers
+  LatLng _cameraLatLng = const LatLng(3.157445974699537, 101.71153740166021); // Default to KL Twin Towers
+  LatLng _searchLatLng = const LatLng(3.157445974699537, 101.71153740166021);
+
   GoogleMapController? _mapController;
+  bool _lockSearchArea = true;
 
   // Animation variables
   late AnimationController _pinAnimationController;
@@ -40,28 +47,6 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
     _rotationAnimation,
     _shadowOpacity,
     _shadowScale;
-
-  // Move or animate the map camera to the current location when possible.
-  // Safe to call from either `initState` (after location) or `onMapCreated`.
-  void _moveToCurrentLocation({bool animate = true}) {
-    if (!mounted) return;
-    if (_mapController == null) return;
-
-    final mapWidth = MediaQuery.of(context).size.width - 16; // approximate padding
-    final zoom = zoomLevelForRadius(_actualRangeKm * 1000, _currentLatLng, mapWidth);
-
-    setState(() => _currentZoom = zoom);
-
-    final cameraUpdate = CameraUpdate.newCameraPosition(
-      CameraPosition(target: _currentLatLng, zoom: _currentZoom),
-    );
-
-    if (animate) {
-      _mapController!.animateCamera(cameraUpdate);
-    } else {
-      _mapController!.moveCamera(cameraUpdate);
-    }
-  }
 
   @override
   void initState() {
@@ -112,24 +97,38 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
     );
 
     // Set _currentLatLng to current location 
-    getCurrentLocation().then((position) {
-      log('Current location: ${position.latitude}, ${position.longitude}');
-      setState(() {
-        _currentLatLng = LatLng(position.latitude, position.longitude);
-      });
+    // LocationUtil.getCurrentLocation().then((position) {
+    //   log('Current location: ${position.latitude}, ${position.longitude}');
+    //   setState(() {
+    //     _cameraLatLng = LatLng(position.latitude, position.longitude);
+    //   });
 
-      // Try to move/animate the map to the user's location if controller exists
-      _moveToCurrentLocation(animate: false);
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error getting location: $error')),
-      );
-    });
+    //   // Try to move/animate the map to the user's location if controller exists
+    //   moveToCurrentLocation(animate: false);
+    // }).catchError((error) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Error getting location: $error')),
+    //   );
+    // });
+  }
+
+  ButtonStyle _secondaryButtonStyle(BuildContext context, {bool translucentOnUnlock = true}) {
+    // Secondary buttons are disabled when the search area is unlocked
+    return !_lockSearchArea && translucentOnUnlock
+    ? ButtonStyle(
+        // Semi-transparent background color
+        backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.onInverseSurface.withOpacity(0.8)),
+        iconColor: MaterialStateProperty.all(Theme.of(context).colorScheme.onSurface.withOpacity(0.38))
+      )
+    : ButtonStyle(
+      // Solid background color
+      backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.inversePrimary),
+      iconColor: MaterialStateProperty.all(Theme.of(context).colorScheme.secondary)
+      ); 
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: my location FloatingActionButton
     return BaseLayout( 
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -148,8 +147,16 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
                   } else {
                     // Prompt user to log in
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please log in to post a new item request.')),
-                    );
+                      SnackBar(
+                        content: const Text('Please log in to post a new item request.'),
+                        action: SnackBarAction(label: 'Log In', onPressed: () {
+                          // Navigate to login page
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Navigating to Login Page...')),
+                          );
+                        }
+                        ),
+                    ));
                   }
                 }, 
                 icon: const Icon(Icons.post_add), 
@@ -158,6 +165,7 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
             ],
             onChanged: (value) {
               // Handle search input change
+              if (value.length < 3) return; // only suggest for 3+ characters
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Display suggestions for: $value'),
@@ -177,7 +185,7 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
               );
             },
           ),
-          // Google Map here
+          // Google Map
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
@@ -229,25 +237,65 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
                     ],
                   );
                 },
-                child: GoogleMap(
-                  myLocationButtonEnabled: true,
+                child: MapWidget(
+                  showMyLocationButton: true,
+                  showZoomControls: true,
+                  extraButtons: [
+                    IconButton.filled(
+                      style: _secondaryButtonStyle(context, translucentOnUnlock: false),
+                      icon: Icon(_lockSearchArea ? Icons.lock : Icons.lock_open),
+                      onPressed: () {
+                        setState(() {
+                          _lockSearchArea = !_lockSearchArea;
+                          if (!_lockSearchArea) {
+                            // Set search center to current map center
+                            _searchLatLng = _cameraLatLng;
+                          }
+                        });
+                      },
+                      tooltip: _lockSearchArea ? 'Unlock Search Area' : 'Lock Search Area',
+                    ),
+                    IconButton.filled(
+                      style: _secondaryButtonStyle(context),
+                      onPressed: !_lockSearchArea ? null : () {
+                        // If search area is getting unlocked, move search center to current map center
+                        setState(() {
+                          _searchLatLng = _cameraLatLng;
+                        });
+                      }, 
+                      icon: const Icon(Icons.pin_drop_outlined),
+                      tooltip: 'Move search area to current location',
+                    ),
+                    IconButton.filled(
+                      style: _secondaryButtonStyle(context),
+                      onPressed: !_lockSearchArea ? null : () => moveToSearchLocation(animate: true),
+                      icon: const Icon(Icons.center_focus_strong_outlined),
+                      tooltip: 'Move Map to Search Area',  
+                    ),
+                  ],
+                  onLocationInitialized: (position) {
+                    setState(() {
+                      _cameraLatLng = position;
+                      _searchLatLng = position;
+                    });
+                    moveToSearchLocation(animate: false);
+                  },
                   onMapCreated: (controller) {
                     _mapController = controller;
-                    // Position the camera now that the controller exists
-                    _moveToCurrentLocation();
                   },
                   onCameraMoveStarted: () => _pinAnimationController.forward(),
                   onCameraIdle: () => _pinAnimationController.reverse(),
-                  onCameraMove: (position) => setState(() => _currentLatLng = position.target),
-                  initialCameraPosition: CameraPosition(
-                    target: _currentLatLng, 
-                    zoom: _currentZoom,
-                  ),
+                  onCameraMove: (position)  {
+                    _cameraLatLng = position.target;
+                    if (!_lockSearchArea) {
+                      setState(() => _searchLatLng = position.target);
+                    }
+                  },
                   circles: {
                     Circle(
                       circleId: const CircleId('search_range'),
-                      center: _currentLatLng,
-                      radius: _actualRangeKm * 1000, // Convert km to meters
+                      center: _searchLatLng,
+                      radius: _searchRangeKm * 1000, // Convert km to meters
                       fillColor: Colors.blue.withOpacity(0.1),
                       strokeColor: Colors.blueAccent,
                       strokeWidth: 2,
@@ -257,31 +305,31 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
               ),
             ),
           ),
-          // Maximum Range Slider here
+          // Maximum Range Slider
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
                   // If range is 0, show "Exact Location", else show range in km or m
-                  Text('Search Range: ${_actualRangeKm == 0 ? 'Exact Location': _actualRangeKm >= 1 ? '${_actualRangeKm.round()} km' : '${(_actualRangeKm * 1000).round()} m'}'),
+                  Text('Search Range: ${_searchRangeKm == 0 ? 'Exact Location': _searchRangeKm >= 1 ? '${_searchRangeKm.round()} km' : '${(_searchRangeKm * 1000).round()} m'}'),
                   Slider(
                     value: _currentSliderValue,
-                    min: 0,
+                    min: 0.08,
                     max: 1,
                     onChanged: (double value) {
                       setState(() {
                         _currentSliderValue = value;
                         // update zoom to match the new range (value in km -> meters)
                         final mapWidth = MediaQuery.of(context).size.width - 16;
-                        _currentZoom = zoomLevelForRadius(_actualRangeKm * 1000, _currentLatLng, mapWidth);
+                        _currentZoom = zoomLevelForRadius(_searchRangeKm * 1000, _cameraLatLng, mapWidth);
                       });
 
                       // animate the camera to the new zoom
                       if (_mapController != null) {
                         _mapController!.animateCamera(
                           CameraUpdate.newCameraPosition(
-                            CameraPosition(target: _currentLatLng, zoom: _currentZoom),
+                            CameraPosition(target: _cameraLatLng, zoom: _currentZoom),
                           ),
                         );
                       }
@@ -300,5 +348,28 @@ class _SearchPageState extends State<SearchPage> with SearchPageLogic, SingleTic
   void dispose() {
     _pinAnimationController.dispose();
     super.dispose();
+  }
+
+  // Mixin getters and setters
+  @override
+  GoogleMapController? get mapController => _mapController;
+  @override
+  set mapController(GoogleMapController? value) => _mapController = value;
+
+  @override
+  LatLng get searchLatLng => _searchLatLng;
+  @override
+  set searchLatLng(LatLng value) => _searchLatLng = value;
+
+  @override
+  double get currentZoom => _currentZoom;
+  @override
+  set currentZoom(double value) => _currentZoom = value;
+
+  @override
+  double get searchRangeKm => _searchRangeKm;
+  @override
+  set searchRangeKm(double value) {
+    _currentSliderValue = value;
   }
 }
