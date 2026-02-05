@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/inquiry/presentation/inquiries_page.dart';
-import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
+import 'package:w2b_flutter/features/answer/presentation/answer_page.dart';
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 import 'package:w2b_flutter/features/answer/presentation/answers_page.dart';
 
@@ -66,7 +66,7 @@ class _MainAppState extends State<MainApp> {
         useMaterial3: true,
       ),
       routes: {
-        '/respond': (context) => const RespondPage(),
+        '/respond': (context) => const AnswerPage(),
       },
       home: SafeArea(
         child: Scaffold(

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/components/widget_with_button.dart';
 
-class RespondPage extends StatefulWidget {
-  const RespondPage({super.key});
+class AnswerPage extends StatefulWidget {
+  const AnswerPage({super.key});
 
   @override
-  State<RespondPage> createState() => _RespondPageState();
+  State<AnswerPage> createState() => _AnswerPageState();
 }
 
-class _RespondPageState extends State<RespondPage> {
+class _AnswerPageState extends State<AnswerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
