@@ -1,30 +1,100 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/util/location_util.dart';
 
-mixin MapWidgetMixin <T extends StatefulWidget> on State<T> {
-  bool get isLoading;
-  set isLoading(bool value);
+mixin MapWidgetMixin on State<MapWidget> {
+  bool 
+    _isInitializing = true,
+    _isLoading = true;
+  bool get isInitializing => _isInitializing;
+  bool get isLoading => _isLoading;
 
-  bool get isInitializing;
-  set isInitializing(bool value);
+  late CameraPosition _currentCameraPosition;
+  CameraPosition get currentCameraPosition => _currentCameraPosition;
 
-  CameraPosition get currentCameraPosition;
-  set currentCameraPosition(CameraPosition value);
+  final List<Widget> _enabledBaseButtons = [];
+  List<Widget> get enabledBaseButtons {
+    _enabledBaseButtons.clear();
+    // Configure enabled buttons
+    if (widget.showZoomControls) {
+      _enabledBaseButtons.addAll(
+        [
+          IconButton.filled(
+            icon: const Icon(Icons.zoom_in),
+            onPressed: () {
+              setState(() => _currentCameraPosition = CameraPosition(target: _currentCameraPosition.target, zoom: _currentCameraPosition.zoom+1));
+              _moveCameraToLatestPosition();
+            } 
+          ),
+          IconButton.filled(
+            icon: const Icon(Icons.zoom_out),
+            onPressed: () {
+              setState(() => _currentCameraPosition = CameraPosition(target: _currentCameraPosition.target, zoom: _currentCameraPosition.zoom-1));
+              _moveCameraToLatestPosition();
+            } 
+          ),
+        ]
+      );
+    } 
+    if (widget.showMyLocationButton) {
+      _enabledBaseButtons.add(
+        IconButton.filled(
+          icon: _isLoading ? const SizedBox(width:24, height:24, child: CircularProgressIndicator(strokeWidth:2.5)) : const Icon(Icons.my_location),
+          onPressed: _isLoading 
+            ? null 
+            : () => _getCurrentLocation()
+              .then((location) {
+                setState(() {
+                  _currentCameraPosition = CameraPosition(
+                    target: location,
+                    zoom: _currentCameraPosition.zoom,
+                  );
+                });
+              })
+              .whenComplete(() => 
+                _moveCameraToLatestPosition()
+              ),
+        )
+      );
+    }
+    return _enabledBaseButtons;
+  }
 
-  GoogleMapController? get mapController;
-  set mapController(GoogleMapController? value);
+  GoogleMapController? _mapController;
+  GoogleMapController? get mapController => _mapController;
 
   @override
   void initState() {
     super.initState();
+
+    // Get the current location and initialize camera position
+    _getCurrentLocation(onLocationInitialized: widget.onLocationInitialized)
+      .then((location) {
+        _currentCameraPosition = CameraPosition(
+          target: location,
+          zoom: 15,
+        );
+        _moveCameraToLatestPosition();
+      }
+    );
+  }
+
+  Future<void> handleMapCreated(GoogleMapController controller) async {
+    _mapController = controller;
+    widget.onMapCreated?.call(controller);
+  }
+
+  Future<void> handleCameraMove(CameraPosition position) async {
+    _currentCameraPosition = position;
+    widget.onCameraMove?.call(position);
   }
 
   /// Get the current location of the user
-  Future<LatLng> getCurrentLocation({Function(LatLng position)? onLocationInitialized}) async {
+  Future<LatLng> _getCurrentLocation({Function(LatLng position)? onLocationInitialized}) async {
     // Trigger UI rebuild to disable the My Location button
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
     
     Position position = await LocationUtil.getCurrentLocation();
     LatLng currentLocation = LatLng(position.latitude, position.longitude);
@@ -35,15 +105,15 @@ mixin MapWidgetMixin <T extends StatefulWidget> on State<T> {
 
     // Trigger UI rebuild...
     setState(() {
-      isInitializing = false; // ...to show the map instead of the loading indicator
-      isLoading = false; // ...to re-enable the My Location button
+      _isInitializing = false; // ...to show the map instead of the loading indicator
+      _isLoading = false; // ...to re-enable the My Location button
     });
 
     return currentLocation;
   }
 
   /// Animate the camera to the current LatLng and zoom level
-  void moveCameraToLatestPosition() {
+  void _moveCameraToLatestPosition() {
     // Animate the camera to the new position
     if (mounted) {
       mapController?.animateCamera(
