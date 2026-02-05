@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
-import 'package:w2b_flutter/features/request/presentation/request_list_page.dart';
+import 'package:w2b_flutter/features/inquiry/presentation/inquiries_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_list_page.dart';
@@ -24,7 +24,7 @@ class _MainAppState extends State<MainApp> {
   late final Dio dio;
 
   late final List<Widget> _views = [
-      RequestListPage(mainScaffoldKey: _mainScaffoldKey),
+      InquiriesPage(dio, mainScaffoldKey: _mainScaffoldKey),
       SearchPage(dio, mainScaffoldKey: _mainScaffoldKey),
       RespondListPage(mainScaffoldKey: _mainScaffoldKey),
   ];
