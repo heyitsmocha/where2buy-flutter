@@ -4,7 +4,7 @@ import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-mixin SearchPageMixin on State<SearchPage>, SingleTickerProviderStateMixin<SearchPage> {
+mixin SearchPageBaseMixin on State<SearchPage>, SingleTickerProviderStateMixin<SearchPage> {
   final bool _isLoggedIn = false; // Placeholder for user authentication status
   bool get isLoggedIn => _isLoggedIn;
 
@@ -23,10 +23,20 @@ mixin SearchPageMixin on State<SearchPage>, SingleTickerProviderStateMixin<Searc
   double get currentZoom => _currentZoom;
   LatLng _cameraLatLng = const LatLng(3.157445974699537, 101.71153740166021); // Default to KL Twin Towers
   LatLng get cameraLatLng => _cameraLatLng;
+  set cameraLatLng(LatLng value) {
+    _cameraLatLng = value;
+  }
   LatLng _searchLatLng = const LatLng(3.157445974699537, 101.71153740166021);
   LatLng get searchLatLng => _searchLatLng;
+  set searchLatLng(LatLng value) {
+    _searchLatLng = value;
+  }
 
   GoogleMapController? _mapController;
+  GoogleMapController? get mapController => _mapController;
+  set mapController(GoogleMapController? controller) {
+    _mapController = controller;
+  }
 
   Circle get searchRangeCircle => Circle(
     circleId: const CircleId('search_range'),
@@ -39,6 +49,11 @@ mixin SearchPageMixin on State<SearchPage>, SingleTickerProviderStateMixin<Searc
 
   bool _lockSearchArea = true;
   bool get lockSearchArea => _lockSearchArea;
+  set lockSearchArea(bool value) {
+    setState(() {
+      _lockSearchArea = value;
+    });
+  }
 
   Matrix4 get pinTransform {
     return Matrix4
@@ -59,50 +74,6 @@ mixin SearchPageMixin on State<SearchPage>, SingleTickerProviderStateMixin<Searc
 
   Animation<double> get shadowOpacity => _shadowOpacity;
   Animation<double> get shadowScale => _shadowScale;
-
-  // -------- Search bar handlers --------
-  void handleNewRequestButtonPressed () {
-    if (_isLoggedIn) {
-      // Navigate to request new item page
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Navigating to Request New Item Page...')),
-      );
-    } else {
-      // Prompt user to log in
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please log in to post a new item request.'),
-          action: SnackBarAction(label: 'Log In', onPressed: () {
-            // Navigate to login page
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Navigating to Login Page...')),
-            );
-          }
-        ),
-      ));
-    }
-  }
-
-  void handleSearchInputChanged(String value) {
-    if (value.length < 3) return; // only suggest for 3+ characters
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Display suggestions for: $value'),
-        //dismiss
-        action: SnackBarAction(
-          label: 'Dismiss',
-          onPressed: () {},
-        ),
-        duration: const Duration(milliseconds: 50),
-      )
-    );
-  }
-
-  void handleSearchSubmitted(String value) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Searching for: $value')),
-    );
-  }
 
   Widget pinAnimationBuilder(BuildContext context, Widget? child) {
     return Stack(
@@ -149,25 +120,6 @@ mixin SearchPageMixin on State<SearchPage>, SingleTickerProviderStateMixin<Searc
     );
   }
 
-
-  // -------- Search page map secondary buttons handlers --------
-  void handleSearchAreaLockToggle () {
-    setState(() {
-      _lockSearchArea = !_lockSearchArea;
-      if (!_lockSearchArea) {
-        // Set search center to current map center
-        _searchLatLng = _cameraLatLng;
-      }
-    });
-  }
-
-  void handleMoveSearchAreaToCameraButtonPressed() {
-    // If search area is getting unlocked, move search center to current map center
-    setState(() {
-      _searchLatLng = _cameraLatLng;
-    });
-  }
-
   /// Move or animate the map camera to the current location when possible.
   // Safe to call from either `initState` (after location) or `onMapCreated`.
   void moveCameraToSearchLocation({bool animate = true}) {
@@ -190,25 +142,7 @@ mixin SearchPageMixin on State<SearchPage>, SingleTickerProviderStateMixin<Searc
     }
   }
 
-  // -------- Google Map handlers --------
-  void handleOnLocationInitialized(LatLng position) {
-    setState(() {
-      _cameraLatLng = position;
-      _searchLatLng = position;
-    });
-    moveCameraToSearchLocation(animate: false);
-  }
-
-  void handleMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-  }
-
-  void handleCameraMove(CameraPosition position) {
-    _cameraLatLng = position.target;
-    if (!_lockSearchArea) {
-      setState(() => _searchLatLng = position.target);
-    }
-  }
+  
 
   // -------- Slider handlers --------
   void handleRangeSliderChanged(double value) {

@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
-import 'package:w2b_flutter/features/search/logic/search_page_mixin.dart';
+import 'package:w2b_flutter/features/search/logic/search_page_base_mixin.dart';
+import 'package:w2b_flutter/features/search/logic/search_page_map_mixin.dart';
+import 'package:w2b_flutter/features/search/logic/search_page_search_bar_mixin.dart';
+import 'package:w2b_flutter/features/search/logic/search_page_secondary_buttons_mixin.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage(this.dio, {super.key, required this.mainScaffoldKey});
@@ -16,7 +19,12 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateMixin, SearchPageMixin {
+class _SearchPageState extends State<SearchPage> with 
+  SingleTickerProviderStateMixin, 
+  SearchPageBaseMixin, 
+  SearchPageSearchBarMixin, 
+  SearchPageSecondaryButtonsMixin,
+  SearchPageMapMixin {
   @override
   void initState() {
     super.initState();
