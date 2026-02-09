@@ -20,12 +20,13 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   int _currentIndex = 1;
   final GlobalKey<ScaffoldState> _mainScaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   late final Dio dio;
 
   late final List<Widget> _views = [
       InquiriesPage(dio, mainScaffoldKey: _mainScaffoldKey),
-      SearchPage(dio, mainScaffoldKey: _mainScaffoldKey),
+      SearchPage(dio, mainScaffoldKey: _mainScaffoldKey, scaffoldMessengerKey: _scaffoldMessengerKey,),
       AnswersPage(dio, mainScaffoldKey: _mainScaffoldKey),
   ];
 
@@ -61,6 +62,7 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: _scaffoldMessengerKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,

@@ -8,9 +8,10 @@ import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage(this.dio, {super.key, required this.mainScaffoldKey});
+  const SearchPage(this.dio, {super.key, required this.mainScaffoldKey, required this.scaffoldMessengerKey});
 
   final GlobalKey<ScaffoldState> mainScaffoldKey;
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
   final Dio dio;
 
   @override
@@ -37,12 +38,13 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       ..rotateZ(_rotationAnimation.value);
   }
 
+  double get _mapWidth => MediaQuery.of(context).size.width - 16;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = SearchPageController(context);
+    _controller = SearchPageController(widget.scaffoldMessengerKey);
     _initializeAnimations();
   }
 
@@ -90,12 +92,12 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                           tooltip: 'Move search area to current location',
                         ),
                         MapSecondaryButton(
-                          onPressed: !_controller.state.lockSearchArea ? null : () => _controller.moveCameraToSearchLocation(animate: true),
+                          onPressed: !_controller.state.lockSearchArea ? null : () => _controller.moveCameraToSearchLocation(_mapWidth, animate: true),
                           icon: const Icon(Icons.center_focus_strong_outlined),
                           tooltip: 'Move Map to Search Area',  
                         ),
                       ],
-                      onLocationInitialized: _controller.mapSubLogic.handleOnLocationInitialized,
+                      onLocationInitialized: (position) => _controller.mapSubLogic.handleOnLocationInitialized(position, _mapWidth),
                       onMapCreated: _controller.mapSubLogic.handleMapCreated,
                       onCameraMoveStarted: () => pinAnimationController.forward(),
                       onCameraIdle: () => pinAnimationController.reverse(),
@@ -117,7 +119,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                         value: _controller.state.currentSliderValue,
                         min: 0.08,
                         max: 1,
-                        onChanged: _controller.handleRangeSliderChanged,
+                        onChanged: (value) => _controller.handleRangeSliderChanged(value, _mapWidth),
                       ),
                     ],
                   ),

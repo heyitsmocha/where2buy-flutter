@@ -27,10 +27,11 @@ class SearchPageController extends ChangeNotifier {
   late final SearchBarSubLogic searchBarSubLogic;
   late final MapSubLogic mapSubLogic;
   late final SecondaryButtonsSubLogic secondaryButtonsSubLogic;
-  late final BuildContext context;
+
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
   late SearchPageState state;
 
-  SearchPageController(this.context) {
+  SearchPageController(this.scaffoldMessengerKey) {
     state = SearchPageState(
       cameraLatLng: const LatLng(3.157445974699537, 101.71153740166021),
       searchLatLng: const LatLng(3.157445974699537, 101.71153740166021),
@@ -66,10 +67,9 @@ class SearchPageController extends ChangeNotifier {
 
   // -------- Slider handlers --------
   /// Updates the slider value and adjusts the map zoom accordingly.
-  void handleRangeSliderChanged(double value) {
+  void handleRangeSliderChanged(double value, double mapWidth) {
     state.currentSliderValue = value;
     // update zoom to match the new range (value in km -> meters)
-    final mapWidth = MediaQuery.of(context).size.width - 16;
     state.currentZoom = getZoomLevelForRadius(_searchRangeKm * 1000, state.cameraLatLng, mapWidth);
 
     notify();
@@ -103,11 +103,10 @@ class SearchPageController extends ChangeNotifier {
   
     /// Move or animate the map camera to the current location when possible.
   // Safe to call from either `initState` (after location) or `onMapCreated`.
-  void moveCameraToSearchLocation({bool animate = true}) {
+  void moveCameraToSearchLocation(double mapWidth, {bool animate = true}) {
     // if (!mounted) return;
     if (mapController == null) return;
 
-    final mapWidth = MediaQuery.of(context).size.width - 16; // approximate padding
     final zoom = getZoomLevelForRadius(searchRangeKm * 1000, state.searchLatLng, mapWidth);
 
     state.currentZoom = zoom;

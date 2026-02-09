@@ -8,11 +8,11 @@ class MapSubLogic {
   MapSubLogic(this._parent, this.state);
 
   /// Initializes the camera and search location when the user's location is first obtained.
-  void handleOnLocationInitialized(LatLng position) {
+  void handleOnLocationInitialized(LatLng position, double mapWidth) {
     state.cameraLatLng = position;
     state.searchLatLng = position;
     _parent.notify();
-    _parent.moveCameraToSearchLocation(animate: false);
+    _parent.moveCameraToSearchLocation(mapWidth, animate: false);
   }
 
   void handleMapCreated(GoogleMapController controller) {
