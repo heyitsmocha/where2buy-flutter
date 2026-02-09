@@ -1,0 +1,22 @@
+import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
+
+class SecondaryButtonsSubLogic {
+  final SearchPageController _parent;
+  final SearchPageState state;
+  SecondaryButtonsSubLogic(this._parent, this.state);
+
+  // -------- Search page map secondary buttons handlers --------
+  void handleSearchAreaLockToggle () {
+    state.lockSearchArea = !state.lockSearchArea;
+    if (!state.lockSearchArea) {
+      // Set search center to current map center
+      state.searchLatLng = state.cameraLatLng;
+    }
+    _parent.notify();
+  }
+
+  void handleMoveSearchAreaToCameraButtonPressed() {
+    state.searchLatLng = state.cameraLatLng;
+    _parent.notify();
+  }
+}

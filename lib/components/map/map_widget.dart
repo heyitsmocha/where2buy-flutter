@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget_mixin.dart';
 
 class MapWidget extends StatefulWidget{
@@ -24,7 +25,7 @@ class MapWidget extends StatefulWidget{
   final Set<Circle> circles;
   final Set<Marker> markers;
 
-  final List<Widget> extraButtons;
+  final List<MapSecondaryButton> extraButtons;
 
   final Function(LatLng position)? onLocationInitialized;
   final Function(GoogleMapController)? onMapCreated;
