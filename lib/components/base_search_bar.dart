@@ -21,25 +21,26 @@ class BaseSearchBar extends StatefulWidget {
 
 class _BaseSearchBarState extends State<BaseSearchBar> {
   // Default trailing widget
-  final List<Widget>_trailing = [
-    const Padding(
-      padding:  EdgeInsets.all(8.0),
-      child: Icon(Icons.search),
-  )];
+  final Widget _defaultTrailing = const Padding(
+    padding:  EdgeInsets.all(8.0),
+    child: Icon(Icons.search),
+  );
 
-  @override
-  void initState() {
-    super.initState();
-
-    // Add trailing widgets if provided
-    if (widget.trailing != null) {
-      _trailing.add(const VerticalDivider());
-      _trailing.addAll(widget.trailing!);
-    }
-  }
+  final List<Widget>_trailing = [];
 
   @override
   Widget build(BuildContext context) {
+    // Add trailing widgets if provided
+    // Done in build() instead of initState() in case the passed trailing widget changes based on state
+    if (widget.trailing != null) {
+      _trailing.clear();
+      _trailing.addAll([
+        _defaultTrailing,
+        const VerticalDivider(),
+        ...widget.trailing!,
+      ]);
+    }
+
     return IntrinsicHeight(
       child: SearchBar(
         hintText: widget.hintText,
