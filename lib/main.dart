@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/core/app_keys.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
-import 'package:w2b_flutter/features/inquiry/presentation/inquiries_page.dart';
+import 'package:w2b_flutter/features/inquiry/presentation/my_inquiries_page.dart';
 import 'package:w2b_flutter/features/answer/presentation/answer_page.dart';
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 import 'package:w2b_flutter/features/answer/presentation/answers_page.dart';
@@ -24,13 +24,13 @@ class _MainAppState extends State<MainApp> {
   late final Dio dio;
 
   late final List<Widget> _views = [
-      InquiriesPage(dio),
+      MyInquiriesPage(dio),
       SearchPage(dio),
       AnswersPage(dio),
   ];
 
   final List<Widget> _destinations = const [
-    NavigationDestination(icon: Icon(Icons.list_alt_outlined), selectedIcon: Icon(Icons.list_alt), label: 'Requests'),
+    NavigationDestination(icon: Icon(Icons.list_alt_outlined), selectedIcon: Icon(Icons.list_alt), label: 'My Requests'),
     NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
     NavigationDestination(icon: Icon(Icons.chat_outlined), selectedIcon: Icon(Icons.chat), label: 'Respond'),
   ];
