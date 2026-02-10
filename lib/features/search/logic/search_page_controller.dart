@@ -6,7 +6,7 @@ import 'package:w2b_flutter/features/search/logic/map_sublogic.dart';
 import 'package:w2b_flutter/features/search/logic/search_bar_sublogic.dart';
 import 'package:w2b_flutter/features/search/logic/secondary_buttons_sublogic.dart';
 
-enum SearchPageUiEvent {
+enum SearchPageUiEvent implements UIEvent {
   showSnackbar,
   showLoginSnackbar,
   showNewRequestConfirmationDialog,

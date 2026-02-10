@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:w2b_flutter/base_state.dart';
 
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
@@ -18,9 +19,9 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateMixin {
-  late final SearchPageController _controller;
-  StreamSubscription? _subscription;
+class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> with SingleTickerProviderStateMixin {
+  @override
+  SearchPageController initController() => SearchPageController();
     
   // Animation variables
   late AnimationController _pinAnimationController;
@@ -44,14 +45,11 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   void initState() {
     super.initState();
 
-    _controller = SearchPageController();
-    _subscription = _controller.eventStream.listen((event) {
-      _handleUIEvent(event);
-    });
     _initializeAnimations();
   }
 
-  void _handleUIEvent(SearchPageUiEvent event) {
+  @override
+  void handleUIEvent(SearchPageUiEvent event) {
     if (!mounted) return;
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     switch (event) {
@@ -75,7 +73,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       case SearchPageUiEvent.showNewRequestConfirmationDialog:
         // Handle showing new request confirmation dialog
         messenger.showSnackBar(
-          SnackBar(content: Text('Navigating to Request New Item Page with text: ${_controller.searchBarSubLogic.searchText}...')),
+          SnackBar(content: Text('Navigating to Request New Item Page with text: ${controller.searchBarSubLogic.searchText}...')),
         );
         break;
     }
@@ -85,9 +83,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final double mapWidth = MediaQuery.of(context).size.width - 16;
     return ListenableBuilder(
-      listenable: _controller,
-      builder: (context, child) {
-        return BaseLayout( 
+      listenable: controller,
+      builder: (context, child) => BaseLayout( 
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -95,13 +92,13 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 hintText: 'Search for items...',
                 trailing: [
                   IconButton(
-                    onPressed: _controller.searchBarSubLogic.handleNewRequestButtonPressed, 
+                    onPressed: controller.searchBarSubLogic.handleNewRequestButtonPressed, 
                     icon: const Icon(Icons.post_add), 
                     tooltip: "Request new item",
                   ),
                 ],
-                onChanged: _controller.searchBarSubLogic.handleSearchInputChanged,
-                onSubmitted: _controller.searchBarSubLogic.handleSearchSubmitted,
+                onChanged: controller.searchBarSubLogic.handleSearchInputChanged,
+                onSubmitted: controller.searchBarSubLogic.handleSearchSubmitted,
               ),
               // Google Map
               Expanded(
@@ -115,27 +112,27 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                       showZoomControls: true,
                       extraButtons: [
                         MapSecondaryButton(
-                          icon: Icon(_controller.state.lockSearchArea ? Icons.lock : Icons.lock_open),
-                          onPressed: _controller.secondaryButtonsSubLogic.handleSearchAreaLockToggle,
-                          tooltip: _controller.state.lockSearchArea ? 'Unlock Search Area' : 'Lock Search Area',
+                          icon: Icon(controller.state.lockSearchArea ? Icons.lock : Icons.lock_open),
+                          onPressed: controller.secondaryButtonsSubLogic.handleSearchAreaLockToggle,
+                          tooltip: controller.state.lockSearchArea ? 'Unlock Search Area' : 'Lock Search Area',
                         ),
                         MapSecondaryButton(
-                          onPressed: !_controller.state.lockSearchArea ? null : _controller.secondaryButtonsSubLogic.handleMoveSearchAreaToCameraButtonPressed,
+                          onPressed: !controller.state.lockSearchArea ? null : controller.secondaryButtonsSubLogic.handleMoveSearchAreaToCameraButtonPressed,
                           icon: const Icon(Icons.pin_drop_outlined),
                           tooltip: 'Move search area to current location',
                         ),
                         MapSecondaryButton(
-                          onPressed: !_controller.state.lockSearchArea ? null : () => _controller.moveCameraToSearchLocation(mapWidth, animate: true),
+                          onPressed: !controller.state.lockSearchArea ? null : () => controller.moveCameraToSearchLocation(mapWidth, animate: true),
                           icon: const Icon(Icons.center_focus_strong_outlined),
                           tooltip: 'Move Map to Search Area',  
                         ),
                       ],
-                      onLocationInitialized: (position) => _controller.mapSubLogic.handleOnLocationInitialized(position, mapWidth),
-                      onMapCreated: _controller.mapSubLogic.handleMapCreated,
+                      onLocationInitialized: (position) => controller.mapSubLogic.handleOnLocationInitialized(position, mapWidth),
+                      onMapCreated: controller.mapSubLogic.handleMapCreated,
                       onCameraMoveStarted: () { if(mounted) pinAnimationController.forward(); },
                       onCameraIdle: () { if(mounted) pinAnimationController.reverse(); },
-                      onCameraMove: _controller.mapSubLogic.handleCameraMove,
-                      circles: {_controller.searchRangeCircle},
+                      onCameraMove: controller.mapSubLogic.handleCameraMove,
+                      circles: {controller.searchRangeCircle},
                     ),
                   ),
                 ),
@@ -147,12 +144,12 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                   child: Column(
                     children: [
                       // If range is 0, show "Exact Location", else show range in km or m
-                      Text('Search Range: ${_controller.searchRangeKm == 0 ? 'Exact Location': _controller.searchRangeKm >= 1 ? '${_controller.searchRangeKm.round()} km' : '${(_controller.searchRangeKm * 1000).round()} m'}'),
+                      Text('Search Range: ${controller.searchRangeKm == 0 ? 'Exact Location': controller.searchRangeKm >= 1 ? '${controller.searchRangeKm.round()} km' : '${(controller.searchRangeKm * 1000).round()} m'}'),
                       Slider(
-                        value: _controller.state.currentSliderValue,
+                        value: controller.state.currentSliderValue,
                         min: 0.08,
                         max: 1,
-                        onChanged: (value) => _controller.handleRangeSliderChanged(value, mapWidth),
+                        onChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
                       ),
                     ],
                   ),
@@ -160,16 +157,13 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
               ),
             ],
           ),
-        );
-      },
+        ),
     );
   }
 
   @override
   void dispose() {
     pinAnimationController.dispose();
-    _subscription?.cancel();
-    _controller.dispose();
     super.dispose();
   }
 
