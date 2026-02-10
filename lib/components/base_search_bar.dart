@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:w2b_flutter/core/app_keys.dart';
 
 class BaseSearchBar extends StatefulWidget {
   final String hintText;
   final List<Widget>? trailing;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
-  final GlobalKey<ScaffoldState> mainScaffoldKey;
 
   const BaseSearchBar({
     super.key,
-    required this.mainScaffoldKey,
     required this.hintText,
     this.trailing,
     this.onChanged,
@@ -46,7 +45,7 @@ class _BaseSearchBarState extends State<BaseSearchBar> {
         hintText: widget.hintText,
         leading: IconButton(
           icon: const Icon(Icons.menu),
-          onPressed: () => widget.mainScaffoldKey.currentState?.openDrawer(),
+          onPressed: () => AppKeys.mainScaffoldKey.currentState?.openDrawer(),
         ),
         trailing: _trailing,
         onChanged: widget.onChanged,

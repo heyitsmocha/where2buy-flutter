@@ -12,11 +12,11 @@ class SecondaryButtonsSubLogic {
       // Set search center to current map center
       state.searchLatLng = state.cameraLatLng;
     }
-    _parent.notify();
+    _parent.notifyListeners();
   }
 
   void handleMoveSearchAreaToCameraButtonPressed() {
     state.searchLatLng = state.cameraLatLng;
-    _parent.notify();
+    _parent.notifyListeners();
   }
 }

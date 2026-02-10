@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:w2b_flutter/core/app_keys.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/inquiry/presentation/inquiries_page.dart';
 import 'package:w2b_flutter/features/answer/presentation/answer_page.dart';
@@ -19,15 +20,13 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   int _currentIndex = 1;
-  final GlobalKey<ScaffoldState> _mainScaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   late final Dio dio;
 
   late final List<Widget> _views = [
-      InquiriesPage(dio, mainScaffoldKey: _mainScaffoldKey),
-      SearchPage(dio, mainScaffoldKey: _mainScaffoldKey, scaffoldMessengerKey: _scaffoldMessengerKey,),
-      AnswersPage(dio, mainScaffoldKey: _mainScaffoldKey),
+      InquiriesPage(dio),
+      SearchPage(dio),
+      AnswersPage(dio),
   ];
 
   final List<Widget> _destinations = const [
@@ -62,7 +61,6 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      scaffoldMessengerKey: _scaffoldMessengerKey,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
@@ -72,7 +70,7 @@ class _MainAppState extends State<MainApp> {
       },
       home: SafeArea(
         child: Scaffold(
-          key: _mainScaffoldKey,
+          key: AppKeys.mainScaffoldKey,
           body: _views[_currentIndex],
           drawer: const Drawer(
             child: ProfilePage(),

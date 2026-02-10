@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
 import 'package:w2b_flutter/features/inquiry/logic/inquiries_page_mixin.dart';
-import 'package:w2b_flutter/models/inquiry_model.dart';
 
 class InquiriesPage extends StatefulWidget {
-  const InquiriesPage(this.dio, {super.key, required this.mainScaffoldKey});
-
-  final GlobalKey<ScaffoldState> mainScaffoldKey;
+  const InquiriesPage(this.dio, {super.key});
   final Dio dio;
 
   @override

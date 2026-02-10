@@ -11,7 +11,7 @@ class MapSubLogic {
   void handleOnLocationInitialized(LatLng position, double mapWidth) {
     state.cameraLatLng = position;
     state.searchLatLng = position;
-    _parent.notify();
+    _parent.notifyListeners();
     _parent.moveCameraToSearchLocation(mapWidth, animate: false);
   }
 
@@ -26,6 +26,6 @@ class MapSubLogic {
     if (!state.lockSearchArea) {
       state.searchLatLng = position.target;
     }
-    _parent.notify();
+    _parent.notifyListeners();
   }
 }

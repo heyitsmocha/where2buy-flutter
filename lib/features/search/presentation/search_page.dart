@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
@@ -8,10 +10,8 @@ import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage(this.dio, {super.key, required this.mainScaffoldKey, required this.scaffoldMessengerKey});
+  const SearchPage(this.dio, {super.key});
 
-  final GlobalKey<ScaffoldState> mainScaffoldKey;
-  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
   final Dio dio;
 
   @override
@@ -20,6 +20,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateMixin {
   late final SearchPageController _controller;
+  StreamSubscription? _subscription;
     
   // Animation variables
   late AnimationController _pinAnimationController;
@@ -38,18 +39,51 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       ..rotateZ(_rotationAnimation.value);
   }
 
-  double get _mapWidth => MediaQuery.of(context).size.width - 16;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = SearchPageController(widget.scaffoldMessengerKey);
+    _controller = SearchPageController();
+    _subscription = _controller.eventStream.listen((event) {
+      _handleUIEvent(event);
+    });
     _initializeAnimations();
+  }
+
+  void _handleUIEvent(SearchPageUiEvent event) {
+    if (!mounted) return;
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    switch (event) {
+      case SearchPageUiEvent.showSnackbar:
+        // Handle showing snackbar
+        break;
+      case SearchPageUiEvent.showLoginSnackbar:
+        // Handle showing login snackbar
+        messenger.showSnackBar(
+        SnackBar(
+          content: const Text('Please log in to post a new item request.'),
+          action: SnackBarAction(label: 'Log In', onPressed: () {
+            // Navigate to login page
+            messenger.showSnackBar(
+              const SnackBar(content: Text('Navigating to Login Page...')),
+            );
+          }
+        ),
+      ));
+        break;
+      case SearchPageUiEvent.showNewRequestConfirmationDialog:
+        // Handle showing new request confirmation dialog
+        messenger.showSnackBar(
+          SnackBar(content: Text('Navigating to Request New Item Page with text: ${_controller.searchBarSubLogic.searchText}...')),
+        );
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final double mapWidth = MediaQuery.of(context).size.width - 16;
     return ListenableBuilder(
       listenable: _controller,
       builder: (context, child) {
@@ -58,7 +92,6 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               BaseSearchBar(
-                mainScaffoldKey: widget.mainScaffoldKey,
                 hintText: 'Search for items...',
                 trailing: [
                   IconButton(
@@ -92,15 +125,15 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                           tooltip: 'Move search area to current location',
                         ),
                         MapSecondaryButton(
-                          onPressed: !_controller.state.lockSearchArea ? null : () => _controller.moveCameraToSearchLocation(_mapWidth, animate: true),
+                          onPressed: !_controller.state.lockSearchArea ? null : () => _controller.moveCameraToSearchLocation(mapWidth, animate: true),
                           icon: const Icon(Icons.center_focus_strong_outlined),
                           tooltip: 'Move Map to Search Area',  
                         ),
                       ],
-                      onLocationInitialized: (position) => _controller.mapSubLogic.handleOnLocationInitialized(position, _mapWidth),
+                      onLocationInitialized: (position) => _controller.mapSubLogic.handleOnLocationInitialized(position, mapWidth),
                       onMapCreated: _controller.mapSubLogic.handleMapCreated,
-                      onCameraMoveStarted: () => pinAnimationController.forward(),
-                      onCameraIdle: () => pinAnimationController.reverse(),
+                      onCameraMoveStarted: () { if(mounted) pinAnimationController.forward(); },
+                      onCameraIdle: () { if(mounted) pinAnimationController.reverse(); },
                       onCameraMove: _controller.mapSubLogic.handleCameraMove,
                       circles: {_controller.searchRangeCircle},
                     ),
@@ -119,7 +152,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                         value: _controller.state.currentSliderValue,
                         min: 0.08,
                         max: 1,
-                        onChanged: (value) => _controller.handleRangeSliderChanged(value, _mapWidth),
+                        onChanged: (value) => _controller.handleRangeSliderChanged(value, mapWidth),
                       ),
                     ],
                   ),
@@ -135,6 +168,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   @override
   void dispose() {
     pinAnimationController.dispose();
+    _subscription?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -228,5 +263,4 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
       ],
     );
   }
-
 }

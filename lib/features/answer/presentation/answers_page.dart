@@ -5,9 +5,8 @@ import 'package:w2b_flutter/components/base_search_bar.dart';
 import 'package:w2b_flutter/features/answer/presentation/answers_filter_drawer.dart';
 
 class AnswersPage extends StatefulWidget {
-  const AnswersPage(this.dio, {super.key, required this.mainScaffoldKey});
+  const AnswersPage(this.dio, {super.key});
 
-  final GlobalKey<ScaffoldState> mainScaffoldKey;
   final Dio dio;
 
   @override
@@ -28,7 +27,6 @@ class _AnswersPageState extends State<AnswersPage> {
         children: [
           // Search bar
           BaseSearchBar(
-            mainScaffoldKey: widget.mainScaffoldKey,
             hintText: 'Search for requests...',
             onChanged: (value) {
               // Handle search input change
@@ -40,9 +38,9 @@ class _AnswersPageState extends State<AnswersPage> {
               IconButton(
                 onPressed: () {
                   // TODO: temporary: go to answer page
-                  Navigator.pushNamed(context, '/respond');
+                  // Navigator.pushNamed(context, '/respond');
           
-                  // _answersScaffoldKey.currentState?.openEndDrawer();
+                  _answersScaffoldKey.currentState?.openEndDrawer();
                 }, 
                 icon: const Icon(Icons.filter_alt_outlined), 
                 tooltip: "Filter requests",

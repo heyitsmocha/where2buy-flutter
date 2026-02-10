@@ -1,9 +1,16 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/features/search/logic/map_sublogic.dart';
 import 'package:w2b_flutter/features/search/logic/search_bar_sublogic.dart';
 import 'package:w2b_flutter/features/search/logic/secondary_buttons_sublogic.dart';
+
+enum SearchPageUiEvent {
+  showSnackbar,
+  showLoginSnackbar,
+  showNewRequestConfirmationDialog,
+}
 
 class SearchPageState {
   bool isLoggedIn;
@@ -23,15 +30,14 @@ class SearchPageState {
   });
 }
 
-class SearchPageController extends ChangeNotifier {
+class SearchPageController extends BaseController<SearchPageUiEvent> {
   late final SearchBarSubLogic searchBarSubLogic;
   late final MapSubLogic mapSubLogic;
   late final SecondaryButtonsSubLogic secondaryButtonsSubLogic;
 
-  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
   late SearchPageState state;
 
-  SearchPageController(this.scaffoldMessengerKey) {
+  SearchPageController() {
     state = SearchPageState(
       cameraLatLng: const LatLng(3.157445974699537, 101.71153740166021),
       searchLatLng: const LatLng(3.157445974699537, 101.71153740166021),
@@ -40,8 +46,6 @@ class SearchPageController extends ChangeNotifier {
     mapSubLogic = MapSubLogic(this, state);
     secondaryButtonsSubLogic = SecondaryButtonsSubLogic(this, state);
   }
-
-  void notify() => notifyListeners();
 
   final double _maxRangeKm = 80;
   double get maxRangeKm => _maxRangeKm;
@@ -72,7 +76,7 @@ class SearchPageController extends ChangeNotifier {
     // update zoom to match the new range (value in km -> meters)
     state.currentZoom = getZoomLevelForRadius(_searchRangeKm * 1000, state.cameraLatLng, mapWidth);
 
-    notify();
+    notifyListeners();
 
     // animate the camera to the new zoom
     if (_mapController != null) {
@@ -110,7 +114,7 @@ class SearchPageController extends ChangeNotifier {
     final zoom = getZoomLevelForRadius(searchRangeKm * 1000, state.searchLatLng, mapWidth);
 
     state.currentZoom = zoom;
-    notify();
+    notifyListeners();
 
     final cameraUpdate = CameraUpdate.newCameraPosition(
       CameraPosition(target: state.searchLatLng, zoom: state.currentZoom),
