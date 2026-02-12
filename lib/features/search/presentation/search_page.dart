@@ -6,6 +6,7 @@ import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
+import 'package:w2b_flutter/components/pin_animation/pin_animation_widget.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
 
 class SearchPage extends StatefulWidget {
@@ -17,34 +18,11 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> with SingleTickerProviderStateMixin {
+class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> {
   @override
   SearchPageController initController() => SearchPageController();
     
-  // Animation variables
   late AnimationController _pinAnimationController;
-  get pinAnimationController => _pinAnimationController;
-  late Animation<double> 
-    _xAnimation,
-    _yAnimation,
-    _rotationAnimation,
-    _shadowOpacity,
-    _shadowScale;
-
-    Matrix4 get pinTransform {
-    return Matrix4
-    .identity()
-      ..translate(_xAnimation.value, _yAnimation.value)
-      ..rotateZ(_rotationAnimation.value);
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-
-    _initializeAnimations();
-  }
 
   @override
   void handleUIEvent(SearchPageUiEvent event) {
@@ -102,9 +80,8 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: AnimatedBuilder(
-                    animation: pinAnimationController,
-                    builder: pinAnimationBuilder,
+                  child: PinAnimationWidget(
+                    onControllerInitialized: (controller) => _pinAnimationController = controller,
                     child: MapWidget(
                       showMyLocationButton: true,
                       showZoomControls: true,
@@ -127,8 +104,8 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                       ],
                       onLocationInitialized: (position) => controller.mapSubLogic.handleOnLocationInitialized(position, mapWidth),
                       onMapCreated: controller.mapSubLogic.handleMapCreated,
-                      onCameraMoveStarted: () { if(mounted) pinAnimationController.forward(); },
-                      onCameraIdle: () { if(mounted) pinAnimationController.reverse(); },
+                      onCameraMoveStarted: () { if(mounted) _pinAnimationController.forward(); },
+                      onCameraIdle: () { if(mounted) _pinAnimationController.reverse(); },
                       onCameraMove: controller.mapSubLogic.handleCameraMove,
                       circles: {controller.searchRangeCircle},
                     ),
@@ -161,98 +138,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
 
   @override
   void dispose() {
-    pinAnimationController.dispose();
+    _pinAnimationController.dispose();
     super.dispose();
-  }
-
-  /// Initialise the animation controller and the animations for the pin drop effect.
-  void _initializeAnimations() {
-    _pinAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    
-    // Moves the pin up by 20 pixels
-    _yAnimation = Tween<double>(begin: 0, end: -20).animate(
-      CurvedAnimation(
-        parent: _pinAnimationController,
-        curve: Curves.easeOut,
-      ),
-    );
-
-    // Moves the pin right by 10 pixels
-    _xAnimation = Tween<double>(begin: 0, end: 10).animate(
-      CurvedAnimation(
-        parent: _pinAnimationController,
-        curve: Curves.easeOut,
-      ),
-    );
-
-    // Rotates the pin by 15 degrees
-    _rotationAnimation = Tween<double>(begin: 0, end: 0.26).animate(
-      CurvedAnimation(
-        parent: _pinAnimationController,
-        curve: Curves.easeOut,
-      ),
-    );
-
-    _shadowOpacity = Tween<double>(begin: 0.0, end: 0.4).animate(
-      CurvedAnimation(
-        parent: _pinAnimationController,
-        curve: Curves.easeOut,
-      ),
-    );
-
-    _shadowScale = Tween<double>(begin: 0.5, end: 1.2).animate(
-      CurvedAnimation(
-        parent: _pinAnimationController,
-        curve: Curves.easeOut,
-      ),
-    );
-  }
-
-  Widget pinAnimationBuilder(BuildContext context, Widget? child) {
-    return Stack(
-      children: [
-        child!,
-        // Pin Icon
-        Padding(
-          padding: const EdgeInsets.only(bottom: 32.0),
-          child: Center(
-            child: Transform(
-              alignment: Alignment.bottomCenter,
-              transform: pinTransform,
-              child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
-            ),
-          ),
-        ),
-        // Pin Shadow
-        Transform.translate(
-          offset: const Offset(0, 4),
-          child: Opacity(
-            opacity: _shadowOpacity.value,
-            child: Center(
-              child: Transform.scale(
-                scale: _shadowScale.value,
-                child: Container(
-                  width: 20,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: const BorderRadius.all(Radius.elliptical(12, 4)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 4,
-                      )
-                    ]
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
