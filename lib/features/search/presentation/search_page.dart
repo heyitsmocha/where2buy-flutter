@@ -77,13 +77,13 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
   @override
   Widget build(BuildContext context) {
     final double mapWidth = MediaQuery.of(context).size.width - 16;
-    return ListenableBuilder(
-      listenable: controller,
-      builder: (context, child) => BaseLayout( 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            BaseSearchBar(
+    return BaseLayout( 
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) => BaseSearchBar(
               hintText: 'Search for items...',
               trailing: [
                 IconButton(
@@ -95,11 +95,14 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
               onChanged: controller.searchBarSubLogic.handleSearchInputChanged,
               onSubmitted: controller.searchBarSubLogic.handleSearchSubmitted,
             ),
-            // Google Map
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: MapWidget(
+          ),
+          // Google Map
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: ListenableBuilder(
+                listenable: controller,
+                builder: (context, _) => MapWidget(
                   showMyLocationButton: true,
                   showZoomControls: true,
                   extraButtons: [
@@ -126,11 +129,14 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                 ),
               ),
             ),
-            // Maximum Range Slider
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
+          ),
+          // Maximum Range Slider
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListenableBuilder(
+                listenable: controller,
+                builder: (context, _) => Column(
                   children: [
                     // If range is 0, show "Exact Location", else show range in km or m
                     Text('Search Range: ${controller.searchRangeKm == 0 ? 'Exact Location': controller.searchRangeKm >= 1 ? '${controller.searchRangeKm.round()} km' : '${(controller.searchRangeKm * 1000).round()} m'}'),
@@ -144,8 +150,8 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
