@@ -8,6 +8,7 @@ import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/components/pin_animation/pin_animation_widget.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
+import 'package:w2b_flutter/features/search/presentation/new_Inquiry_form.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage(this.dio, {super.key});
@@ -48,8 +49,28 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
         break;
       case SearchPageUiEvent.showNewRequestConfirmationDialog:
         // Handle showing new request confirmation dialog
-        messenger.showSnackBar(
-          SnackBar(content: Text('Navigating to Request New Item Page with text: ${controller.searchBarSubLogic.searchText}...')),
+        showModalBottomSheet(
+          context: context, 
+          isScrollControlled: true,
+          builder: (context) => NewInquiryForm(
+            itemName: controller.searchBarSubLogic.searchText,
+            description: controller.searchBarSubLogic.description,
+            onItemNameChanged: (value) {
+              controller.searchBarSubLogic.searchText = value;
+            },
+            onDescriptionChanged: (value) {
+              controller.searchBarSubLogic.description = value;
+            },
+            onSubmit: () {
+              controller.searchBarSubLogic.handleSendNewRequest();
+
+              // TODO: confirm submission success before closing
+              Navigator.of(context).pop();
+              messenger.showSnackBar(
+                const SnackBar(content: Text('New item request submitted!')),
+              );
+            },
+          )
         );
         break;
     }
@@ -134,11 +155,5 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
           ),
         ),
     );
-  }
-
-  @override
-  void dispose() {
-    _pinAnimationController.dispose();
-    super.dispose();
   }
 }
