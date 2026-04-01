@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class LocationUtil {
   /// Get the current location of the device, including handling permission
@@ -38,4 +39,10 @@ class LocationUtil {
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition(); 
   }
+
+  static LatLng latLngFromJson(Map<String, dynamic> json) {
+    return LatLng(json['latitude'] as double, json['longitude'] as double);
+  }
+
+  static Object latLngToJson(LatLng latLng) => latLng.toJson();
 }

@@ -11,7 +11,8 @@ Answer _$AnswerFromJson(Map<String, dynamic> json) => Answer(
       createdAt: DateTime.parse(json['created_at'] as String),
       userId: (json['user_id'] as num).toInt(),
       inquiryId: (json['inquiry_id'] as num).toInt(),
-      location: LatLng.fromJson(json['location']),
+      location:
+          LocationUtil.latLngFromJson(json['location'] as Map<String, dynamic>),
       storeName: json['store_name'] as String,
       storeAddress: json['store_address'] as String,
       additionalInfo: json['additional_info'] as String?,

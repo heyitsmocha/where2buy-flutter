@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:w2b_flutter/util/location_util.dart';
 
 part 'inquiry_model.g.dart';
 
@@ -12,10 +13,11 @@ class Inquiry {
 
   final int userId;
   final int itemName;
-  final String itemDescription;
+  final String? itemDescription;
 
-  @JsonKey(fromJson: LatLng.fromJson, toJson: jsonEncode)
-  final LatLng? location;
+  @JsonKey(fromJson: LocationUtil.latLngFromJson, toJson: jsonEncode)
+  final LatLng location;
+
   final int searchRadiusMeters;
   final bool sameCountryOnly, anywhere;
   

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:w2b_flutter/util/location_util.dart';
 
 part 'answer_model.g.dart';
 
@@ -13,8 +14,8 @@ class Answer {
   final int userId;
   final int inquiryId;
 
-  @JsonKey(fromJson: LatLng.fromJson, toJson: jsonEncode)
-  final LatLng? location;
+  @JsonKey(fromJson: LocationUtil.latLngFromJson, toJson: jsonEncode)
+  final LatLng location;
   final String storeName;
   final String storeAddress;
   final String? additionalInfo;

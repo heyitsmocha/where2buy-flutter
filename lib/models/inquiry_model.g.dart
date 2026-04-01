@@ -11,8 +11,9 @@ Inquiry _$InquiryFromJson(Map<String, dynamic> json) => Inquiry(
       createdAt: DateTime.parse(json['created_at'] as String),
       userId: (json['user_id'] as num).toInt(),
       itemName: (json['item_name'] as num).toInt(),
-      itemDescription: json['item_description'] as String,
-      location: LatLng.fromJson(json['location']),
+      itemDescription: json['item_description'] as String?,
+      location:
+          LocationUtil.latLngFromJson(json['location'] as Map<String, dynamic>),
       searchRadiusMeters: (json['search_radius_meters'] as num).toInt(),
       sameCountryOnly: json['same_country_only'] as bool,
       anywhere: json['anywhere'] as bool,
