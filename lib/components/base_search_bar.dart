@@ -41,6 +41,7 @@ class _BaseSearchBarState extends State<BaseSearchBar> {
       ]);
     }
 
+    // Intrinsic height to ensure the vertical divider takes full height
     return IntrinsicHeight(
       child: SearchBar(
         hintText: widget.hintText,

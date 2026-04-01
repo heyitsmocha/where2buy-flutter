@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/base_controller.dart';
 
-/// Generic state class for StatefulWidgets that integrates with a `BaseController`
-/// to handle UI events and state management.
+/// Generic state class for StatefulWidgets that integrates with a `BaseController` to handle UI events and state management.<br><br>
+/// Subclasses need to specify which widgets need to be rebuilt when the controller's state changes by using `ListenableBuilder` or similar widgets that listen to the controller.<br><br>
 abstract class BaseState<W extends StatefulWidget, C extends BaseController<E>, E extends UIEvent> extends State<W> {
   late final C _controller;
   C get controller => _controller;

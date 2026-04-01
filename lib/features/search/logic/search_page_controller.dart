@@ -109,7 +109,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   // Safe to call from either `initState` (after location) or `onMapCreated`.
   void moveCameraToSearchLocation(double mapWidth, {bool animate = true}) {
     // if (!mounted) return;
-    if (mapController == null) return;
+    if (_mapController == null) return;
 
     final zoom = getZoomLevelForRadius(searchRangeKm * 1000, state.searchLatLng, mapWidth);
 
@@ -121,9 +121,9 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     );
 
     if (animate) {
-      mapController!.animateCamera(cameraUpdate);
+      _mapController!.animateCamera(cameraUpdate);
     } else {
-      mapController!.moveCamera(cameraUpdate);
+      _mapController!.moveCamera(cameraUpdate);
     }
   }
 }
