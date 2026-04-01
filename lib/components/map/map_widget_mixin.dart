@@ -93,23 +93,31 @@ mixin MapWidgetMixin on State<MapWidget> {
 
   /// Get the current location of the user
   Future<LatLng> _getCurrentLocation({Function(LatLng position)? onLocationInitialized}) async {
+    if (!mounted) return Future.value(const LatLng(0,0));
     // Trigger UI rebuild to disable the My Location button
     setState(() => _isLoading = true);
     
-    Position position = await LocationUtil.getCurrentLocation();
-    LatLng currentLocation = LatLng(position.latitude, position.longitude);
+    try {
+      Position position = await LocationUtil.getCurrentLocation();
+      LatLng currentLocation = LatLng(position.latitude, position.longitude);
+      if (isInitializing) {
+        onLocationInitialized?.call(currentLocation);
+      }
     
-    if (isInitializing) {
-      onLocationInitialized?.call(currentLocation);
+      return currentLocation;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+      return Future.value(const LatLng(0,0));
+    } finally {
+      setState(() {
+        _isLoading = false;
+        _isInitializing = false;
+      });
     }
-
-    // Trigger UI rebuild...
-    setState(() {
-      _isInitializing = false; // ...to show the map instead of the loading indicator
-      _isLoading = false; // ...to re-enable the My Location button
-    });
-
-    return currentLocation;
   }
 
   /// Animate the camera to the current LatLng and zoom level
