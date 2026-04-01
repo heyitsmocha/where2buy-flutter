@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/core/app_keys.dart';
+import 'package:w2b_flutter/core/auth_interceptor.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/inquiry/presentation/my_inquiries_page.dart';
 import 'package:w2b_flutter/features/answer/presentation/answer_page.dart';
@@ -52,9 +53,16 @@ class _MainAppState extends State<MainApp> {
     dio = Dio(
       BaseOptions(
         baseUrl: "http://192.168.0.81:8000/api",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-Platform": "mobile-flutter",
+        }
       ),
     );
 
+    // Add the AuthInterceptor to automatically include the auth token in requests if needed
+    dio.interceptors.add(AuthInterceptor());
     // final inquityService = 
   }
 

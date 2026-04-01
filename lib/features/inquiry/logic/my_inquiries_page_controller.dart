@@ -30,7 +30,7 @@ class MyInquiriesPageController extends BaseController<MyInquiriesPageUiEvent> {
 
     try {
       Position position = await LocationUtil.getCurrentLocation();
-      List<Inquiry> value = await ApiService(_dio).getInquiries(
+      List<Inquiry> value = await InquiryApiService(_dio).getInquiries(
         position.latitude, 
         position.longitude
       );

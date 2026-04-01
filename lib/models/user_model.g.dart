@@ -15,3 +15,16 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
     };
+
+UserResponse _$UserResponseFromJson(Map<String, dynamic> json) => UserResponse(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      token: json['token'] as String,
+    );
+
+Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'token': instance.token,
+    };
