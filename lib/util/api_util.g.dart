@@ -61,12 +61,17 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<UserResponse?> login({
+  Future<UserResponse> login({
     required String email,
     required String password,
+    required String deviceName,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'email': email,
+      r'password': password,
+      r'device_name': deviceName,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<UserResponse>(Options(
@@ -85,11 +90,10 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>?>(_options);
-    late UserResponse? _value;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late UserResponse _value;
     try {
-      _value =
-          _result.data == null ? null : UserResponse.fromJson(_result.data!);
+      _value = UserResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

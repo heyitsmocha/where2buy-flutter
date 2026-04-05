@@ -19,9 +19,10 @@ abstract class ApiService {
   });
 
   @POST("/login")
-  Future<UserResponse?> login({
-    required String email,
-    required String password,
+  Future<UserResponse> login({
+    @Query('email') required String email,
+    @Query('password') required String password,
+    @Query('device_name') required String deviceName,
   });
 
   @POST("/logout")
