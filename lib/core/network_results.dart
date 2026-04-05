@@ -5,7 +5,7 @@ sealed class Result<T> {
 
   factory Result.success(T value) = Success;
 
-  factory Result.error(Exception error) = Failure;
+  factory Result.error(String errorMessage, {int? statusCode}) = Failure;
 }
 
 class Success<T> extends Result<T> {
@@ -15,7 +15,11 @@ class Success<T> extends Result<T> {
 }
 
 class Failure<T> extends Result<T> {
-  final Exception error;
+  final String errorMessage;
+  final int? statusCode;
 
-  const Failure(this.error);
+  const Failure(this.errorMessage, {this.statusCode});
+
+  @override
+  String toString() => errorMessage;
 }
