@@ -27,7 +27,7 @@ abstract class ApiService {
 
   @POST("/logout")
   @Extra({"requiresAuth": true})
-  Future<bool> logout();
+  Future<HttpResponse<void>> logout();
 }
 
 @RestApi(baseUrl: "$baseUrl/inquiries")

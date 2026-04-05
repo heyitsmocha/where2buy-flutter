@@ -80,8 +80,8 @@ class _MainAppState extends State<MainApp> {
         child: Scaffold(
           key: AppKeys.mainScaffoldKey,
           body: _views[_currentIndex],
-          drawer: const Drawer(
-            child: ProfilePage(),
+          drawer: Drawer(
+            child: ProfilePage(dio: dio),
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _currentIndex,

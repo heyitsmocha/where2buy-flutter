@@ -1,14 +1,63 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/features/login/presentation/login_page.dart';
+import 'package:w2b_flutter/util/api_util.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final Dio dio;
+
+  const ProfilePage({super.key, required this.dio});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isLoggedIn = false;
+  bool _isLoading = false;
+  String _username = 'Guest';
+  String _email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Determine login status from existence of access token
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLoginStatus();
+    });
+    
+  }
+
+  void _checkLoginStatus() async {
+    print('Checking login status in ProfilePage...');
+    const storage = FlutterSecureStorage();
+    bool hasToken = await storage.containsKey(key: 'auth_token');
+    if (hasToken) {
+      print('Auth token found, user is logged in');
+      String tempName, tempEmail;
+      // Name and email from sharedprefs
+      final prefs = await SharedPreferences.getInstance();
+      tempName = prefs.getString('username') ?? 'Guest';
+      tempEmail = prefs.getString('email') ?? '';
+      setState(() {
+        _isLoggedIn = true;
+        _username = tempName;
+        _email = tempEmail;
+      });
+    } else {
+      print('No auth token found, user is not logged in');
+      setState(() {
+        _isLoggedIn = false;
+        _username = 'Guest';
+        _email = '';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseLayout(
@@ -18,19 +67,19 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           TextButton(
             onPressed: () {},
-            child: const Row(
+            child: Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 40,
                   // backgroundImage: 
                 ),
-                SizedBox(width: 20,),
+                const SizedBox(width: 20,),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Username', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-                    Text('user@example.com'),
+                    Text(_username, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                    Text(_email),
                   ],
                 ),
               ],
@@ -38,11 +87,102 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const Divider(height: 50,),
           const Expanded(child: Text('Placeholder')),
-          const Divider(height: 50,),
-          // TODO: Display login/logout button based on authentication status
+          const Divider(height: 25,),
           ElevatedButton(
-            onPressed: () {},
-            child: const Text('Logout', style: TextStyle(color: Colors.red),),
+            onPressed: 
+              _isLoggedIn
+              ? () async { // Logout if logged in
+                setState(() {
+                  _isLoading = true;
+                });
+                // Perform logout
+                try {
+                  final response = await ApiService(widget.dio).logout();
+                  
+                  if (response.response.statusCode == 200) {
+                    // TODO
+                  }
+                } on DioException catch (e) {
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(
+                  //     backgroundColor: Colors.red,
+                  //     content: Text("Logout failed: ${e.response?.data['message'] ?? e.message}")
+                  //   ),
+                  // );
+                  print('DioException: Logout failed');
+                }
+
+                // Clear stored credentials on successful logout
+                const storage = FlutterSecureStorage();
+                storage.delete(key: 'auth_token');
+
+                final prefs = await SharedPreferences.getInstance();
+                prefs.remove('username');
+                prefs.remove('email');
+
+                _checkLoginStatus();
+                if (context.mounted) {
+                  // Dismiss sidebar
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.green,
+                      content: Text("Logged out successfully")
+                    ),
+                  );
+                }
+                setState(() {
+                  _isLoading = false;
+                });
+              }
+              : () async { // Show login modal if not logged in
+                // Show bottom modal with login form
+                bool? success = await showModalBottomSheet<bool>(
+                  // useRootNavigator: true,
+                  context: context, 
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  builder: (context) => Scaffold(
+                    backgroundColor: Colors.transparent, // Make the scaffold background transparent to show the rounded corners of the modal
+                    body: SingleChildScrollView(
+                      child: LoginPage(
+                        widget.dio, 
+                        onLoginFailure: (message) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(message)
+                            ),
+                          );
+                        }, 
+                        onLoginSuccess: () => Navigator.of(context).pop(true), // Pass true to indicate successful login, which will trigger the success flow in the caller after the modal is dismissed
+                      ),
+                    ),
+                  )
+                );
+
+                if (success != null && success == true) {
+                  _checkLoginStatus();
+              
+                  // Dismiss the modal and show success message in the main scaffold
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        backgroundColor: Colors.green,
+                        content: Text("Logged in successfully")
+                      ),
+                    );
+                  }
+                }
+              },
+            child: 
+              _isLoggedIn
+              ? _isLoading 
+                ? const CircularProgressIndicator()
+                : const Text('Logout', style: TextStyle(color: Colors.red),) 
+              : const Text('Login'),
             ),
         ],
       ),
