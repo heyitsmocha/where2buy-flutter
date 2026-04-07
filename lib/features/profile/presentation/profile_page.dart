@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/features/login/presentation/login_page.dart';
+import 'package:w2b_flutter/features/login/presentation/register_page.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -138,28 +139,50 @@ class _ProfilePageState extends State<ProfilePage> {
               : () async { // Show login modal if not logged in
                 // Show bottom modal with login form
                 bool? success = await showModalBottomSheet<bool>(
-                  // useRootNavigator: true,
+                  isScrollControlled: true,
                   context: context, 
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   ),
-                  builder: (context) => Scaffold(
-                    backgroundColor: Colors.transparent, // Make the scaffold background transparent to show the rounded corners of the modal
-                    body: SingleChildScrollView(
-                      child: LoginPage(
-                        widget.dio, 
-                        onLoginFailure: (message) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text(message)
-                            ),
-                          );
-                        }, 
-                        onLoginSuccess: () => Navigator.of(context).pop(true), // Pass true to indicate successful login, which will trigger the success flow in the caller after the modal is dismissed
+                  builder: (context) {
+                    PageController pageController = PageController();
+
+                    return SizedBox(
+                      height: (MediaQuery.of(context).size.height * 0.5) + MediaQuery.of(context).viewInsets.bottom, // Use 50% of screen height plus keyboard height
+                      child: Scaffold(
+                        resizeToAvoidBottomInset: true,
+                        backgroundColor: Colors.transparent,
+                        body: BaseLayout(
+                          child: PageView(
+                            controller: pageController,
+                            physics: const NeverScrollableScrollPhysics(), // Disable swipe to change pages
+                            children: [
+                              LoginPage(
+                                widget.dio, 
+                                onGoToRegister: () {
+                                  pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                },
+                                onLoginFailure: (message) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Colors.red,
+                                      content: Text(message)
+                                    ),
+                                  );
+                                }, 
+                                onLoginSuccess: () => Navigator.of(context).pop(true), // Pass true to indicate successful login, which will trigger the success flow in the caller after the modal is dismissed
+                              ),
+                              RegisterPage(
+                                onGoToLogin: () {
+                                  pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  )
+                    );
+                  }
                 );
 
                 if (success != null && success == true) {
