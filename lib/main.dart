@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:retrofit/retrofit.dart';
 import 'package:w2b_flutter/core/app_keys.dart';
 import 'package:w2b_flutter/core/auth_interceptor.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
@@ -7,13 +8,45 @@ import 'package:w2b_flutter/features/inquiry/presentation/my_inquiries_page.dart
 import 'package:w2b_flutter/features/answer/presentation/answer_page.dart';
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 import 'package:w2b_flutter/features/answer/presentation/answers_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:w2b_flutter/util/api_util.dart';
 
-void main() {
-  runApp(const MainApp());
+Future<void> main() async {
+  // Load api url from .env file
+  print('Loading environment variables from .env file...');
+  await dotenv.load(fileName: ".env");
+  
+  final String apiBaseUrl = dotenv.env['API_BASE_URL'] ?? "http://192.168.0.1:8000/api";
+  print('API Base URL: $apiBaseUrl');
+
+  Dio dio = Dio(
+    BaseOptions(
+      baseUrl: apiBaseUrl,
+      headers: {
+        // "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-Platform": "mobile-flutter",
+      }
+    ),
+  );
+
+  // Add the AuthInterceptor to automatically include the auth token in requests if needed
+  dio.interceptors.add(AuthInterceptor());
+
+  // Test the API connection by making a simple request
+  try {
+    HttpResponse userResponse = await ApiService(dio).getUser();
+  } on DioException catch (e) {
+    print('Error fetching user data: ${e.message}');
+  }
+
+  runApp(MainApp(dio: dio));
 }
 
 class MainApp extends StatefulWidget {
-  const MainApp({super.key});
+  const MainApp({super.key, required this.dio});
+
+  final Dio dio;
 
   @override
   State<MainApp> createState() => _MainAppState();
@@ -22,12 +55,10 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   int _currentIndex = 1;
 
-  late final Dio dio;
-
   late final List<Widget> _views = [
-      MyInquiriesPage(dio),
-      SearchPage(dio),
-      AnswersPage(dio),
+      MyInquiriesPage(widget.dio),
+      SearchPage(widget.dio),
+      AnswersPage(widget.dio),
   ];
 
   final List<Widget> _destinations = const [
@@ -50,20 +81,6 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
 
-    dio = Dio(
-      BaseOptions(
-        baseUrl: "http://192.168.0.81:8000/api",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-Platform": "mobile-flutter",
-        }
-      ),
-    );
-
-    // Add the AuthInterceptor to automatically include the auth token in requests if needed
-    dio.interceptors.add(AuthInterceptor());
-    // final inquityService = 
   }
 
   @override
@@ -81,7 +98,7 @@ class _MainAppState extends State<MainApp> {
           key: AppKeys.mainScaffoldKey,
           body: _views[_currentIndex],
           drawer: Drawer(
-            child: ProfilePage(dio: dio),
+            child: ProfilePage(dio: widget.dio),
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _currentIndex,
