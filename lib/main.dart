@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:w2b_flutter/core/app_keys.dart';
 import 'package:w2b_flutter/core/auth_interceptor.dart';
+import 'package:w2b_flutter/core/logger_interceptor.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/inquiry/presentation/my_inquiries_page.dart';
 import 'package:w2b_flutter/features/answer/presentation/answer_page.dart';
@@ -32,6 +33,7 @@ Future<void> main() async {
 
   // Add the AuthInterceptor to automatically include the auth token in requests if needed
   dio.interceptors.add(AuthInterceptor());
+  dio.interceptors.add(LoggerInterceptor());
 
   // Test the API connection by making a simple request
   try {
