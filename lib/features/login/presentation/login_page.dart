@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/base_state.dart';
-import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/logic/login_page_controller.dart';
 import 'package:w2b_flutter/models/user_model.dart';
@@ -14,10 +13,12 @@ class LoginPage extends StatefulWidget {
     super.key,
     required this.onLoginFailure,
     required this.onLoginSuccess,
+    this.onGoToRegister,
   });
 
   final Function() onLoginSuccess;
   final Function(String) onLoginFailure;
+  final Function()? onGoToRegister;
 
   @override
   State<StatefulWidget> createState() => _LoginPageState();
@@ -53,11 +54,23 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseLayout(
+    return SingleChildScrollView(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 16),
-          const Text('Login', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          AppBar(
+            title: const Text('Login'), 
+            centerTitle: true, 
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.transparent,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.close), 
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],),
           const SizedBox(height: 16),
           TextFormField(
             onChanged: (value) => controller.email = value,
@@ -95,6 +108,17 @@ class _LoginPageState extends State<LoginPage> {
                )
               : const Text('Login'),
           ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            const Text("Don't have an account?"),
+            TextButton(onPressed: () {
+              if (widget.onGoToRegister != null) {
+                widget.onGoToRegister!();
+              }
+            }, child: const Text('Sign Up')),
+          ],)
         ],
       ),
     );
