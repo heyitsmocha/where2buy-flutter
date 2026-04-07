@@ -27,7 +27,7 @@ class LoginPage extends StatefulWidget {
 // class _LoginPageState extends BaseState<LoginPage, LoginPageController, LoginPageUiEvent> {
 class _LoginPageState extends State<LoginPage> {
   late final LoginPageController controller;
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -72,14 +72,24 @@ class _LoginPageState extends State<LoginPage> {
               )
             ],),
           const SizedBox(height: 16),
-          TextFormField(
-            onChanged: (value) => controller.email = value,
-            decoration: const InputDecoration(labelText: 'Email'),
-          ),
-          TextFormField(
-            onChanged: (value) => controller.password = value,
-            decoration: const InputDecoration(labelText: 'Password'),
-            obscureText: true,
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  textInputAction: TextInputAction.next,
+                  onChanged: (value) => controller.email = value,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  validator: (value) => (value != null && value.contains('@')) ? null : 'Please enter a valid email',
+                ),
+                TextFormField(
+                  onChanged: (value) => controller.password = value,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) => (value != null && value.length >= 6) ? null : 'Password must be at least 6 characters',
+                ),
+              ],
+            )
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -87,6 +97,9 @@ class _LoginPageState extends State<LoginPage> {
             _isLoading 
             ? null
             : () async {
+              if (!_formKey.currentState!.validate()) {
+                return;
+              }
               setState(() => _isLoading = true);
               Result<UserResponse> result = await controller.handleLogin();
               switch (result) {
