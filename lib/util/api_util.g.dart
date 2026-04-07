@@ -13,9 +13,7 @@ class _ApiService implements ApiService {
     this._dio, {
     this.baseUrl,
     this.errorLogger,
-  }) {
-    baseUrl ??= 'http://192.168.0.81:8000/api';
-  }
+  });
 
   final Dio _dio;
 
@@ -39,7 +37,7 @@ class _ApiService implements ApiService {
     )
         .compose(
           _dio.options,
-          '/search_suggestions',
+          'search_suggestions',
           queryParameters: queryParameters,
           data: _data,
           cancelToken: cancelToken,
@@ -67,13 +65,13 @@ class _ApiService implements ApiService {
     required String deviceName,
   }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'email': email,
-      r'password': password,
-      r'device_name': deviceName,
-    };
+    final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = {
+      'email': email,
+      'password': password,
+      'device_name': deviceName,
+    };
     final _options = _setStreamType<UserResponse>(Options(
       method: 'POST',
       headers: _headers,
@@ -81,7 +79,7 @@ class _ApiService implements ApiService {
     )
         .compose(
           _dio.options,
-          '/login',
+          'login',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -114,7 +112,7 @@ class _ApiService implements ApiService {
     )
         .compose(
           _dio.options,
-          '/logout',
+          'logout',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -125,6 +123,34 @@ class _ApiService implements ApiService {
         )));
     final _result = await _dio.fetch<void>(_options);
     final httpResponse = HttpResponse(null, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<dynamic>> getUser() async {
+    final _extra = <String, dynamic>{'requiresAuth': true};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<HttpResponse<dynamic>>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          'user',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    final httpResponse = HttpResponse(_value, _result);
     return httpResponse;
   }
 
@@ -167,7 +193,7 @@ class _InquiryApiService implements InquiryApiService {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'http://192.168.0.81:8000/api/inquiries';
+    baseUrl ??= 'inquiries/';
   }
 
   final Dio _dio;
@@ -195,7 +221,7 @@ class _InquiryApiService implements InquiryApiService {
     )
         .compose(
           _dio.options,
-          '/',
+          '',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -218,7 +244,7 @@ class _InquiryApiService implements InquiryApiService {
   }
 
   @override
-  Future<Inquiry> getInquiryById(int id) async {
+  Future<Inquiry> getInquiryById(int inquiry) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -230,7 +256,7 @@ class _InquiryApiService implements InquiryApiService {
     )
         .compose(
           _dio.options,
-          '/${id}',
+          '${inquiry}',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -264,7 +290,7 @@ class _InquiryApiService implements InquiryApiService {
     )
         .compose(
           _dio.options,
-          '/',
+          '',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -286,7 +312,7 @@ class _InquiryApiService implements InquiryApiService {
 
   @override
   Future<Inquiry> updateInquiry({
-    required int id,
+    required int inquiry,
     required FormData data,
   }) async {
     final _extra = <String, dynamic>{'requiresAuth': true};
@@ -301,7 +327,7 @@ class _InquiryApiService implements InquiryApiService {
     )
         .compose(
           _dio.options,
-          '/${id}',
+          '${inquiry}',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -322,7 +348,7 @@ class _InquiryApiService implements InquiryApiService {
   }
 
   @override
-  Future<void> deleteInquiry(int id) async {
+  Future<void> deleteInquiry(int inquiry) async {
     final _extra = <String, dynamic>{'requiresAuth': true};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -334,7 +360,7 @@ class _InquiryApiService implements InquiryApiService {
     )
         .compose(
           _dio.options,
-          '/${id}',
+          '${inquiry}',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -359,7 +385,7 @@ class _InquiryApiService implements InquiryApiService {
     )
         .compose(
           _dio.options,
-          '/me',
+          'me',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -420,7 +446,7 @@ class _AnswerApiService implements AnswerApiService {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'http://192.168.0.81:8000/api/answers';
+    baseUrl ??= 'answers/';
   }
 
   final Dio _dio;
@@ -431,7 +457,7 @@ class _AnswerApiService implements AnswerApiService {
 
   @override
   Future<List<Answer>> getNearbyAnswers({
-    required int id,
+    required int answer,
     required String query,
     required double latitude,
     required double longitude,
@@ -439,7 +465,6 @@ class _AnswerApiService implements AnswerApiService {
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
-      r'id': id,
       r'query': query,
       r'latitude': latitude,
       r'longitude': longitude,
@@ -454,7 +479,7 @@ class _AnswerApiService implements AnswerApiService {
     )
         .compose(
           _dio.options,
-          '/{id}',
+          '${answer}',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -490,7 +515,7 @@ class _AnswerApiService implements AnswerApiService {
     )
         .compose(
           _dio.options,
-          '/',
+          '',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -512,7 +537,7 @@ class _AnswerApiService implements AnswerApiService {
 
   @override
   Future<Answer> updateAnswer({
-    required int id,
+    required int answer,
     required FormData data,
   }) async {
     final _extra = <String, dynamic>{'requiresAuth': true};
@@ -527,7 +552,7 @@ class _AnswerApiService implements AnswerApiService {
     )
         .compose(
           _dio.options,
-          '/${id}',
+          '${answer}',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -548,7 +573,7 @@ class _AnswerApiService implements AnswerApiService {
   }
 
   @override
-  Future<void> deleteAnswer(int id) async {
+  Future<void> deleteAnswer(int answer) async {
     final _extra = <String, dynamic>{'requiresAuth': true};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
@@ -560,7 +585,7 @@ class _AnswerApiService implements AnswerApiService {
     )
         .compose(
           _dio.options,
-          '/${id}',
+          '${answer}',
           queryParameters: queryParameters,
           data: _data,
         )
@@ -585,7 +610,7 @@ class _AnswerApiService implements AnswerApiService {
     )
         .compose(
           _dio.options,
-          '/me',
+          'me',
           queryParameters: queryParameters,
           data: _data,
         )

@@ -6,103 +6,106 @@ import 'package:w2b_flutter/models/user_model.dart';
 
 part 'api_util.g.dart';
 
-const String baseUrl = "http://192.168.0.81:8000/api";
-
-@RestApi(baseUrl: baseUrl)
+@RestApi()
 abstract class ApiService {
   factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
 
-  @GET("/search_suggestions")
+  @GET("search_suggestions")
   Future<List<String>> getSearchSuggestions({
     @Query('query') required String query,
     @CancelRequest() required CancelToken cancelToken,
   });
 
-  @POST("/login")
+  @POST("login")
   Future<UserResponse> login({
-    @Query('email') required String email,
-    @Query('password') required String password,
-    @Query('device_name') required String deviceName,
+    @Field('email') required String email,
+    @Field('password') required String password,
+    @Field('device_name') required String deviceName,
   });
 
-  @POST("/logout")
+  @POST("logout")
   @Extra({"requiresAuth": true})
   Future<HttpResponse<void>> logout();
+
+  @GET("user")
+  @Extra({"requiresAuth": true})
+  Future<HttpResponse> getUser();
+
 }
 
-@RestApi(baseUrl: "$baseUrl/inquiries")
+@RestApi(baseUrl: "inquiries/")
 abstract class InquiryApiService {
   factory InquiryApiService(Dio dio, {String baseUrl}) = _InquiryApiService;
 
-  @GET("/")
+  @GET("")
   Future<List<Inquiry>> getInquiries(
     @Query('latitude') double latitude,
     @Query('longitude') double longitude,
   );
 
-  @GET("/{id}")
-  Future<Inquiry> getInquiryById(@Path("id") int id);
+  @GET("{inquiry}")
+  Future<Inquiry> getInquiryById(@Path("inquiry") int inquiry);
 
-  @POST("/")
+  @POST("")
   @Extra({"requiresAuth": true})
   @MultiPart()
   Future<Inquiry> createInquiry({
     @Body() required FormData data,
   });
 
-  @PUT("/{id}")
+  @PUT("{inquiry}")
   @Extra({"requiresAuth": true})
   @MultiPart()
   Future<Inquiry> updateInquiry({
-    @Path("id") required int id,
+    @Path("inquiry") required int inquiry,
     @Body() required FormData data,
   });
 
-  @DELETE("/{id}")
+  @DELETE("{inquiry}")
   @Extra({"requiresAuth": true})
-  Future<void> deleteInquiry(@Path("id") int id);
+  Future<void> deleteInquiry(@Path("inquiry") int inquiry);
 
-  @GET("/me")
+  @GET("me")
   @Extra({"requiresAuth": true})
   Future<List<Inquiry>> getMyInquiries();
 }
 
-@RestApi(baseUrl: "$baseUrl/answers")
+@RestApi(baseUrl: "answers/")
 abstract class AnswerApiService {
   factory AnswerApiService(Dio dio, {String baseUrl}) = _AnswerApiService;
 
-  // @GET("/")
+  // @GET("")
   // Future<List<Answer>> getAnswersByInquiryId(@Query('inquiry_id') int inquiryId);
 
-  @GET("/{id}")
+  @GET("{answer}")
   Future<List<Answer>> getNearbyAnswers({
-    @Query('id') required int id,
+    @Path('answer') required int answer,
     @Query('query') required String query,
     @Query('latitude') required double latitude,
     @Query('longitude') required double longitude,
     @Query('radius_meters') required double radiusMeters,
   });
 
-  @POST("/")
+  @POST("")
   @Extra({"requiresAuth": true})
   @MultiPart()
   Future<Answer> createAnswer({
     @Body() required FormData data,
   });
 
-  @PUT("/{id}")
+  @PUT("{answer}")
   @Extra({"requiresAuth": true})
   @MultiPart()
   Future<Answer> updateAnswer({
-    @Path("id") required int id,
+    @Path("answer") required int answer,
     @Body() required FormData data,
   });
 
-  @DELETE("/{id}")
+  @DELETE("{answer}")
   @Extra({"requiresAuth": true})
-  Future<void> deleteAnswer(@Path("id") int id);
+  Future<void> deleteAnswer(@Path("answer") int answer);
 
-  @GET("/me")
+  @GET("me")
   @Extra({"requiresAuth": true})
   Future<List<Answer>> getMyAnswers();
 }
