@@ -18,3 +18,30 @@ Map<String, dynamic> _$UserResponseToJson(UserResponse instance) =>
       'name': instance.name,
       'token': instance.token,
     };
+
+LoginRequest _$LoginRequestFromJson(Map<String, dynamic> json) => LoginRequest(
+      email: json['email'] as String,
+      password: json['password'] as String,
+      deviceName: json['device_name'] as String,
+    );
+
+Map<String, dynamic> _$LoginRequestToJson(LoginRequest instance) =>
+    <String, dynamic>{
+      'email': instance.email,
+      'password': instance.password,
+      'device_name': instance.deviceName,
+    };
+
+LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) =>
+    LoginResponse(
+      name: json['name'] as String,
+      email: json['email'] as String,
+      token: json['token'] as String,
+    );
+
+Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'email': instance.email,
+      'token': instance.token,
+    };

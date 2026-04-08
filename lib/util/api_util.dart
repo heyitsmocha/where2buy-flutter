@@ -17,11 +17,9 @@ abstract class ApiService {
   });
 
   @POST("login")
-  Future<UserResponse> login({
-    @Field('email') required String email,
-    @Field('password') required String password,
-    @Field('device_name') required String deviceName,
-  });
+  Future<UserResponse> login(
+    @Body() LoginRequest request,
+  );
 
   @POST("logout")
   @Extra({"requiresAuth": true})

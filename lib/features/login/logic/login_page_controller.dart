@@ -31,13 +31,11 @@ class LoginPageController  {
     try {
       // Call API to login
       UserResponse userResponse = await ApiService(dio)
-        .login(
-          email: email, 
-          password: password,
-          deviceName: "Mobile Device", // TODO: get actual device info
-        );
-
-      // User user = User(id: userResponse.email, name: userResponse.name);
+        .login(LoginRequest(
+            email: email, 
+            password: password,
+            deviceName: "Mobile Device", // TODO: get actual device info
+        ));
 
       // Save email and username to userpreferences
       final prefs = await SharedPreferences.getInstance();

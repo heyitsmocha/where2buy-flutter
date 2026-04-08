@@ -59,19 +59,12 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<UserResponse> login({
-    required String email,
-    required String password,
-    required String deviceName,
-  }) async {
+  Future<UserResponse> login(LoginRequest request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = {
-      'email': email,
-      'password': password,
-      'device_name': deviceName,
-    };
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
     final _options = _setStreamType<UserResponse>(Options(
       method: 'POST',
       headers: _headers,

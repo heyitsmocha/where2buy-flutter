@@ -31,3 +31,35 @@ class UserResponse {
   factory UserResponse.fromJson(Map<String, dynamic> json) => _$UserResponseFromJson(json);
   Map<String, dynamic> toJson() => _$UserResponseToJson(this);
 }
+
+@JsonSerializable()
+class LoginRequest {
+  final String email;
+  final String password;
+  final String deviceName;
+
+  LoginRequest({
+    required this.email,
+    required this.password,
+    required this.deviceName,
+  });
+
+  factory LoginRequest.fromJson(Map<String, dynamic> json) => _$LoginRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$LoginRequestToJson(this);
+}
+
+@JsonSerializable()
+class LoginResponse {
+  final String name;
+  final String email;
+  final String token;
+
+  LoginResponse({
+    required this.name,
+    required this.email,
+    required this.token,
+  });
+
+  factory LoginResponse.fromJson(Map<String, dynamic> json) => _$LoginResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
+}
