@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:w2b_flutter/base_state.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/logic/login_page_controller.dart';
 import 'package:w2b_flutter/models/user_model.dart';

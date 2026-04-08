@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 
 import 'dart:async';
-import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/models/user_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
