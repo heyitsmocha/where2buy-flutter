@@ -103,7 +103,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             backgroundColor: Colors.red,
-                            content: Text(result.errorMessage ?? 'Registration failed'),
+                            content: Text(result.errorMessage),
                           ),
                         );
                         break;

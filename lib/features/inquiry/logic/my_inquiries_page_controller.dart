@@ -36,7 +36,7 @@ class MyInquiriesPageController extends BaseController<MyInquiriesPageUiEvent> {
       );
       _inquiries.clear();
       _inquiries.addAll(value);
-    } on DioException catch (e) {
+    } on DioException {
       emitEvent(MyInquiriesPageUiEvent.showNetworkErrorSnackbar);
     } catch (e) {
       emitEvent(MyInquiriesPageUiEvent.showUnexpectedErrorSnackbar);
