@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/presentation/login_page.dart';
 import 'package:w2b_flutter/features/login/presentation/register_page.dart';
 import 'package:w2b_flutter/util/api_util.dart';
@@ -79,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(_username, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                    Text(_username, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
                     Text(_email),
                   ],
                 ),
@@ -138,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
               }
               : () async { // Show login modal if not logged in
                 // Show bottom modal with login form
-                bool? success = await showModalBottomSheet<bool>(
+                Result? bottomSheetResult = await showModalBottomSheet<Result>(
                   isScrollControlled: true,
                   context: context, 
                   shape: const RoundedRectangleBorder(
@@ -170,14 +171,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   );
                                 }, 
-                                onLoginSuccess: () => Navigator.of(context).pop(true), // Pass true to indicate successful login, which will trigger the success flow in the caller after the modal is dismissed
+                                onLoginSuccess: () => Navigator.of(context).pop(Result.success("Login")), // Pass true to indicate successful login, which will trigger the success flow in the caller after the modal is dismissed
                               ),
                               RegisterPage(
                                 dio: widget.dio,
                                 onGoToLogin: () {
                                   pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                                 },
-                                onRegisterSuccess: () => Navigator.of(context).pop(true), // Pass true to indicate successful registration, which will trigger the success flow in the caller after the modal is dismissed
+                                onRegisterSuccess: () => Navigator.of(context).pop(Result.success("Register")), // Pass true to indicate successful registration, which will trigger the success flow in the caller after the modal is dismissed
                               ),
                             ],
                           ),
@@ -187,16 +188,18 @@ class _ProfilePageState extends State<ProfilePage> {
                   }
                 );
 
-                if (success != null && success == true) {
+                if (bottomSheetResult != null && bottomSheetResult is Success) {
                   _checkLoginStatus();
               
+                  String snackBarMessage = bottomSheetResult.value == "Login" ? "Logged in successfully" : "Account created successfully, welcome aboard!";
+
                   // Dismiss the modal and show success message in the main scaffold
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         backgroundColor: Colors.green,
-                        content: Text("Logged in successfully")
+                        content: Text(snackBarMessage)
                       ),
                     );
                   }
