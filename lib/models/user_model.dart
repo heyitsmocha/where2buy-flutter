@@ -63,3 +63,35 @@ class LoginResponse {
   factory LoginResponse.fromJson(Map<String, dynamic> json) => _$LoginResponseFromJson(json);
   Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
 }
+
+@JsonSerializable()
+class RegisterRequest {
+  final String email;
+  final String name;
+  final String password;
+  final String passwordConfirmation;
+  final String deviceName;
+
+  RegisterRequest({
+    required this.email,
+    required this.name,
+    required this.password,
+    required this.passwordConfirmation,
+    required this.deviceName,
+  });
+
+  factory RegisterRequest.fromJson(Map<String, dynamic> json) => _$RegisterRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$RegisterRequestToJson(this);
+}
+
+@JsonSerializable()
+class RegisterResponse {
+  final String token;
+
+  RegisterResponse({
+    required this.token,
+  });
+
+  factory RegisterResponse.fromJson(Map<String, dynamic> json) => _$RegisterResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$RegisterResponseToJson(this);
+}

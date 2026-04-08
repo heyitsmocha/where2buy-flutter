@@ -29,6 +29,10 @@ abstract class ApiService {
   @Extra({"requiresAuth": true})
   Future<HttpResponse> getUser();
 
+  @POST("register")
+  Future<RegisterResponse> register(
+    @Body() RegisterRequest request,
+  );
 }
 
 @RestApi(baseUrl: "inquiries/")

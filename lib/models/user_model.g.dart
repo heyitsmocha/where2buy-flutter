@@ -45,3 +45,31 @@ Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
       'email': instance.email,
       'token': instance.token,
     };
+
+RegisterRequest _$RegisterRequestFromJson(Map<String, dynamic> json) =>
+    RegisterRequest(
+      email: json['email'] as String,
+      name: json['name'] as String,
+      password: json['password'] as String,
+      passwordConfirmation: json['password_confirmation'] as String,
+      deviceName: json['device_name'] as String,
+    );
+
+Map<String, dynamic> _$RegisterRequestToJson(RegisterRequest instance) =>
+    <String, dynamic>{
+      'email': instance.email,
+      'name': instance.name,
+      'password': instance.password,
+      'password_confirmation': instance.passwordConfirmation,
+      'device_name': instance.deviceName,
+    };
+
+RegisterResponse _$RegisterResponseFromJson(Map<String, dynamic> json) =>
+    RegisterResponse(
+      token: json['token'] as String,
+    );
+
+Map<String, dynamic> _$RegisterResponseToJson(RegisterResponse instance) =>
+    <String, dynamic>{
+      'token': instance.token,
+    };
