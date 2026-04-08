@@ -173,9 +173,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 onLoginSuccess: () => Navigator.of(context).pop(true), // Pass true to indicate successful login, which will trigger the success flow in the caller after the modal is dismissed
                               ),
                               RegisterPage(
+                                dio: widget.dio,
                                 onGoToLogin: () {
                                   pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                                 },
+                                onRegisterSuccess: () => Navigator.of(context).pop(true), // Pass true to indicate successful registration, which will trigger the success flow in the caller after the modal is dismissed
                               ),
                             ],
                           ),
