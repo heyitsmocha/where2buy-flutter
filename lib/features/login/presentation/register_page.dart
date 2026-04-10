@@ -100,12 +100,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                         break;
                       case Failure():
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text(result.errorMessage),
-                          ),
-                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(result.errorMessage),
+                            ),
+                          );
+                        }
                         break;
                     }
                   }, 
