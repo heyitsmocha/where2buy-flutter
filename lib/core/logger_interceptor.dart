@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 class LoggerInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    print('--- HTTP Request ---');
     print("Request: ${options.method} ${options.uri}");
     print("Headers: ${options.headers}");
     print("Data: ${options.data}");
@@ -13,6 +14,7 @@ class LoggerInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     print("Response: ${response.statusCode} ${response.requestOptions.uri}");
     print("Data: ${response.data}");
+    print('--- End of HTTP Request ---');
     super.onResponse(response, handler);
   }
 
@@ -23,6 +25,7 @@ class LoggerInterceptor extends Interceptor {
       print("Response: ${err.response?.statusCode} ${err.response?.requestOptions.uri}");
       print("Data: ${err.response?.data}");
     }
+    print('--- End of HTTP Request ---');
     super.onError(err, handler);
   }
 }
