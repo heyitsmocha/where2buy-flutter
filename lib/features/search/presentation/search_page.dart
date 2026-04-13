@@ -6,8 +6,10 @@ import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/base_search_bar.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
+import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
 import 'package:w2b_flutter/features/search/presentation/new_Inquiry_form.dart';
+import 'package:w2b_flutter/util/auth_util.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage(this.dio, {super.key});
@@ -20,12 +22,10 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> {
   @override
-  SearchPageController initController() => SearchPageController();
-    
+  SearchPageController initController() => SearchPageController(widget.dio);
 
   @override
   void handleUIEvent(SearchPageUiEvent event) {
-    if (!mounted) return;
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     switch (event) {
       case SearchPageUiEvent.showSnackbar:
@@ -34,13 +34,18 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
       case SearchPageUiEvent.showLoginSnackbar:
         // Handle showing login snackbar
         messenger.showSnackBar(
-        SnackBar(
-          content: const Text('Please log in to post a new item request.'),
-          action: SnackBarAction(label: 'Log In', onPressed: () {
-            // Navigate to login page
-            messenger.showSnackBar(
-              const SnackBar(content: Text('Navigating to Login Page...')),
-            );
+          SnackBar(
+            content: const Text('Please log in to post a new item request.'),
+            action: SnackBarAction(label: 'Log In', onPressed: () async {
+              // Show login form
+              final Result result = await AuthUtil.showAuthForm(
+                context, 
+                widget.dio, 
+              );
+
+              if (result is Success) {
+                _showNewRequestForm();
+              }
             }),
           )
         );
