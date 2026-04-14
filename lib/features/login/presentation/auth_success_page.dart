@@ -39,6 +39,16 @@ class _AuthSuccessPageState extends State<AuthSuccessPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          AppBar(
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.close), 
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
           const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
           const SizedBox(height: 16),
           ValueListenableBuilder<String>(
