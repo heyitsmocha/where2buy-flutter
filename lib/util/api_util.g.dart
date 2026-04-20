@@ -230,7 +230,7 @@ class _InquiryApiService implements InquiryApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<List<Inquiry>> getInquiries(
+  Future<List<NearbyInquiry>> getNearbyInquiries(
     double latitude,
     double longitude,
   ) async {
@@ -241,7 +241,7 @@ class _InquiryApiService implements InquiryApiService {
     };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Inquiry>>(Options(
+    final _options = _setStreamType<List<NearbyInquiry>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -258,10 +258,10 @@ class _InquiryApiService implements InquiryApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Inquiry> _value;
+    late List<NearbyInquiry> _value;
     try {
       _value = _result.data!
-          .map((dynamic i) => Inquiry.fromJson(i as Map<String, dynamic>))
+          .map((dynamic i) => NearbyInquiry.fromJson(i as Map<String, dynamic>))
           .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
