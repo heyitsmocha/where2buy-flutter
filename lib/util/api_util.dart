@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:w2b_flutter/models/answer_model.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
+import 'package:w2b_flutter/models/item_model.dart';
 import 'package:w2b_flutter/models/user_model.dart';
 
 part 'api_util.g.dart';
@@ -10,9 +11,9 @@ part 'api_util.g.dart';
 abstract class ApiService {
   factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
 
-  @GET("search_suggestions")
-  Future<List<String>> getSearchSuggestions({
-    @Query('query') required String query,
+  @GET("items/suggestions")
+  Future<List<ItemSearchSuggestion>> getSearchSuggestions({
+    @Query('input') required String input,
     @CancelRequest() required CancelToken cancelToken,
   });
 
