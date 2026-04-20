@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/base_controller.dart';
@@ -34,10 +35,11 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   late final SearchBarSubLogic searchBarSubLogic;
   late final MapSubLogic mapSubLogic;
   late final SecondaryButtonsSubLogic secondaryButtonsSubLogic;
+  final Dio dio;
 
   late SearchPageState state;
 
-  SearchPageController() {
+  SearchPageController(this.dio) {
     state = SearchPageState(
       cameraLatLng: const LatLng(3.157445974699537, 101.71153740166021),
       searchLatLng: const LatLng(3.157445974699537, 101.71153740166021),

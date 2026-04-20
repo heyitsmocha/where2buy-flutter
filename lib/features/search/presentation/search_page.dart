@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:w2b_flutter/base_state.dart';
 
 import 'package:w2b_flutter/components/base_layout.dart';
-import 'package:w2b_flutter/components/base_search_bar.dart';
+import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/core/network_results.dart';
@@ -52,31 +52,23 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
         break;
       case SearchPageUiEvent.showNewRequestConfirmationDialog:
         // Handle showing new request confirmation dialog
-        showModalBottomSheet(
-          context: context, 
-          isScrollControlled: true,
-          builder: (context) => NewInquiryForm(
-            itemName: controller.searchBarSubLogic.searchText,
-            description: controller.searchBarSubLogic.description,
-            onItemNameChanged: (value) {
-              controller.searchBarSubLogic.searchText = value;
-            },
-            onDescriptionChanged: (value) {
-              controller.searchBarSubLogic.description = value;
-            },
-            onSubmit: () {
-              controller.searchBarSubLogic.handleSendNewRequest();
-
-              // TODO: confirm submission success before closing
-              Navigator.of(context).pop();
-              messenger.showSnackBar(
-                const SnackBar(content: Text('New item request submitted!')),
-              );
-            },
-          )
-        );
+        _showNewRequestForm();
         break;
     }
+  }
+
+  void _showNewRequestForm() {
+    showModalBottomSheet(
+      context: context, 
+      isScrollControlled: true,
+      builder: (context) => NewInquiryForm(
+        itemName: controller.searchBarSubLogic.searchText,
+        description: controller.searchBarSubLogic.description,
+        onItemNameChanged: (value) => controller.searchBarSubLogic.searchText = value,
+        onDescriptionChanged: (value) => controller.searchBarSubLogic.description = value,
+        onSubmit: () => controller.searchBarSubLogic.handleSendNewRequest(),
+      )
+    );
   }
 
   @override
@@ -86,20 +78,20 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          ListenableBuilder(
-            listenable: controller,
-            builder: (context, _) => BaseSearchBar(
-              hintText: 'Search for items...',
-              trailing: [
-                IconButton(
-                  onPressed: controller.searchBarSubLogic.handleNewRequestButtonPressed, 
-                  icon: const Icon(Icons.post_add), 
-                  tooltip: "Request new item",
-                ),
-              ],
-              onChanged: controller.searchBarSubLogic.handleSearchInputChanged,
-              onSubmitted: controller.searchBarSubLogic.handleSearchSubmitted,
-            ),
+          BaseSearchBar(
+            useSearchViewForSuggestions: true,
+            controller: controller,
+            hintText: 'Search for items...',
+            trailing: [
+              IconButton(
+                onPressed: controller.searchBarSubLogic.handleNewRequestButtonPressed, 
+                icon: const Icon(Icons.post_add), 
+                tooltip: "Request new item",
+              ),
+            ],
+            suggestions: controller.searchBarSubLogic.searchSuggestions,
+            onChanged: (value) async => await controller.searchBarSubLogic.handleSearchInputChanged(value),
+            onSubmitted: (value) => controller.searchBarSubLogic.handleSearchSubmitted(value),
           ),
           // Google Map
           Expanded(

@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
-import 'package:w2b_flutter/components/base_search_bar.dart';
+import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/features/answer/presentation/answers_filter_drawer.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
@@ -47,27 +47,28 @@ class _AnswersPageState extends State<AnswersPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // Search bar
-          BaseSearchBar(
-            hintText: 'Search for requests...',
-            onChanged: (value) {
-              // Handle search input change
-            },
-            onSubmitted: (value) {
-              // Handle search submission
-            },
-            trailing: [
-              IconButton(
-                onPressed: () {
-                  // TODO: temporary: go to answer page
-                  // Navigator.pushNamed(context, '/respond');
+          // BaseSearchBar(
+          //   controller: null, // TODO: Make BaseSearchBar work with any controller
+          //   hintText: 'Search for requests...',
+          //   onChanged: (value) {
+          //     // Handle search input change
+          //   },
+          //   onSubmitted: (value) {
+          //     // Handle search submission
+          //   },
+          //   trailing: [
+          //     IconButton(
+          //       onPressed: () {
+          //         // TODO: temporary: go to answer page
+          //         // Navigator.pushNamed(context, '/respond');
           
-                  _answersScaffoldKey.currentState?.openEndDrawer();
-                }, 
-                icon: const Icon(Icons.filter_alt_outlined), 
-                tooltip: "Filter requests",
-              ),
-            ],
-          ),
+          //         _answersScaffoldKey.currentState?.openEndDrawer();
+          //       }, 
+          //       icon: const Icon(Icons.filter_alt_outlined), 
+          //       tooltip: "Filter requests",
+          //     ),
+          //   ],
+          // ),
           // List of nearby requests
           Expanded(
             child: _isLoading

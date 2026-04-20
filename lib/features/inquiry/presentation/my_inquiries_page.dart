@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/base_state.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
-import 'package:w2b_flutter/components/base_search_bar.dart';
+import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/features/inquiry/logic/my_inquiries_page_controller.dart';
 
 class MyInquiriesPage extends StatefulWidget {
@@ -49,16 +49,16 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            BaseSearchBar(
-              hintText: 'Search Requests...',
-              trailing: [
-                controller.isLoading 
-                  ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator(key: ValueKey('loading'),)) 
-                  : IconButton(key: const ValueKey('refresh'), onPressed: () => controller.refresh(), icon: const Icon(Icons.refresh))     
-              ],
-              onChanged: (value) {},
-              onSubmitted: (value) {},  
-            ),
+            // BaseSearchBar(
+            //   hintText: 'Search Requests...',
+            //   trailing: [
+            //     controller.isLoading 
+            //       ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator(key: ValueKey('loading'),)) 
+            //       : IconButton(key: const ValueKey('refresh'), onPressed: () => controller.refresh(), icon: const Icon(Icons.refresh))     
+            //   ],
+            //   onChanged: (value) {},
+            //   onSubmitted: (value) {},  
+            // ),
             Text(
               controller.isLoading ? 'Loading...' : controller.inquiries.isEmpty ? 'No Requests Found' :'Request List Page',
               style: Theme.of(context).textTheme.headlineMedium,
