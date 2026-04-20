@@ -32,3 +32,17 @@ Map<String, dynamic> _$InquiryToJson(Inquiry instance) => <String, dynamic>{
       'anywhere': instance.anywhere,
       'image_url': instance.imageUrl,
     };
+
+NearbyInquiry _$NearbyInquiryFromJson(Map<String, dynamic> json) =>
+    NearbyInquiry(
+      id: (json['id'] as num).toInt(),
+      itemName: json['item_name'] as String,
+      itemDescription: json['item_description'] as String?,
+    );
+
+Map<String, dynamic> _$NearbyInquiryToJson(NearbyInquiry instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'item_name': instance.itemName,
+      'item_description': instance.itemDescription,
+    };

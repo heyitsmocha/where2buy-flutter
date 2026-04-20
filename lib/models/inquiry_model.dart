@@ -40,3 +40,19 @@ class Inquiry {
   factory Inquiry.fromJson(Map<String, dynamic> json) => _$InquiryFromJson(json);
   Map<String, dynamic> toJson() => _$InquiryToJson(this);
 }
+
+@JsonSerializable()
+class NearbyInquiry {
+  final int id;
+  final String itemName;
+  final String? itemDescription;
+
+  NearbyInquiry({
+    required this.id,
+    required this.itemName,
+    this.itemDescription,
+  });
+
+  factory NearbyInquiry.fromJson(Map<String, dynamic> json) => _$NearbyInquiryFromJson(json);
+  Map<String, dynamic> toJson() => _$NearbyInquiryToJson(this);
+}
