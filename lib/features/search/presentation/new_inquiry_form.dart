@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class NewInquiryForm extends StatelessWidget {
+class NewInquiryForm extends StatefulWidget {
   final String? itemName, description;
   final Function(String value) onItemNameChanged, onDescriptionChanged;
   final Function()? onSubmit;
@@ -13,6 +13,13 @@ class NewInquiryForm extends StatelessWidget {
     required this.onDescriptionChanged,
     this.onSubmit,
   });
+  
+  @override
+  State<NewInquiryForm> createState() => _NewInquiryFormState();
+}
+
+class _NewInquiryFormState extends State<NewInquiryForm> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -20,36 +27,56 @@ class NewInquiryForm extends StatelessWidget {
       child: Padding(
         // Bottom padding based on viewInsets.bottom to raise the sheet when keyboard is open
         padding: EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0, bottom: MediaQuery.of(context).viewInsets.bottom + 16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('New Item Request', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextFormField(
-              initialValue: itemName,
-              decoration: const InputDecoration(
-                labelText: 'Item Name',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('New Item Request', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                textInputAction: TextInputAction.next,
+                initialValue: widget.itemName,
+                decoration: const InputDecoration(
+                  labelText: 'Item Name',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: widget.onItemNameChanged,
+                validator: (value) => value == null || value.isEmpty ? 'Please enter an item name' : null,
               ),
-              onChanged: onItemNameChanged,
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              initialValue: description,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 8),
+              TextFormField(
+                textInputAction: TextInputAction.done,
+                initialValue: widget.description,
+                decoration: const InputDecoration(
+                  labelText: 'Description (optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                onChanged: widget.onDescriptionChanged,
               ),
-              maxLines: 3,
-              onChanged: onDescriptionChanged,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onSubmit, 
-              child: const Text('Submit Request'),
-            ),
-          ],
+              const SizedBox(height: 8),
+              // Image upload button
+              // Center(
+              //   child: ElevatedButton.icon(
+              //     onPressed: () {
+                    
+              //     }, 
+              //     icon: const Icon(Icons.upload), label: const Text('Upload Image (Optional)'),
+              //   ),
+              // ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    widget.onSubmit?.call();
+                  }
+                },
+                child: const Text('Submit Request'),
+              ),
+            ],
+          ),
         ),
       ),
     );
