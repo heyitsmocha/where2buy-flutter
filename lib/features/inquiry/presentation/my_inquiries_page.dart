@@ -60,9 +60,30 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
             //   onSubmitted: (value) {},  
             // ),
             Text(
-              controller.isLoading ? 'Loading...' : controller.inquiries.isEmpty ? 'No Requests Found' :'Request List Page',
+              'My Requests',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            const SizedBox(height: 16),
+            controller.isLoading
+              ? const CircularProgressIndicator() 
+              : Expanded(
+                  child: controller.inquiries.isEmpty
+                  ? const Text('You have not made any requests yet.')
+                  : ListView.separated(
+                    itemCount: controller.inquiries.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final inquiry = controller.inquiries[index];
+                      return ListTile(
+                        title: Text(inquiry.itemName),
+                        subtitle: Text(inquiry.itemDescription ?? ''),
+                        onTap: () {
+                          print('Tapped on inquiry with id: ${inquiry.id}'); // Debug print
+                        }
+                      );
+                    },
+                  ),
+                ),
           ],
         )
       ),

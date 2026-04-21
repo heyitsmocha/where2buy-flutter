@@ -11,15 +11,13 @@ class Inquiry {
   final int id;
   final DateTime createdAt;
 
-  final int userId;
-  final int itemName;
+  final String itemName;
   final String? itemDescription;
 
   @JsonKey(fromJson: LocationUtil.latLngFromJson, toJson: jsonEncode)
   final LatLng location;
 
   final int searchRadiusMeters;
-  final bool sameCountryOnly, anywhere;
   
   // optional image
   final String? imageUrl;
@@ -27,13 +25,10 @@ class Inquiry {
   Inquiry({
     required this.id,
     required this.createdAt,
-    required this.userId,
     required this.itemName,
-    required this.itemDescription,
+    this.itemDescription,
     required this.location,
     required this.searchRadiusMeters,
-    required this.sameCountryOnly,
-    required this.anywhere,
     this.imageUrl,
   });
 

@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:w2b_flutter/base_controller.dart';
 
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
-import 'package:w2b_flutter/util/location_util.dart';
 
 enum MyInquiriesPageUiEvent implements UIEvent {
   showNetworkErrorSnackbar,
@@ -29,11 +27,7 @@ class MyInquiriesPageController extends BaseController<MyInquiriesPageUiEvent> {
     notifyListeners();
 
     try {
-      Position position = await LocationUtil.getCurrentLocation();
-      List<Inquiry> value = await InquiryApiService(_dio).getInquiries(
-        position.latitude, 
-        position.longitude
-      );
+      List<Inquiry> value = await InquiryApiService(_dio).getMyInquiries();
       _inquiries.clear();
       _inquiries.addAll(value);
     } on DioException {
