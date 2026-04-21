@@ -40,3 +40,25 @@ Map<String, dynamic> _$NearbyInquiryToJson(NearbyInquiry instance) =>
       'item_name': instance.itemName,
       'item_description': instance.itemDescription,
     };
+
+CreateInquiryRequest _$CreateInquiryRequestFromJson(
+        Map<String, dynamic> json) =>
+    CreateInquiryRequest(
+      itemId: (json['item_id'] as num?)?.toInt(),
+      name: json['name'] as String?,
+      description: json['description'] as String?,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      searchRadiusMeters: (json['search_radius_meters'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$CreateInquiryRequestToJson(
+        CreateInquiryRequest instance) =>
+    <String, dynamic>{
+      'item_id': instance.itemId,
+      'name': instance.name,
+      'description': instance.description,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'search_radius_meters': instance.searchRadiusMeters,
+    };

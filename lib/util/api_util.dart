@@ -52,14 +52,14 @@ abstract class InquiryApiService {
   @POST("")
   @Extra({"requiresAuth": true})
   @MultiPart()
-  Future<Inquiry> createInquiry({
+  Future<HttpResponse> createInquiry({
     @Body() required FormData data,
   });
 
   @PUT("{inquiry}")
   @Extra({"requiresAuth": true})
   @MultiPart()
-  Future<Inquiry> updateInquiry({
+  Future<HttpResponse> updateInquiry({
     @Path("inquiry") required int inquiry,
     @Body() required FormData data,
   });

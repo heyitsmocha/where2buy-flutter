@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:w2b_flutter/util/location_util.dart';
@@ -50,4 +52,48 @@ class NearbyInquiry {
 
   factory NearbyInquiry.fromJson(Map<String, dynamic> json) => _$NearbyInquiryFromJson(json);
   Map<String, dynamic> toJson() => _$NearbyInquiryToJson(this);
+}
+
+@JsonSerializable()
+class CreateInquiryRequest {
+  final int? itemId;
+  final String? name;
+  final String? description;
+
+  final double latitude;
+  final double longitude;
+
+  final int searchRadiusMeters;
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final File? image;
+
+  CreateInquiryRequest({
+    this.itemId,
+    this.name,
+    this.description,
+    required this.latitude,
+    required this.longitude,
+    required this.searchRadiusMeters,
+    this.image,
+  });
+
+  Future<FormData> toFormData() async {
+    return FormData.fromMap({
+      if (itemId != null) 'item_id': itemId,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      'latitude': latitude,
+      'longitude': longitude,
+      'search_radius_meters': searchRadiusMeters,
+      if (image != null)
+        'file': await MultipartFile.fromFile(
+          image!.path,
+          filename: image!.path.split(Platform.pathSeparator).last,
+        ),
+    });
+  }
+
+  factory CreateInquiryRequest.fromJson(Map<String, dynamic> json) => _$CreateInquiryRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$CreateInquiryRequestToJson(this);
 }

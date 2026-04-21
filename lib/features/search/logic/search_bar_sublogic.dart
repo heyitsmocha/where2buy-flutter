@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:w2b_flutter/components/search/search_view.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
+import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/models/item_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/auth_util.dart';
@@ -24,6 +25,28 @@ class SearchBarSubLogic {
   }
 
   Future<void> handleSendNewRequest() async {
+    final CreateInquiryRequest inquiry = CreateInquiryRequest(
+      name: searchText,
+      description: description,
+      latitude: _parent.state.searchLatLng.latitude,
+      longitude: _parent.state.searchLatLng.longitude,
+      searchRadiusMeters: (_parent.searchRangeKm * 1000).toInt(),
+      // sameCountryOnly: true,
+      // anywhere: true,
+    );
+    // ApiService(_parent.dio).createInquiry(file: File('path/to/file'), inquiry: inquiry);
+
+    try {
+      await InquiryApiService(_parent.dio).createInquiry(
+        data: await inquiry.toFormData(),
+      );
+
+      _parent.emitEvent(SearchPageUiEvent.newRequestPosted);
+    } on DioException catch (e) {
+      print('Error creating inquiry: ' + e.toString());
+      _parent.emitEvent(SearchPageUiEvent.newRequestFailed);
+      return;
+    }
   }
 
   CancelToken? _searchSuggestionsCancelToken;

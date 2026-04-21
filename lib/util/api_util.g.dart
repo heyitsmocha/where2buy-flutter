@@ -307,12 +307,12 @@ class _InquiryApiService implements InquiryApiService {
   }
 
   @override
-  Future<Inquiry> createInquiry({required FormData data}) async {
+  Future<HttpResponse<dynamic>> createInquiry({required FormData data}) async {
     final _extra = <String, dynamic>{'requiresAuth': true};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = data;
-    final _options = _setStreamType<Inquiry>(Options(
+    final _options = _setStreamType<HttpResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -329,19 +329,14 @@ class _InquiryApiService implements InquiryApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Inquiry _value;
-    try {
-      _value = Inquiry.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
   }
 
   @override
-  Future<Inquiry> updateInquiry({
+  Future<HttpResponse<dynamic>> updateInquiry({
     required int inquiry,
     required FormData data,
   }) async {
@@ -349,7 +344,7 @@ class _InquiryApiService implements InquiryApiService {
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = data;
-    final _options = _setStreamType<Inquiry>(Options(
+    final _options = _setStreamType<HttpResponse<dynamic>>(Options(
       method: 'PUT',
       headers: _headers,
       extra: _extra,
@@ -366,15 +361,10 @@ class _InquiryApiService implements InquiryApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Inquiry _value;
-    try {
-      _value = Inquiry.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
   }
 
   @override

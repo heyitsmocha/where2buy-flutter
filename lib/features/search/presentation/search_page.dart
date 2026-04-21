@@ -54,6 +54,18 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
         // Handle showing new request confirmation dialog
         _showNewRequestForm();
         break;
+      case SearchPageUiEvent.newRequestPosted:
+        messenger.showSnackBar(
+          const SnackBar(content: Text('New item request posted successfully!')),
+        );
+        // Close the new request form if it's still open
+        Navigator.of(context).pop();
+        break;
+      case SearchPageUiEvent.newRequestFailed:
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Failed to post new item request. Please try again.')),
+        );
+        break;
     }
   }
 
