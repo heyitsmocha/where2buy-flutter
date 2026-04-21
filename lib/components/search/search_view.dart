@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
-import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
 
 class SearchResultType {
   final int id;
@@ -9,28 +9,35 @@ class SearchResultType {
   SearchResultType({required this.id, required this.name});
 }
 
-class SearchView extends StatefulWidget {
-  final BaseSearchBar searchBar;
-  final SearchPageController controller;
+class SearchView<C extends BaseController> extends StatefulWidget {
+  final BaseSearchBar<C> searchBar;
+  final C controller;
+  final List<dynamic> suggestions;
 
-  const SearchView({super.key, required this.searchBar, required this.controller});
+  const SearchView({super.key, required this.searchBar, required this.controller, required this.suggestions});
 
   @override
-  State<SearchView> createState() => _SearchViewState();
+  State<SearchView> createState() => _SearchViewState<C>();
 }
 
-class _SearchViewState extends State<SearchView> {
+class _SearchViewState<C extends BaseController> extends State<SearchView<C>> {
   final _controller = TextEditingController();
-  
+  final FocusNode _focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
-    widget.controller.searchBarSubLogic.searchText = '';
+    // widget.controller.searchBarSubLogic.searchText = '';
+    // Focus the search field when the view is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -46,8 +53,10 @@ class _SearchViewState extends State<SearchView> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SearchBar(
+              focusNode: _focusNode,
+              autoFocus: true,
               hintText: widget.searchBar.hintText,
-              trailing: widget.searchBar.trailing,
+              // trailing: widget.searchBar.trailing,
               onChanged: widget.searchBar.onChanged,
               onSubmitted: widget.searchBar.onSubmitted,
             ),
@@ -55,9 +64,9 @@ class _SearchViewState extends State<SearchView> {
               listenable: widget.controller,
               builder: (context, _) => Expanded(
                 child: ListView.builder(
-                  itemCount: widget.controller.searchBarSubLogic.searchSuggestions.length,
+                  itemCount: widget.suggestions.length,
                   itemBuilder: (context, index) {
-                    final suggestion = widget.controller.searchBarSubLogic.searchSuggestions[index];
+                    final suggestion = widget.suggestions[index];
                     return ListTile(
                       textColor: suggestion.id == -1 ? Colors.grey : null, // Show error messages in gray
                       title: Text(suggestion.name),

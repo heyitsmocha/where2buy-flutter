@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/components/search/search_view.dart';
 import 'package:w2b_flutter/core/app_keys.dart';
-import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
 
-class BaseSearchBar extends StatefulWidget {
+class BaseSearchBar<C extends BaseController> extends StatefulWidget {
   final String hintText;
   final List<Widget>? trailing;
   final ValueChanged<String>? onChanged;
@@ -15,8 +15,8 @@ class BaseSearchBar extends StatefulWidget {
   
   final Function(int id)? onSuggestionSelected;
 
-  /// The controller that has the search logic and state, used to provide search suggestions and handle search input. <br>
-  final SearchPageController controller;
+  /// A BaseController instance for access to the notifyListeners() method
+  final C controller;
 
   /// Whether to use the [SearchView] dialog to show search suggestions when the search bar is tapped. <br>
   final bool useSearchViewForSuggestions;
@@ -39,7 +39,7 @@ class BaseSearchBar extends StatefulWidget {
   State<BaseSearchBar> createState() => _BaseSearchBarState();
 }
 
-class _BaseSearchBarState extends State<BaseSearchBar> {
+class _BaseSearchBarState<C extends BaseController> extends State<BaseSearchBar<C>> {
   final _focusNode = FocusNode();
 
   @override
@@ -69,20 +69,25 @@ class _BaseSearchBarState extends State<BaseSearchBar> {
       ]);
     }
 
+    // If useSearchViewForSuggestions is true, tapping the search bar will open the SearchView dialog to show suggestions. Otherwise, the search bar behaves like a normal SearchBar without suggestions.
+    SearchBar searchBar = SearchBar(
+      focusNode: _focusNode,
+      onTap: widget.useSearchViewForSuggestions ? _openSearchView : null,
+      hintText: widget.hintText,
+      leading: IconButton(
+        icon: const Icon(Icons.menu),
+        onPressed: () => AppKeys.mainScaffoldKey.currentState?.openDrawer(),
+      ),
+      trailing: _trailing,
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+    );
+
     // Intrinsic height to ensure the vertical divider takes full height
     return IntrinsicHeight(
-      child: SearchBar(
-        focusNode: _focusNode,
-        onTap: widget.useSearchViewForSuggestions ? _openSearchView : null,
-        hintText: widget.hintText,
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () => AppKeys.mainScaffoldKey.currentState?.openDrawer(),
-        ),
-        trailing: _trailing,
-        onChanged: widget.onChanged,
-        onSubmitted: widget.onSubmitted,
-      ),
+      child: widget.useSearchViewForSuggestions 
+        ? ExcludeFocus(child: searchBar) // Exclude the search bar from the focus tree to prevent it from stealing focus when the SearchView is opened
+        : searchBar,
     );
   }
 
@@ -93,6 +98,7 @@ class _BaseSearchBarState extends State<BaseSearchBar> {
         return SearchView(
           searchBar: widget,
           controller: widget.controller,
+          suggestions: widget.suggestions ?? [],
         );
       },
     );

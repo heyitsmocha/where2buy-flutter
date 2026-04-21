@@ -49,19 +49,16 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // BaseSearchBar(
-            //   hintText: 'Search Requests...',
-            //   trailing: [
-            //     controller.isLoading 
-            //       ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator(key: ValueKey('loading'),)) 
-            //       : IconButton(key: const ValueKey('refresh'), onPressed: () => controller.refresh(), icon: const Icon(Icons.refresh))     
-            //   ],
-            //   onChanged: (value) {},
-            //   onSubmitted: (value) {},  
-            // ),
-            Text(
-              'My Requests',
-              style: Theme.of(context).textTheme.headlineMedium,
+            BaseSearchBar(
+              controller: controller,
+              hintText: 'Search Requests...',
+              trailing: [
+                controller.isLoading 
+                  ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator(key: ValueKey('loading'),)) 
+                  : IconButton(key: const ValueKey('refresh'), onPressed: () => controller.refresh(), icon: const Icon(Icons.refresh))     
+              ],
+              onChanged: (value) {},
+              onSubmitted: (value) {},  
             ),
             const SizedBox(height: 16),
             controller.isLoading

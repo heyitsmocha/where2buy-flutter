@@ -1,12 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/features/answer/presentation/answers_filter_drawer.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/location_util.dart';
+
+class RespondPageController extends BaseController {
+  final Dio dio;
+
+  RespondPageController(this.dio);
+}
 
 class AnswersPage extends StatefulWidget {
   const AnswersPage(this.dio, {super.key});
@@ -23,9 +30,12 @@ class _AnswersPageState extends State<AnswersPage> {
   late List<NearbyInquiry> _nearbyInquiries;
   bool _isLoading = true;
 
+  late RespondPageController _controller;
+
   @override
   void initState() {
     super.initState();
+    _controller = RespondPageController(widget.dio);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Position userLocation = await LocationUtil.getCurrentLocation();
@@ -47,28 +57,28 @@ class _AnswersPageState extends State<AnswersPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // Search bar
-          // BaseSearchBar(
-          //   controller: null, // TODO: Make BaseSearchBar work with any controller
-          //   hintText: 'Search for requests...',
-          //   onChanged: (value) {
-          //     // Handle search input change
-          //   },
-          //   onSubmitted: (value) {
-          //     // Handle search submission
-          //   },
-          //   trailing: [
-          //     IconButton(
-          //       onPressed: () {
-          //         // TODO: temporary: go to answer page
-          //         // Navigator.pushNamed(context, '/respond');
+          BaseSearchBar(
+            controller: _controller, 
+            hintText: 'Search for requests...',
+            onChanged: (value) {
+              // Handle search input change
+            },
+            onSubmitted: (value) {
+              // Handle search submission
+            },
+            trailing: [
+              IconButton(
+                onPressed: () {
+                  // TODO: temporary: go to answer page
+                  // Navigator.pushNamed(context, '/respond');
           
-          //         _answersScaffoldKey.currentState?.openEndDrawer();
-          //       }, 
-          //       icon: const Icon(Icons.filter_alt_outlined), 
-          //       tooltip: "Filter requests",
-          //     ),
-          //   ],
-          // ),
+                  _answersScaffoldKey.currentState?.openEndDrawer();
+                }, 
+                icon: const Icon(Icons.filter_alt_outlined), 
+                tooltip: "Filter requests",
+              ),
+            ],
+          ),
           // List of nearby requests
           Expanded(
             child: _isLoading
