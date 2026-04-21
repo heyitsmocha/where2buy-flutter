@@ -113,10 +113,12 @@ mixin MapWidgetMixin on State<MapWidget> {
       }
       return Future.value(const LatLng(0,0));
     } finally {
-      setState(() {
-        _isLoading = false;
-        _isInitializing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isInitializing = false;
+        });     
+      }
     }
   }
 
