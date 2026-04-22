@@ -3,9 +3,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/components/widget_with_button.dart';
 import 'package:w2b_flutter/components/pin_animation/pin_animation_widget.dart';
+import 'package:w2b_flutter/models/inquiry_model.dart';
 
 class AddResponsePage extends StatefulWidget {
-  const AddResponsePage({super.key});
+  final NearbyInquiry inquiry;
+
+  const AddResponsePage({super.key, required this.inquiry});
 
   @override
   State<AddResponsePage> createState() => _AddResponsePageState();
@@ -41,11 +44,11 @@ class _AddResponsePageState extends State<AddResponsePage> {
                     ),
                   ),
                   const VerticalDivider(),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Item:'),
-                      Text('Item name here'),
+                      const Text('Item:'),
+                      Text(widget.inquiry.itemName),
                     ],
                   ),
                 ],

@@ -10,6 +10,7 @@ import 'package:w2b_flutter/features/respond/presentation/add_response_page.dart
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 
 Future<void> main() async {
@@ -92,8 +93,15 @@ class _MainAppState extends State<MainApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
       ),
-      routes: {
-        '/respond': (context) => const AddResponsePage(),
+      onGenerateRoute: (settings) {
+        if (settings.name == '/respond/add') {
+          return MaterialPageRoute(
+            builder: (context) => AddResponsePage(inquiry: settings.arguments as NearbyInquiry), // Pass the inquiry data to the AddResponsePage
+            settings: settings, // Pass the settings to the new route
+          );
+        }
+        // Handle other routes here if needed
+        return null; // Return null for undefined routes
       },
       home: SafeArea(
         child: Scaffold(

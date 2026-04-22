@@ -95,7 +95,7 @@ class _RespondPageState extends State<RespondPage> {
                     return ListTile(
                       title: Text(inquiry.itemName),
                       subtitle: Text(inquiry.itemDescription ?? ''),
-
+                      onTap: () => Navigator.of(context).pushNamed('/respond/add', arguments: inquiry),
                     );
                   },
                 ),
