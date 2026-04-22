@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:w2b_flutter/base_state.dart';
 
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/search_range_slider.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
-import 'package:w2b_flutter/features/search/presentation/new_Inquiry_form.dart';
+import 'package:w2b_flutter/features/search/presentation/new_inquiry_form.dart';
 import 'package:w2b_flutter/util/auth_util.dart';
 
 class SearchPage extends StatefulWidget {
@@ -23,6 +24,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> {
   @override
   SearchPageController initController() => SearchPageController(widget.dio);
+
+  double get mapWidth => MediaQuery.of(context).size.width - 16;
 
   @override
   void handleUIEvent(SearchPageUiEvent event) {
@@ -79,13 +82,17 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
         onItemNameChanged: (value) => controller.searchBarSubLogic.searchText = value,
         onDescriptionChanged: (value) => controller.searchBarSubLogic.description = value,
         onSubmit: () => controller.searchBarSubLogic.handleSendNewRequest(),
+
+        listenable: controller,
+        sliderValue: () =>controller.state.currentSliderValue,
+        onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
+        searchRangeText: () => controller.searchRangeText,
       )
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final double mapWidth = MediaQuery.of(context).size.width - 16;
     return BaseLayout( 
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -143,20 +150,11 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ListenableBuilder(
+              child: SearchRangeSlider(
                 listenable: controller,
-                builder: (context, _) => Column(
-                  children: [
-                    // If range is 0, show "Exact Location", else show range in km or m
-                    Text('Search Range: ${controller.searchRangeKm == 0 ? 'Exact Location': controller.searchRangeKm >= 1 ? '${controller.searchRangeKm.round()} km' : '${(controller.searchRangeKm * 1000).round()} m'}'),
-                    Slider(
-                      value: controller.state.currentSliderValue,
-                      min: 0.08,
-                      max: 1,
-                      onChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
-                    ),
-                  ],
-                ),
+                sliderValue: () => controller.state.currentSliderValue,
+                onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
+                searchRangeText: () => controller.searchRangeText,
               ),
             ),
           ),

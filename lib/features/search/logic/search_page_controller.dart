@@ -58,6 +58,17 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   double get _searchRangeKm => _maxRangeKm * math.pow(state.currentSliderValue, 2);
   double get searchRangeKm => _searchRangeKm;
 
+  String get searchRangeText {
+    if (searchRangeKm == 0) {
+      return 'Exact Location';
+    } else if (searchRangeKm >= 1) {
+      return '${searchRangeKm.round()} km';
+    } else {
+      return '${(searchRangeKm * 1000).round()} m';
+    }
+  }
+  
+
   GoogleMapController? _mapController;
   GoogleMapController? get mapController => _mapController;
   set mapController(GoogleMapController? controller) {
