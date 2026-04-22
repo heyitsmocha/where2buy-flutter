@@ -6,9 +6,9 @@ import 'package:w2b_flutter/core/auth_interceptor.dart';
 import 'package:w2b_flutter/core/logger_interceptor.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/inquiry/presentation/my_inquiries_page.dart';
-import 'package:w2b_flutter/features/answer/presentation/answer_page.dart';
+import 'package:w2b_flutter/features/respond/presentation/add_response_page.dart';
 import 'package:w2b_flutter/features/search/presentation/search_page.dart';
-import 'package:w2b_flutter/features/answer/presentation/answers_page.dart';
+import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 
@@ -58,15 +58,15 @@ class _MainAppState extends State<MainApp> {
   int _currentIndex = 1;
 
   late final List<Widget> _views = [
-      MyInquiriesPage(widget.dio),
+      RespondPage(widget.dio),
       SearchPage(widget.dio),
-      AnswersPage(widget.dio),
+      MyInquiriesPage(widget.dio),
   ];
 
   final List<Widget> _destinations = const [
-    NavigationDestination(icon: Icon(Icons.list_alt_outlined), selectedIcon: Icon(Icons.list_alt), label: 'My Requests'),
-    NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
     NavigationDestination(icon: Icon(Icons.chat_outlined), selectedIcon: Icon(Icons.chat), label: 'Respond'),
+    NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
+    NavigationDestination(icon: Icon(Icons.list_alt_outlined), selectedIcon: Icon(Icons.list_alt), label: 'My Requests'),
   ];
 
   void _onItemTapped(int index) {
@@ -93,7 +93,7 @@ class _MainAppState extends State<MainApp> {
         useMaterial3: true,
       ),
       routes: {
-        '/respond': (context) => const AnswerPage(),
+        '/respond': (context) => const AddResponsePage(),
       },
       home: SafeArea(
         child: Scaffold(

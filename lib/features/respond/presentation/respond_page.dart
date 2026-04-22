@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
-import 'package:w2b_flutter/features/answer/presentation/answers_filter_drawer.dart';
+import 'package:w2b_flutter/features/respond/presentation/respond_page_filter_drawer.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/location_util.dart';
@@ -15,17 +15,17 @@ class RespondPageController extends BaseController {
   RespondPageController(this.dio);
 }
 
-class AnswersPage extends StatefulWidget {
-  const AnswersPage(this.dio, {super.key});
+class RespondPage extends StatefulWidget {
+  const RespondPage(this.dio, {super.key});
 
   final Dio dio;
 
   @override
-  State<AnswersPage> createState() => _AnswersPageState();
+  State<RespondPage> createState() => _RespondPageState();
 }
 
-class _AnswersPageState extends State<AnswersPage> {
-  final GlobalKey<ScaffoldState> _answersScaffoldKey = GlobalKey<ScaffoldState>();
+class _RespondPageState extends State<RespondPage> {
+  final GlobalKey<ScaffoldState> _respondScaffoldKey = GlobalKey<ScaffoldState>();
 
   late List<NearbyInquiry> _nearbyInquiries;
   bool _isLoading = true;
@@ -50,8 +50,8 @@ class _AnswersPageState extends State<AnswersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _answersScaffoldKey,
-      endDrawer: const AnswerFilterDrawer(),
+      key: _respondScaffoldKey,
+      endDrawer: const RespondPageFilterDrawer(),
       body: BaseLayout(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -72,7 +72,7 @@ class _AnswersPageState extends State<AnswersPage> {
                   // TODO: temporary: go to answer page
                   // Navigator.pushNamed(context, '/respond');
           
-                  _answersScaffoldKey.currentState?.openEndDrawer();
+                  _respondScaffoldKey.currentState?.openEndDrawer();
                 }, 
                 icon: const Icon(Icons.filter_alt_outlined), 
                 tooltip: "Filter requests",
