@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/components/widget_with_button.dart';
+import 'package:w2b_flutter/components/pin_animation/pin_animation_widget.dart';
 
 class AddResponsePage extends StatefulWidget {
   const AddResponsePage({super.key});
@@ -9,6 +12,9 @@ class AddResponsePage extends StatefulWidget {
 }
 
 class _AddResponsePageState extends State<AddResponsePage> {
+  late AnimationController _pinAnimationController;
+  late GoogleMapController _mapController;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,15 +51,16 @@ class _AddResponsePageState extends State<AddResponsePage> {
                 ],
               ),
               const Divider(),
-              WidgetWithButton(
-                onPressed: () {
-                  // TODO: Tell google maps to move the map to the user's current location
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Move map to current location')),
-                  );
-                }, buttonIcon: const Icon(Icons.my_location),
-                child: const Placeholder(fallbackHeight: 300, fallbackWidth: double.infinity), 
+              SizedBox(
+                height: 300,
+                child: PinAnimationWidget(
+                  onControllerInitialized: (pinAnimationController) => _pinAnimationController = pinAnimationController,
+                  child: MapWidget(
+                    onMapCreated: (mapController) => _mapController = mapController,
+                    onCameraMoveStarted: () => _pinAnimationController.forward(),
+                    onCameraIdle: () => _pinAnimationController.reverse(),
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               WidgetWithButton(
