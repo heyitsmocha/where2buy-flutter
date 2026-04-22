@@ -27,7 +27,7 @@ class RespondPage extends StatefulWidget {
 class _RespondPageState extends State<RespondPage> {
   final GlobalKey<ScaffoldState> _respondScaffoldKey = GlobalKey<ScaffoldState>();
 
-  late List<NearbyInquiry> _nearbyInquiries;
+  List<NearbyInquiry> _nearbyInquiries = [];
   bool _isLoading = true;
 
   late RespondPageController _controller;
@@ -40,10 +40,20 @@ class _RespondPageState extends State<RespondPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Position userLocation = await LocationUtil.getCurrentLocation();
 
-      _nearbyInquiries = await InquiryApiService(widget.dio).getNearbyInquiries(userLocation.latitude, userLocation.longitude);
-      setState(() {
-        _isLoading = false;
-      });
+      try {
+        _nearbyInquiries = await InquiryApiService(widget.dio).getNearbyInquiries(userLocation.latitude, userLocation.longitude);
+
+      } on DioException catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load nearby inquiries: ${e.response?.data['message'] ?? e.message}')),
+          );
+        }
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     });
   }
 
@@ -68,12 +78,7 @@ class _RespondPageState extends State<RespondPage> {
             },
             trailing: [
               IconButton(
-                onPressed: () {
-                  // TODO: temporary: go to answer page
-                  // Navigator.pushNamed(context, '/respond');
-          
-                  _respondScaffoldKey.currentState?.openEndDrawer();
-                }, 
+                onPressed: () => _respondScaffoldKey.currentState?.openEndDrawer(), 
                 icon: const Icon(Icons.filter_alt_outlined), 
                 tooltip: "Filter requests",
               ),
