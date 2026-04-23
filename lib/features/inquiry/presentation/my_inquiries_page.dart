@@ -72,10 +72,17 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
                     itemBuilder: (context, index) {
                       final inquiry = controller.inquiries[index];
                       return ListTile(
-                        title: Text(inquiry.itemName),
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(inquiry.itemName ?? 'No item name'),
+                            // Display the date the inquiry was created if available
+                            Text(inquiry.createdAt != null ? ' - ${inquiry.createdAt!.toLocal().toString().split(' ')[0]}' : '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                          ],
+                        ),
                         subtitle: Text(inquiry.itemDescription ?? ''),
                         onTap: () {
-                          print('Tapped on inquiry with id: ${inquiry.id}'); // Debug print
+                          Navigator.of(context).pushNamed('/inquiry/responses', arguments: inquiry);
                         }
                       );
                     },
