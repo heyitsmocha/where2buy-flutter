@@ -393,12 +393,12 @@ class _InquiryApiService implements InquiryApiService {
   }
 
   @override
-  Future<List<Inquiry>> getMyInquiries() async {
+  Future<ApiResponse<List<Inquiry>>> getMyInquiries() async {
     final _extra = <String, dynamic>{'requiresAuth': true};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Inquiry>>(Options(
+    final _options = _setStreamType<ApiResponse<List<Inquiry>>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -414,12 +414,18 @@ class _InquiryApiService implements InquiryApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Inquiry> _value;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<List<Inquiry>> _value;
     try {
-      _value = _result.data!
-          .map((dynamic i) => Inquiry.fromJson(i as Map<String, dynamic>))
-          .toList();
+      _value = ApiResponse<List<Inquiry>>.fromJson(
+        _result.data!,
+        (json) => json is List<dynamic>
+            ? json
+                .map<Inquiry>(
+                    (i) => Inquiry.fromJson(i as Map<String, dynamic>))
+                .toList()
+            : List.empty(),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

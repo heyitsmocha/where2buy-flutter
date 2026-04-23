@@ -1,25 +1,23 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:w2b_flutter/util/location_util.dart';
 
 part 'inquiry_model.g.dart';
 
 @JsonSerializable()
 class Inquiry {
   final int id;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
-  final String itemName;
+  final int? itemId;
+  final String? itemName;
   final String? itemDescription;
 
-  @JsonKey(fromJson: LocationUtil.latLngFromJson, toJson: jsonEncode)
-  final LatLng location;
+  final double? latitude;
+  final double? longitude;
 
-  final int searchRadiusMeters;
+  final int? searchRadiusMeters;
   
   // optional image
   final String? imageUrl;
@@ -27,10 +25,12 @@ class Inquiry {
   Inquiry({
     required this.id,
     required this.createdAt,
+    required this.itemId,
     required this.itemName,
     this.itemDescription,
-    required this.location,
-    required this.searchRadiusMeters,
+    this.latitude,
+    this.longitude,
+    this.searchRadiusMeters,
     this.imageUrl,
   });
 

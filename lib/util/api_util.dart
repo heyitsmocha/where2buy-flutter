@@ -3,6 +3,7 @@ import 'package:retrofit/retrofit.dart';
 import 'package:w2b_flutter/models/answer_model.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/models/item_model.dart';
+import 'package:w2b_flutter/models/response_model.dart';
 import 'package:w2b_flutter/models/user_model.dart';
 
 part 'api_util.g.dart';
@@ -95,15 +96,12 @@ abstract class InquiryApiService {
 
   @GET("me")
   @Extra({"requiresAuth": true})
-  Future<List<Inquiry>> getMyInquiries();
+  Future<ApiResponse<List<Inquiry>>> getMyInquiries();
 }
 
 @RestApi(baseUrl: "answers/")
 abstract class AnswerApiService {
   factory AnswerApiService(Dio dio, {String baseUrl}) = _AnswerApiService;
-
-  // @GET("")
-  // Future<List<Answer>> getAnswersByInquiryId(@Query('inquiry_id') int inquiryId);
 
   @GET("{answer}")
   Future<List<Answer>> getNearbyAnswers({

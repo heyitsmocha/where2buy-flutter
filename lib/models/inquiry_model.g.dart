@@ -8,21 +8,26 @@ part of 'inquiry_model.dart';
 
 Inquiry _$InquiryFromJson(Map<String, dynamic> json) => Inquiry(
       id: (json['id'] as num).toInt(),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      itemName: json['item_name'] as String,
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      itemId: (json['item_id'] as num?)?.toInt(),
+      itemName: json['item_name'] as String?,
       itemDescription: json['item_description'] as String?,
-      location:
-          LocationUtil.latLngFromJson(json['location'] as Map<String, dynamic>),
-      searchRadiusMeters: (json['search_radius_meters'] as num).toInt(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      searchRadiusMeters: (json['search_radius_meters'] as num?)?.toInt(),
       imageUrl: json['image_url'] as String?,
     );
 
 Map<String, dynamic> _$InquiryToJson(Inquiry instance) => <String, dynamic>{
       'id': instance.id,
-      'created_at': instance.createdAt.toIso8601String(),
+      'created_at': instance.createdAt?.toIso8601String(),
+      'item_id': instance.itemId,
       'item_name': instance.itemName,
       'item_description': instance.itemDescription,
-      'location': jsonEncode(instance.location),
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
       'search_radius_meters': instance.searchRadiusMeters,
       'image_url': instance.imageUrl,
     };

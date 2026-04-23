@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:w2b_flutter/base_controller.dart';
 
 import 'package:w2b_flutter/models/inquiry_model.dart';
+import 'package:w2b_flutter/models/response_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 
 enum MyInquiriesPageUiEvent implements UIEvent {
@@ -26,17 +27,22 @@ class MyInquiriesPageController extends BaseController<MyInquiriesPageUiEvent> {
     _isLoading = true;
     notifyListeners();
 
-    try {
-      List<Inquiry> value = await InquiryApiService(_dio).getMyInquiries();
-      _inquiries.clear();
-      _inquiries.addAll(value);
-    } on DioException {
-      emitEvent(MyInquiriesPageUiEvent.showNetworkErrorSnackbar);
-    } catch (e) {
-      emitEvent(MyInquiriesPageUiEvent.showUnexpectedErrorSnackbar);
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    await ApiUtil.safeApiCall(
+      onTry: () async {
+        ApiResponse<List<Inquiry>> value = await InquiryApiService(_dio).getMyInquiries();
+        _inquiries.clear();
+        _inquiries.addAll(value.data ?? []);
+      }, 
+      onDioError: (error) {
+        emitEvent(MyInquiriesPageUiEvent.showNetworkErrorSnackbar);
+      }, 
+      onError: (error) {
+        emitEvent(MyInquiriesPageUiEvent.showUnexpectedErrorSnackbar);
+      },
+      onFinally: () {
+        _isLoading = false;
+        notifyListeners();
+      }
+    );
   }
 }
