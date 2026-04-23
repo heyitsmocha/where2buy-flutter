@@ -7,6 +7,31 @@ import 'package:w2b_flutter/models/user_model.dart';
 
 part 'api_util.g.dart';
 
+class ApiUtil {
+  /// A helper method to safely call API methods and handle errors in a consistent way
+  static Future<T> safeApiCall<T>({
+    required Future<T> Function() onTry,
+    required Function(Exception exception) onError,
+    required Function(DioException e) onDioError,
+    Function()? onFinally
+  }) async {
+    try {
+      return await onTry();
+    } on DioException catch (e) {
+      onDioError(e);
+      rethrow;
+    } on Exception catch (e) {
+      onError(e);
+      rethrow;
+    } finally {
+      if (onFinally != null) {
+        onFinally();
+      }
+    }
+  }
+}
+
+
 @RestApi()
 abstract class ApiService {
   factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
