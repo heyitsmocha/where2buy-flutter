@@ -6,6 +6,7 @@ import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page_filter_drawer.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
+import 'package:w2b_flutter/models/response_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/location_util.dart';
 
@@ -38,23 +39,39 @@ class _RespondPageState extends State<RespondPage> {
     _controller = RespondPageController(widget.dio);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Position userLocation = await LocationUtil.getCurrentLocation();
+      _refresh();
+    });
+  }
 
-      try {
-        _nearbyInquiries = await InquiryApiService(widget.dio).getNearbyInquiries(userLocation.latitude, userLocation.longitude);
-
-      } on DioException catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to load nearby inquiries: ${e.response?.data['message'] ?? e.message}')),
-          );
-        }
-      } finally {
+  void _refresh() async {
+    ApiUtil.safeApiCall(
+      onTry: () async {
         setState(() {
+          _isLoading = true;
+        });
+
+        Position userLocation = await LocationUtil.getLastKnownLocation();
+        ApiResponse<List<NearbyInquiry>> response = await InquiryApiService(widget.dio).getNearbyInquiries(userLocation.latitude, userLocation.longitude);
+        
+        setState(() {
+          _nearbyInquiries = response.data ?? [];
           _isLoading = false;
         });
-      }
-    });
+
+      }, 
+      onError: (error) {
+
+      }, 
+      onDioError: (error) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load nearby inquiries: ${error.response?.data['message'] ?? error.message}')),
+          );
+        }
+      });
   }
 
   @override
@@ -62,6 +79,11 @@ class _RespondPageState extends State<RespondPage> {
     return Scaffold(
       key: _respondScaffoldKey,
       endDrawer: const RespondPageFilterDrawer(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _isLoading ? null : _refresh,
+        tooltip: 'Refresh',
+        child: const Icon(Icons.refresh),
+      ),
       body: BaseLayout(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,

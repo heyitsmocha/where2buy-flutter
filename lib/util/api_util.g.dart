@@ -233,7 +233,7 @@ class _InquiryApiService implements InquiryApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<List<NearbyInquiry>> getNearbyInquiries(
+  Future<ApiResponse<List<NearbyInquiry>>> getNearbyInquiries(
     double latitude,
     double longitude,
   ) async {
@@ -244,7 +244,7 @@ class _InquiryApiService implements InquiryApiService {
     };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<NearbyInquiry>>(Options(
+    final _options = _setStreamType<ApiResponse<List<NearbyInquiry>>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -260,12 +260,18 @@ class _InquiryApiService implements InquiryApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<NearbyInquiry> _value;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<List<NearbyInquiry>> _value;
     try {
-      _value = _result.data!
-          .map((dynamic i) => NearbyInquiry.fromJson(i as Map<String, dynamic>))
-          .toList();
+      _value = ApiResponse<List<NearbyInquiry>>.fromJson(
+        _result.data!,
+        (json) => json is List<dynamic>
+            ? json
+                .map<NearbyInquiry>(
+                    (i) => NearbyInquiry.fromJson(i as Map<String, dynamic>))
+                .toList()
+            : List.empty(),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

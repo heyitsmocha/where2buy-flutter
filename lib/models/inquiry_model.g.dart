@@ -35,6 +35,8 @@ Map<String, dynamic> _$InquiryToJson(Inquiry instance) => <String, dynamic>{
 NearbyInquiry _$NearbyInquiryFromJson(Map<String, dynamic> json) =>
     NearbyInquiry(
       id: (json['id'] as num).toInt(),
+      createdAt: DateTime.parse(json['created_at'] as String),
+      itemId: (json['item_id'] as num).toInt(),
       itemName: json['item_name'] as String,
       itemDescription: json['item_description'] as String?,
     );
@@ -42,6 +44,8 @@ NearbyInquiry _$NearbyInquiryFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$NearbyInquiryToJson(NearbyInquiry instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'created_at': instance.createdAt.toIso8601String(),
+      'item_id': instance.itemId,
       'item_name': instance.itemName,
       'item_description': instance.itemDescription,
     };

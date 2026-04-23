@@ -41,11 +41,16 @@ class Inquiry {
 @JsonSerializable()
 class NearbyInquiry {
   final int id;
+  final DateTime createdAt;
+
+  final int itemId;
   final String itemName;
   final String? itemDescription;
 
   NearbyInquiry({
     required this.id,
+    required this.createdAt,
+    required this.itemId,
     required this.itemName,
     this.itemDescription,
   });
@@ -53,6 +58,9 @@ class NearbyInquiry {
   factory NearbyInquiry.fromJson(Map<String, dynamic> json) => _$NearbyInquiryFromJson(json);
   Map<String, dynamic> toJson() => _$NearbyInquiryToJson(this);
 }
+
+// @JsonSerializable()
+// class 
 
 @JsonSerializable()
 class CreateInquiryRequest {

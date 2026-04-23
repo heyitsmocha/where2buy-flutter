@@ -67,7 +67,7 @@ abstract class InquiryApiService {
   factory InquiryApiService(Dio dio, {String baseUrl}) = _InquiryApiService;
 
   @GET("")
-  Future<List<NearbyInquiry>> getNearbyInquiries(
+  Future<ApiResponse<List<NearbyInquiry>>> getNearbyInquiries(
     @Query('latitude') double latitude,
     @Query('longitude') double longitude,
   );
