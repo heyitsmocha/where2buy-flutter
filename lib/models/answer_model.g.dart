@@ -9,10 +9,8 @@ part of 'answer_model.dart';
 Answer _$AnswerFromJson(Map<String, dynamic> json) => Answer(
       id: (json['id'] as num).toInt(),
       createdAt: DateTime.parse(json['created_at'] as String),
-      userId: (json['user_id'] as num).toInt(),
-      inquiryId: (json['inquiry_id'] as num).toInt(),
-      location:
-          LocationUtil.latLngFromJson(json['location'] as Map<String, dynamic>),
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
       storeName: json['store_name'] as String,
       storeAddress: json['store_address'] as String,
       additionalInfo: json['additional_info'] as String?,
@@ -23,9 +21,8 @@ Answer _$AnswerFromJson(Map<String, dynamic> json) => Answer(
 Map<String, dynamic> _$AnswerToJson(Answer instance) => <String, dynamic>{
       'id': instance.id,
       'created_at': instance.createdAt.toIso8601String(),
-      'user_id': instance.userId,
-      'inquiry_id': instance.inquiryId,
-      'location': jsonEncode(instance.location),
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
       'store_name': instance.storeName,
       'store_address': instance.storeAddress,
       'additional_info': instance.additionalInfo,
