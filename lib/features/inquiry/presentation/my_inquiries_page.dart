@@ -68,7 +68,7 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
                   ? const Text('You have not made any requests yet.')
                   : ListView.separated(
                     itemCount: controller.inquiries.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) => const Divider(),
                     itemBuilder: (context, index) {
                       final inquiry = controller.inquiries[index];
                       return ListTile(

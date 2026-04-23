@@ -110,8 +110,9 @@ class _RespondPageState extends State<RespondPage> {
           Expanded(
             child: _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
+              : ListView.separated(
                   itemCount: _nearbyInquiries.length,
+                  separatorBuilder: (context, index) => const Divider(),
                   itemBuilder: (context, index) {
                     final inquiry = _nearbyInquiries[index];
                     return ListTile(
