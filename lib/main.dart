@@ -4,6 +4,7 @@ import 'package:retrofit/retrofit.dart';
 import 'package:w2b_flutter/core/app_keys.dart';
 import 'package:w2b_flutter/core/auth_interceptor.dart';
 import 'package:w2b_flutter/core/logger_interceptor.dart';
+import 'package:w2b_flutter/features/inquiry/presentation/inquiry_responses_page.dart';
 import 'package:w2b_flutter/features/profile/presentation/profile_page.dart';
 import 'package:w2b_flutter/features/inquiry/presentation/my_inquiries_page.dart';
 import 'package:w2b_flutter/features/respond/presentation/add_response_page.dart';
@@ -94,14 +95,20 @@ class _MainAppState extends State<MainApp> {
         useMaterial3: true,
       ),
       onGenerateRoute: (settings) {
-        if (settings.name == '/respond/add') {
-          return MaterialPageRoute(
-            builder: (context) => AddResponsePage(inquiry: settings.arguments as NearbyInquiry), // Pass the inquiry data to the AddResponsePage
-            settings: settings, // Pass the settings to the new route
-          );
+        switch(settings.name) {
+          case '/respond/add':
+            return MaterialPageRoute(
+              builder: (context) => AddResponsePage(inquiry: settings.arguments as NearbyInquiry), // Pass the inquiry data to the AddResponsePage
+              settings: settings, // Pass the settings to the new route
+            );
+          case '/inquiry/responses':
+            return MaterialPageRoute(
+              builder: (context) => InquiryResponsesPage(inquiry: settings.arguments as Inquiry), // Pass the inquiry data to the InquiryResponsesPage
+              settings: settings, // Pass the settings to the new route
+            );
+          default:
+            return null; // TODO: 404 page
         }
-        // Handle other routes here if needed
-        return null; // Return null for undefined routes
       },
       home: SafeArea(
         child: Scaffold(
