@@ -40,6 +40,11 @@ class LocationUtil {
     return await Geolocator.getCurrentPosition(); 
   }
 
+  /// Get the last known location of the device, or current location if last known is not available
+  static Future<Position> getLastKnownLocation() async {
+    return await Geolocator.getLastKnownPosition() ?? await getCurrentLocation();
+  }
+
   static LatLng latLngFromJson(Map<String, dynamic> json) {
     return LatLng(json['latitude'] as double, json['longitude'] as double);
   }
