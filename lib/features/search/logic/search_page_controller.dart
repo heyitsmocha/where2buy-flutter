@@ -18,14 +18,22 @@ enum SearchPageUiEvent implements UIEvent {
 class SearchPageState {
   bool isLoggedIn;
   bool lockSearchArea;
+  bool hasSelectedSearchResult;
+
+  /// Flag to check if the slider is the cause of the camera movement
+  bool isCameraMovedFromSlider;
+
   double currentSliderValue;
   double currentZoom;
   LatLng cameraLatLng;
   LatLng searchLatLng;
+  List<Marker> markers = [];
 
   SearchPageState({
     this.isLoggedIn = false,
+    this.hasSelectedSearchResult = false,
     this.lockSearchArea = true,
+    this.isCameraMovedFromSlider = false,
     this.currentSliderValue = 0.08,
     this.currentZoom = 12,
     required this.cameraLatLng,
