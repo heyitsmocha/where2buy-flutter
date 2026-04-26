@@ -8,6 +8,7 @@ class SecondaryButtonsSubLogic {
   // -------- Search page map secondary buttons handlers --------
   void handleSearchAreaLockToggle () {
     state.lockSearchArea = !state.lockSearchArea;
+      // If unlocking the search area
     if (!state.lockSearchArea) {
       // Set search center to current map center
       state.searchLatLng = state.cameraLatLng;

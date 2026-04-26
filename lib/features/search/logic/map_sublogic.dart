@@ -12,20 +12,24 @@ class MapSubLogic {
     state.cameraLatLng = position;
     state.searchLatLng = position;
     _parent.notifyListeners();
-    _parent.moveCameraToSearchLocation(mapWidth, animate: false);
   }
 
+  /// Stores the map controller reference when the map is created.
   void handleMapCreated(GoogleMapController controller) {
     _parent.mapController = controller;
   }
 
+  /// Stores the camera position and updates the search center if the search area is unlocked when the camera moves.
   void handleCameraMove(CameraPosition position) {
     // Update the camera position
     state.cameraLatLng = position.target;
+
     // Also update the search center if not locked
     if (!state.lockSearchArea) {
       state.searchLatLng = position.target;
+
+      // Notify listener to make the circle follow the camera
+      _parent.notifyListeners();
     }
-    _parent.notifyListeners();
   }
 }

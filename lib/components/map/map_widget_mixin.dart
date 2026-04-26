@@ -72,10 +72,10 @@ mixin MapWidgetMixin on State<MapWidget> {
     // Get the current location and initialize camera position
     _getCurrentLocation(onLocationInitialized: widget.onLocationInitialized)
       .then((location) {
-        _currentCameraPosition = CameraPosition(
-          target: location,
-          zoom: 15,
-        );
+          _currentCameraPosition = CameraPosition(
+            target: location,
+            zoom: 15,
+          );
         _moveCameraToLatestPosition();
       }
     );

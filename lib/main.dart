@@ -16,7 +16,6 @@ import 'package:w2b_flutter/util/api_util.dart';
 
 Future<void> main() async {
   // Load api url from .env file
-  print('Loading environment variables from .env file...');
   await dotenv.load(fileName: ".env");
   
   final String apiBaseUrl = dotenv.env['API_BASE_URL'] ?? "http://192.168.0.1:8000/api";
