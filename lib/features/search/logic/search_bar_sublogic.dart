@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:w2b_flutter/components/search/search_view.dart';
+import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/models/item_model.dart';
+import 'package:w2b_flutter/models/response_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/auth_util.dart';
 
@@ -90,12 +92,12 @@ class SearchBarSubLogic {
     _searchSuggestionsCancelToken = CancelToken();
     
     try {
-      List<ItemSearchSuggestion> result = await ApiService(_parent.dio).getSearchSuggestions(input: value, cancelToken: _searchSuggestionsCancelToken!);
-      if (searchText.isNotEmpty && result.isEmpty) {
+      ApiResponse<List<ItemSearchSuggestion>> result = await ApiService(_parent.dio).getSearchSuggestions(input: value, cancelToken: _searchSuggestionsCancelToken!);
+      if (searchText.isNotEmpty && result.data != null && result.data!.isEmpty) {
         _searchSuggestions.add(SearchResultType(modelId: -1, modelName: 'No suggestions found'));
       } else {
         if (value == searchText) { // Ensure the input hasn't changed since the API call was made
-          for (ItemSearchSuggestion element in result) {
+          for (ItemSearchSuggestion element in result.data!) {
             _searchSuggestions.add(SearchResultType(modelId: element.itemId, modelName: element.itemName));
           }
         }
@@ -108,7 +110,7 @@ class SearchBarSubLogic {
         _searchSuggestions.add(SearchResultType(modelId: -1, modelName: 'Error fetching suggestions'));
       }
     } finally {
-      print('Api call completed, searchSuggestions length: ${searchSuggestions.length}');
+      print('Api call completed, searchSuggestions length: ${_searchSuggestions.length}');
 
       // Update the UI with the new suggestions
       _parent.notifyListeners();

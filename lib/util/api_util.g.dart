@@ -22,7 +22,7 @@ class _ApiService implements ApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<List<ItemSearchSuggestion>> getSearchSuggestions({
+  Future<ApiResponse<List<ItemSearchSuggestion>>> getSearchSuggestions({
     required String input,
     required CancelToken cancelToken,
   }) async {
@@ -30,30 +30,85 @@ class _ApiService implements ApiService {
     final queryParameters = <String, dynamic>{r'input': input};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<ItemSearchSuggestion>>(Options(
+    final _options =
+        _setStreamType<ApiResponse<List<ItemSearchSuggestion>>>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+            .compose(
+              _dio.options,
+              'items/suggestions',
+              queryParameters: queryParameters,
+              data: _data,
+              cancelToken: cancelToken,
+            )
+            .copyWith(
+                baseUrl: _combineBaseUrls(
+              _dio.options.baseUrl,
+              baseUrl,
+            )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<List<ItemSearchSuggestion>> _value;
+    try {
+      _value = ApiResponse<List<ItemSearchSuggestion>>.fromJson(
+        _result.data!,
+        (json) => json is List<dynamic>
+            ? json
+                .map<ItemSearchSuggestion>((i) =>
+                    ItemSearchSuggestion.fromJson(i as Map<String, dynamic>))
+                .toList()
+            : List.empty(),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<List<Answer>>> getNearbyAnswers({
+    required int item,
+    required double latitude,
+    required double longitude,
+    required double range,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'latitude': latitude,
+      r'longitude': longitude,
+      r'range': range,
+    };
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ApiResponse<List<Answer>>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
     )
         .compose(
           _dio.options,
-          'items/suggestions',
+          'items/${item}/nearby-answers',
           queryParameters: queryParameters,
           data: _data,
-          cancelToken: cancelToken,
         )
         .copyWith(
             baseUrl: _combineBaseUrls(
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<ItemSearchSuggestion> _value;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<List<Answer>> _value;
     try {
-      _value = _result.data!
-          .map((dynamic i) =>
-              ItemSearchSuggestion.fromJson(i as Map<String, dynamic>))
-          .toList();
+      _value = ApiResponse<List<Answer>>.fromJson(
+        _result.data!,
+        (json) => json is List<dynamic>
+            ? json
+                .map<Answer>((i) => Answer.fromJson(i as Map<String, dynamic>))
+                .toList()
+            : List.empty(),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -280,12 +335,12 @@ class _InquiryApiService implements InquiryApiService {
   }
 
   @override
-  Future<Inquiry> getInquiryById(int inquiry) async {
+  Future<ApiResponse<Inquiry>> getInquiryById(int inquiry) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Inquiry>(Options(
+    final _options = _setStreamType<ApiResponse<Inquiry>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -302,9 +357,12 @@ class _InquiryApiService implements InquiryApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Inquiry _value;
+    late ApiResponse<Inquiry> _value;
     try {
-      _value = Inquiry.fromJson(_result.data!);
+      _value = ApiResponse<Inquiry>.fromJson(
+        _result.data!,
+        (json) => Inquiry.fromJson(json as Map<String, dynamic>),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -439,6 +497,46 @@ class _InquiryApiService implements InquiryApiService {
     return _value;
   }
 
+  @override
+  Future<ApiResponse<List<Answer>>> getAnswersForInquiry(int inquiry) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<ApiResponse<List<Answer>>>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '${inquiry}/answers',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<List<Answer>> _value;
+    try {
+      _value = ApiResponse<List<Answer>>.fromJson(
+        _result.data!,
+        (json) => json is List<dynamic>
+            ? json
+                .map<Answer>((i) => Answer.fromJson(i as Map<String, dynamic>))
+                .toList()
+            : List.empty(),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||
@@ -486,52 +584,6 @@ class _AnswerApiService implements AnswerApiService {
   String? baseUrl;
 
   final ParseErrorLogger? errorLogger;
-
-  @override
-  Future<List<Answer>> getNearbyAnswers({
-    required int answer,
-    required String query,
-    required double latitude,
-    required double longitude,
-    required double radiusMeters,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'query': query,
-      r'latitude': latitude,
-      r'longitude': longitude,
-      r'radius_meters': radiusMeters,
-    };
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<Answer>>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '${answer}',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<Answer> _value;
-    try {
-      _value = _result.data!
-          .map((dynamic i) => Answer.fromJson(i as Map<String, dynamic>))
-          .toList();
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
 
   @override
   Future<Answer> createAnswer({required FormData data}) async {

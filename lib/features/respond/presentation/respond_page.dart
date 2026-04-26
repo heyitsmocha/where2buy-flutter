@@ -4,9 +4,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
+import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page_filter_drawer.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
-import 'package:w2b_flutter/models/response_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/location_util.dart';
 
@@ -44,34 +44,36 @@ class _RespondPageState extends State<RespondPage> {
   }
 
   void _refresh() async {
-    ApiUtil.safeApiCall(
+    setState(() {
+      _isLoading = true;
+    });
+    
+    final result = await ApiUtil.safeApiCall(
       onTry: () async {
-        setState(() {
-          _isLoading = true;
-        });
-
         Position userLocation = await LocationUtil.getLastKnownLocation();
-        ApiResponse<List<NearbyInquiry>> response = await InquiryApiService(widget.dio).getNearbyInquiries(userLocation.latitude, userLocation.longitude);
-        
-        setState(() {
-          _nearbyInquiries = response.data ?? [];
-          _isLoading = false;
-        });
+        return await InquiryApiService(widget.dio).getNearbyInquiries(userLocation.latitude, userLocation.longitude);
+      });
 
-      }, 
-      onError: (error) {
-
-      }, 
-      onDioError: (error) {
+    switch (result) {
+      case Success(value: final data):
+        if (mounted) {
+          setState(() {
+            _nearbyInquiries = data;
+            _isLoading = false;
+          });
+        }
+        break;
+      case Failure(errorMessage: final message):
         if (mounted) {
           setState(() {
             _isLoading = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to load nearby inquiries: ${error.response?.data['message'] ?? error.message}')),
+            SnackBar(content: Text('Failed to load nearby inquiries: ${message ?? 'Unknown error'}')),
           );
         }
-      });
+        break;
+    }
   }
 
   @override
