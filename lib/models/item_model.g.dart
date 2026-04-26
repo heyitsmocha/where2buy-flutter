@@ -9,13 +9,13 @@ part of 'item_model.dart';
 ItemSearchSuggestion _$ItemSearchSuggestionFromJson(
         Map<String, dynamic> json) =>
     ItemSearchSuggestion(
-      id: (json['id'] as num).toInt(),
-      name: json['name'] as String,
+      itemId: (json['item_id'] as num).toInt(),
+      itemName: json['item_name'] as String,
     );
 
 Map<String, dynamic> _$ItemSearchSuggestionToJson(
         ItemSearchSuggestion instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
+      'item_id': instance.itemId,
+      'item_name': instance.itemName,
     };

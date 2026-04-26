@@ -4,12 +4,12 @@ part 'item_model.g.dart';
 
 @JsonSerializable()
 class ItemSearchSuggestion {
-  final int id;
-  final String name;
+  final int itemId;
+  final String itemName;
 
   ItemSearchSuggestion({
-    required this.id,
-    required this.name,
+    required this.itemId,
+    required this.itemName,
   });
 
   factory ItemSearchSuggestion.fromJson(Map<String, dynamic> json) => _$ItemSearchSuggestionFromJson(json);
