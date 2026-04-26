@@ -70,6 +70,19 @@ class SearchPage extends StatefulWidget {
           const SnackBar(content: Text('Failed to post new item request. Please try again.')),
         );
         break;
+      case SearchPageUiEvent.showNoNearbyResultsSnackbar:
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text("No nearby results found. Expand the search area or post a new request with your search area."),
+          ),
+        );
+        break;
+        case SearchPageUiEvent.searchResultSelected:
+          // Dismiss the search suggestions dialog if it's still open
+          Navigator.of(context).pop();
+          break;
+        case SearchPageUiEvent.searchLockedWarning:
+          break;
     }
   }
 

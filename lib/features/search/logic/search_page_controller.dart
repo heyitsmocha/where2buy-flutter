@@ -11,8 +11,11 @@ enum SearchPageUiEvent implements UIEvent {
   showSnackbar,
   showLoginSnackbar,
   showNewRequestConfirmationDialog,
+  showNoNearbyResultsSnackbar,
+  searchResultSelected,
   newRequestPosted,
   newRequestFailed,
+  searchLockedWarning,
 }
 
 class SearchPageState {
