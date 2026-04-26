@@ -21,9 +21,10 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> {
+  final TextEditingController searchBarController = TextEditingController();
+  
   @override
-  SearchPageController initController() => SearchPageController(widget.dio);
+  SearchPageController initController() => SearchPageController(widget.dio, searchBarController);
 
   double get mapWidth => MediaQuery.of(context).size.width - 16;
 

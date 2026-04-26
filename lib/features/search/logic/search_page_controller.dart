@@ -45,11 +45,12 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   late final SearchBarSubLogic searchBarSubLogic;
   late final MapSubLogic mapSubLogic;
   late final SecondaryButtonsSubLogic secondaryButtonsSubLogic;
+  final TextEditingController searchBarController;
   final Dio dio;
 
   late SearchPageState state;
 
-  SearchPageController(this.dio) {
+  SearchPageController(this.dio, this.searchBarController) {
     state = SearchPageState(
       cameraLatLng: const LatLng(3.157445974699537, 101.71153740166021),
       searchLatLng: const LatLng(3.157445974699537, 101.71153740166021),
@@ -76,9 +77,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     }
   }
   
-
   GoogleMapController? _mapController;
-  GoogleMapController? get mapController => _mapController;
   set mapController(GoogleMapController? controller) {
     _mapController = controller;
   }
