@@ -90,7 +90,7 @@ class _RespondPageState extends State<RespondPage> {
         children: [
           // Search bar
           BaseSearchBar(
-            controller: _controller, 
+            listenable: _controller, 
             hintText: 'Search for requests...',
             onChanged: (value) {
               // Handle search input change

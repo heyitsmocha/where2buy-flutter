@@ -14,9 +14,11 @@ class SearchBarSubLogic {
   SearchBarSubLogic(this._parent, this.state);
 
   String searchText = '';
-  String description = '';
+  final List<SearchResultType> _searchSuggestions = [];
+  List<SearchResultType> get searchSuggestions => _searchSuggestions;
 
-  List<SearchResultType> searchSuggestions = [];
+  SearchResultType? _selectedSuggestion;
+  SearchResultType? get selectedSuggestion => _selectedSuggestion;
 
   /// Prompts the user to log in if not authenticated, else show the new request form.
   void handleNewRequestButtonPressed() async {
@@ -26,7 +28,7 @@ class SearchBarSubLogic {
 
   Future<void> handleSendNewRequest() async {
     final CreateInquiryRequest inquiry = CreateInquiryRequest(
-      name: searchText,
+      name: _selectedSuggestion?.modelName ?? '',
       description: description,
       latitude: _parent.state.searchLatLng.latitude,
       longitude: _parent.state.searchLatLng.longitude,
@@ -64,7 +66,7 @@ class SearchBarSubLogic {
       _searchSuggestionsCancelToken?.cancel("Input changed to less than 3 characters");
 
       searchText = value;
-      searchSuggestions.clear();
+      _searchSuggestions.clear();
       _parent.notifyListeners();
       return; 
     }
@@ -79,7 +81,7 @@ class SearchBarSubLogic {
     searchText = value;
 
     // Clear current suggestions to prevent duplicate entries
-    searchSuggestions.clear();
+    _searchSuggestions.clear();
 
     // Cancel any ongoing search suggestions request before starting a new one
     _searchSuggestionsCancelToken?.cancel("New search started");
@@ -90,11 +92,11 @@ class SearchBarSubLogic {
     try {
       List<ItemSearchSuggestion> result = await ApiService(_parent.dio).getSearchSuggestions(input: value, cancelToken: _searchSuggestionsCancelToken!);
       if (searchText.isNotEmpty && result.isEmpty) {
-        searchSuggestions.add(SearchResultType(id: -1, name: 'No suggestions found'));
+        _searchSuggestions.add(SearchResultType(modelId: -1, modelName: 'No suggestions found'));
       } else {
         if (value == searchText) { // Ensure the input hasn't changed since the API call was made
           for (ItemSearchSuggestion element in result) {
-            searchSuggestions.add(SearchResultType(id: element.id, name: element.name));
+            _searchSuggestions.add(SearchResultType(modelId: element.itemId, modelName: element.itemName));
           }
         }
       }
@@ -103,7 +105,7 @@ class SearchBarSubLogic {
         // print('Search suggestions fetch cancelled');
       } else {
         // print('Error fetching search suggestions: $e');
-        searchSuggestions.add(SearchResultType(id: -1, name: 'Error fetching suggestions'));
+        _searchSuggestions.add(SearchResultType(modelId: -1, modelName: 'Error fetching suggestions'));
       }
     } finally {
       print('Api call completed, searchSuggestions length: ${searchSuggestions.length}');

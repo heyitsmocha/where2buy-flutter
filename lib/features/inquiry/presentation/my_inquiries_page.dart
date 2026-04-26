@@ -50,7 +50,7 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             BaseSearchBar(
-              controller: controller,
+              listenable: controller,
               hintText: 'Search Requests...',
               trailing: [
                 controller.isLoading 
