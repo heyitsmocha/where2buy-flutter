@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/search/search_view.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/search/logic/search_page_controller.dart';
+import 'package:w2b_flutter/models/answer_model.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/models/item_model.dart';
 import 'package:w2b_flutter/models/response_model.dart';
@@ -26,6 +28,16 @@ class SearchBarSubLogic {
   SearchResultType? _selectedSuggestion;
   SearchResultType? get selectedSuggestion => _selectedSuggestion;
 
+  bool handleSearchBarTapped() {
+    print('handleSearchBarTapped called');
+    // If the search bar is tapped and there are already suggestions, open the search view to show them
+    if (_parent.state.hasSelectedSearchResult) {
+      _parent.emitEvent(SearchPageUiEvent.searchLockedWarning);
+      return false; // Don't open the search view
+    }
+    return true; // Open the search view
+  }
+
   /// Prompts the user to log in if not authenticated, else show the new request form.
   void handleNewRequestButtonPressed() async {
     final bool loggedIn = await AuthUtil.isLoggedIn();
@@ -35,7 +47,7 @@ class SearchBarSubLogic {
   Future<void> handleSendNewRequest() async {
     final CreateInquiryRequest inquiry = CreateInquiryRequest(
       name: _selectedSuggestion?.modelName ?? '',
-      description: description,
+      // description: _selectedSuggestion?. ?? '',
       latitude: _parent.state.searchLatLng.latitude,
       longitude: _parent.state.searchLatLng.longitude,
       searchRadiusMeters: (_parent.searchRangeKm * 1000).toInt(),
@@ -58,7 +70,7 @@ class SearchBarSubLogic {
   }
 
   CancelToken? _searchSuggestionsCancelToken;
-  Timer? _debounceTimer;
+  Timer? _searchSuggestionDebounceTimer;
 
   /// Provides search suggestions as the user types. <br> <br>
   /// If the input is less than 3 characters, it clears suggestions and does not make an API call. <br>
@@ -66,7 +78,7 @@ class SearchBarSubLogic {
   Future<void> handleSearchInputChanged(String value) async {
     if (value.length < 3) {
       // Debounce to avoid flooding the server with requests on every keystroke
-      _debounceTimer?.cancel();
+      _searchSuggestionDebounceTimer?.cancel();
       
       // Cancel any ongoing search suggestions request before starting a new one
       _searchSuggestionsCancelToken?.cancel("Input changed to less than 3 characters");
@@ -78,7 +90,7 @@ class SearchBarSubLogic {
     }
 
     // Start a new debounce timer for the API call
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () async => await handleSearchSubmitted(value));
+    _searchSuggestionDebounceTimer = Timer(const Duration(milliseconds: 500), () async => await handleSearchSubmitted(value));
   }
 
   /// Performs the search action when the user submits the search input. <br> <br>
@@ -119,6 +131,43 @@ class SearchBarSubLogic {
       // Update the UI with the new suggestions
       _parent.notifyListeners();
     }
+  }
+
+  void handleClearSelectedSuggestion() {
+    searchText = '';
+    _searchSuggestions.clear();
+    _parent.searchBarController.clear();
+    _parent.state.hasSelectedSearchResult = false;
+    _selectedSuggestion = null;
+    _parent.notifyListeners();
+  }
+
+  Future<void> handleSearchSuggestionSelected(int index) async {
+    if (index == -1) return; // Ignore taps on "No suggestions found" or error messages
+    _parent.emitEvent(SearchPageUiEvent.searchResultSelected);
+    
+    SearchResultType selected = _searchSuggestions[index];
+
+    // User tapped on "No suggestions found" or an error message
+    if(selected.modelId == -1) {
+      return;
+    }
+
+    // TODO: If a suggestion is selected, lock the suggestion's name and id so that it can be used in the New Request form
+    // For example, if the user selects "iPhone 12", the search text should be set to "iPhone 12" and the selected suggestion's ID should be stored so that when the user goes to create a new request, it can pre-fill the item name and associate the request with the correct item ID.
+    // This should help reducing duplicate entries 
+    _parent.state.hasSelectedSearchResult = true;
+    _selectedSuggestion = selected;
+
+    print('Setting search text to selected suggestion: ${selected.modelName}');
+
+    searchText = '';
+    _parent.searchBarController.text = '';
+
+    // searchText = selected.modelName;
+    // _parent.searchBarController.text = selected.modelName; // Update the search bar text to reflect the selected suggestion
+    
+    await performSearchForAnswers();
   }
 
   Future<void> performSearchForAnswers() async {
