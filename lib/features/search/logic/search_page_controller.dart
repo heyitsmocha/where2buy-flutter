@@ -116,6 +116,9 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   void handleRangeSliderChangeEnd(double value) {
     // When the user finishes changing the slider, if they have already selected a search result, we should update the search results to reflect the new range
     if (state.hasSelectedSearchResult) {
+      // Set flag to indicate camera movement is from slider
+      // This prevents the onCameraIdle handler from triggering an additional search when the camera moves in response to the slider change
+      state.isCameraMovedFromSlider = true; 
       searchBarSubLogic.performSearchForAnswers();
     }
   }

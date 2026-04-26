@@ -32,4 +32,17 @@ class MapSubLogic {
       _parent.notifyListeners();
     }
   }
+  
+  /// Searches for answers if needed when the camera stops moving, and resets the slider movement flag.
+  void handleCameraIdle() {
+    if (state.hasSelectedSearchResult) {
+      // Check if the camera movement is triggered by map panning (not zooming from the range slider)
+      if (!state.lockSearchArea && !state.isCameraMovedFromSlider) {
+        _parent.searchBarSubLogic.performSearchForAnswers();
+      }
+    }
+
+    // Reset the flag after handling camera idle
+    state.isCameraMovedFromSlider = false;
+  }
 }
