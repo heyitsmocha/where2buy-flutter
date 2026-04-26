@@ -16,6 +16,10 @@ class SearchBarSubLogic {
   SearchBarSubLogic(this._parent, this.state);
 
   String searchText = '';
+
+  bool _isSearchingForAnswers = false;
+  bool get isSearchingForAnswers => _isSearchingForAnswers;
+
   final List<SearchResultType> _searchSuggestions = [];
   List<SearchResultType> get searchSuggestions => _searchSuggestions;
 
@@ -115,5 +119,48 @@ class SearchBarSubLogic {
       // Update the UI with the new suggestions
       _parent.notifyListeners();
     }
+  }
+
+  Future<void> performSearchForAnswers() async {
+    _isSearchingForAnswers = true;
+    _parent.notifyListeners();
+
+    // Fetch the answers for the selected suggestions
+    final result = await ApiUtil.safeApiCall(
+      onTry: () async => await ApiService(_parent.dio).getNearbyAnswers(
+        item: _selectedSuggestion!.modelId,
+        latitude: _parent.state.searchLatLng.latitude,
+        longitude: _parent.state.searchLatLng.longitude,
+        range: _parent.searchRangeKm * 1000,
+      )
+    );
+
+    switch (result) {
+      case Success(value: final data):
+        // Update the map markers
+        _parent.state.markers.clear();
+        _searchSuggestions.clear();
+
+        // if (data.isEmpty) {
+        //   _parent.emitEvent(SearchPageUiEvent.showNoNearbyResultsSnackbar);
+        //   break;
+        // }
+        for (Answer answer in data) {
+          _parent.state.markers.add(
+            Marker(
+              markerId: MarkerId(answer.id.toString()),
+              position: LatLng(answer.latitude, answer.longitude),
+            ),
+          );
+        }
+        break;
+      case Failure(errorMessage: final message):
+        // _parent.emitEvent(SearchPageUiEvent.showSearchResultsFetchErrorSnackbar);
+        break;
+    }
+    
+    print('Notifying listeners after search suggestion selected');
+    _isSearchingForAnswers = false;
+    _parent.notifyListeners();
   }
 }
