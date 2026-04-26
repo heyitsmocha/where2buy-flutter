@@ -168,6 +168,7 @@ class SearchPage extends StatefulWidget {
                 listenable: controller,
                 sliderValue: () => controller.state.currentSliderValue,
                 onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
+                onSliderChangeEnd: (value) => controller.handleRangeSliderChangeEnd(value),
                 searchRangeText: () => controller.searchRangeText,
               ),
             ),

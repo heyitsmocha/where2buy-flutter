@@ -113,6 +113,13 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     }
   }
 
+  void handleRangeSliderChangeEnd(double value) {
+    // When the user finishes changing the slider, if they have already selected a search result, we should update the search results to reflect the new range
+    if (state.hasSelectedSearchResult) {
+      searchBarSubLogic.performSearchForAnswers();
+    }
+  }
+
   /// Helper to compute a Google Maps zoom level that will approximately fit
   /// a circle of `radiusMeters` at `lat` within `mapWidthPx` pixels.
   /// Uses the Mercator meters-per-pixel formula:
