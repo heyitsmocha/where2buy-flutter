@@ -7,6 +7,7 @@ class SearchRangeSlider extends StatelessWidget {
     required this.listenable,
     required this.sliderValue,
     required this.onSliderChanged,
+    this.onSliderChangeEnd,
     required this.searchRangeText,
   });
 
@@ -20,6 +21,7 @@ class SearchRangeSlider extends StatelessWidget {
   final String Function() searchRangeText;
 
   final Function(double) onSliderChanged;
+  final Function(double)? onSliderChangeEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,8 @@ class SearchRangeSlider extends StatelessWidget {
             value: sliderValue(),
             min: 0.08,
             max: 1,
-            onChanged: (value) => onSliderChanged(value),
+            onChanged: onSliderChanged,
+            onChangeEnd: onSliderChangeEnd,
           ),
         ],
       ),
