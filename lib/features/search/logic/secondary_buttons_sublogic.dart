@@ -10,6 +10,10 @@ class SecondaryButtonsSubLogic {
     state.lockSearchArea = !state.lockSearchArea;
       // If unlocking the search area
     if (!state.lockSearchArea) {
+      if (state.hasSelectedSearchResult) {
+        _parent.searchBarSubLogic.performSearchForAnswers();
+      }
+
       // Set search center to current map center
       state.searchLatLng = state.cameraLatLng;
     }
@@ -19,5 +23,9 @@ class SecondaryButtonsSubLogic {
   void handleMoveSearchAreaToCameraButtonPressed() {
     state.searchLatLng = state.cameraLatLng;
     _parent.notifyListeners();
+
+    if (state.hasSelectedSearchResult) {
+      _parent.searchBarSubLogic.performSearchForAnswers();
+    }
   }
 }
