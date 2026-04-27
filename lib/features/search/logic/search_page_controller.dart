@@ -6,6 +6,7 @@ import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/features/search/logic/map_sublogic.dart';
 import 'package:w2b_flutter/features/search/logic/search_bar_sublogic.dart';
 import 'package:w2b_flutter/features/search/logic/secondary_buttons_sublogic.dart';
+import 'package:w2b_flutter/util/location_util.dart';
 
 enum SearchPageUiEvent implements UIEvent {
   showSnackbar,
@@ -99,7 +100,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   void handleRangeSliderChanged(double value, double mapWidth) {
     state.currentSliderValue = value;
     // update zoom to match the new range (value in km -> meters)
-    state.currentZoom = getZoomLevelForRadius(_searchRangeKm * 1000, state.cameraLatLng, mapWidth);
+    state.currentZoom = LocationUtil.getZoomLevelForRadius(_searchRangeKm * 1000, state.cameraLatLng, mapWidth);
 
     notifyListeners();
 
@@ -122,31 +123,13 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
       searchBarSubLogic.performSearchForAnswers();
     }
   }
-
-  /// Helper to compute a Google Maps zoom level that will approximately fit
-  /// a circle of `radiusMeters` at `lat` within `mapWidthPx` pixels.
-  /// Uses the Mercator meters-per-pixel formula:
-  ///   metersPerPixel = 156543.03392 * cos(lat) / 2^zoom
-  /// Solved for zoom with a padding factor so the radius fills ~80% of width.
-  double getZoomLevelForRadius(double radiusMeters, LatLng lat, double mapWidthPx, {double paddingFactor = 0.8}) {
-    if (mapWidthPx <= 0 || radiusMeters <= 0) return 17;
-    final latRad = lat.latitude * math.pi / 180.0;
-    final coverageMeters = (radiusMeters * 2) / paddingFactor; // total width to cover
-    final metersPerPixel = coverageMeters / mapWidthPx;
-    final value = (156543.03392 * math.cos(latRad)) / metersPerPixel;
-    final zoom = math.log(value) / math.ln2;
-    // clamp to reasonable Google Maps zoom range
-    return zoom.clamp(0.0, 21.0);
-  }
-
-  
     /// Move or animate the map camera to the current location when possible.
   // Safe to call from either `initState` (after location) or `onMapCreated`.
   void moveCameraToSearchLocation(double mapWidth, {bool animate = true}) {
     // if (!mounted) return;
     if (_mapController == null) return;
 
-    final zoom = getZoomLevelForRadius(searchRangeKm * 1000, state.searchLatLng, mapWidth);
+    final zoom = LocationUtil.getZoomLevelForRadius(searchRangeKm * 1000, state.searchLatLng, mapWidth);
 
     state.currentZoom = zoom;
     notifyListeners();

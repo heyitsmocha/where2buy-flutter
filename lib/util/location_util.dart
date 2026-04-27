@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:math' as math;
 
 class LocationUtil {
   /// Get the current location of the device, including handling permission
@@ -45,9 +46,19 @@ class LocationUtil {
     return await Geolocator.getLastKnownPosition() ?? await getCurrentLocation();
   }
 
-  static LatLng latLngFromJson(Map<String, dynamic> json) {
-    return LatLng(json['latitude'] as double, json['longitude'] as double);
+  /// Helper to compute a Google Maps zoom level that will approximately fit
+  /// a circle of `radiusMeters` at `lat` within `mapWidthPx` pixels.
+  /// Uses the Mercator meters-per-pixel formula:
+  ///   metersPerPixel = 156543.03392 * cos(lat) / 2^zoom
+  /// Solved for zoom with a padding factor so the radius fills ~80% of width.
+  static double getZoomLevelForRadius(double radiusMeters, LatLng lat, double mapWidthPx, {double paddingFactor = 0.8}) {
+    if (mapWidthPx <= 0 || radiusMeters <= 0) return 17;
+    final latRad = lat.latitude * math.pi / 180.0;
+    final coverageMeters = (radiusMeters * 2) / paddingFactor; // total width to cover
+    final metersPerPixel = coverageMeters / mapWidthPx;
+    final value = (156543.03392 * math.cos(latRad)) / metersPerPixel;
+    final zoom = math.log(value) / math.ln2;
+    // clamp to reasonable Google Maps zoom range
+    return zoom.clamp(0.0, 21.0);
   }
-
-  static Object latLngToJson(LatLng latLng) => latLng.toJson();
 }

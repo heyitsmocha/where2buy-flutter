@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/models/answer_model.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:dio/dio.dart';
 import 'package:w2b_flutter/util/api_util.dart';
+import 'package:w2b_flutter/util/location_util.dart';
 
 class InquiryResponsesPage extends StatefulWidget {
   final Inquiry inquiry;
@@ -24,6 +26,8 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
   Set<Marker> markers = {};
 
   late GoogleMapController _mapController;
+
+  bool _isLoading = true;
   
   @override
   void initState() {
@@ -41,34 +45,54 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
 
 
     WidgetsBinding.instance.addPostFrameCallback((_) async { 
-      Result<List<Answer>> response = await ApiUtil.safeApiCall(onTry: () async => await InquiryApiService(widget.dio).getAnswersForInquiry(widget.inquiry.id));
-
-      switch (response) {
-        case Success():
-
-          setState(() {
-            // Update the answers list with the data from the API response
-            answers = response.value;
-            
-            // For each answer, add a marker to the map at the location of the store
-            answers.map((answer) => Marker(
-              markerId: MarkerId(answer.id.toString()),
-              position: LatLng(answer.latitude, answer.longitude),
-              infoWindow: InfoWindow(title: answer.storeName, snippet: answer.storeAddress ?? ''),
-            )).forEach((marker) => markers.add(marker));
-          });
-          break;
-        case Failure():
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to load responses. Please try again later.')),
-            );
-          }
-          break;
-      }
+      await refresh();
     });
 
     super.initState();
+  }
+
+  Future<void> refresh() async {
+    Result<List<Answer>> response = await ApiUtil.safeApiCall(
+      onTry: () async {
+        if (mounted) {
+          setState(() {
+            _isLoading = true;
+          });
+        }
+
+        return await InquiryApiService(widget.dio).getAnswersForInquiry(widget.inquiry.id);
+      },
+      onFinally: () {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      },
+    );
+    
+    switch (response) {
+      case Success():
+        setState(() {
+          // Update the answers list with the data from the API response
+          answers = response.value;
+          
+          // For each answer, add a marker to the map at the location of the store
+          answers.map((answer) => Marker(
+            markerId: MarkerId(answer.id.toString()),
+            position: LatLng(answer.latitude, answer.longitude),
+            infoWindow: InfoWindow(title: answer.storeName, snippet: answer.storeAddress),
+          )).forEach((marker) => markers.add(marker));
+        });
+        break;
+      case Failure():
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to load responses. Please try again later.')),
+          );
+        }
+        break;
+    }
   }
 
   @override
@@ -76,6 +100,10 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inquiry Responses'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _isLoading ? null : refresh,
+        child: const Icon(Icons.refresh),
       ),
       body: BaseLayout(
         child: Column(
@@ -86,28 +114,64 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
               child: MapWidget(
                 markers: markers,
                 circles: circles,
-                onMapCreated: (mapController) => _mapController = mapController,
+                extraButtons: [
+                  MapSecondaryButton(
+                    tooltip: 'Center on Inquiry Location',
+                    icon: const Icon(Icons.center_focus_strong_outlined),
+                    onPressed: () {
+                      _mapController.animateCamera(
+                        CameraUpdate.newLatLngZoom(
+                          LatLng(widget.inquiry.latitude!, widget.inquiry.longitude!),
+                          LocationUtil.getZoomLevelForRadius(
+                            widget.inquiry.searchRadiusMeters!.toDouble(), 
+                            LatLng(widget.inquiry.latitude!, widget.inquiry.longitude!),
+                            MediaQuery.of(context).size.width,
+                          )
+                        ),
+                      );
+                    },
+                  ),
+                ],
+                onMapCreated: (mapController) {
+                  _mapController = mapController;
+
+                  // Move camera to the location of the inquiry
+                  _mapController.animateCamera(
+                    CameraUpdate.newLatLngZoom(
+                      LatLng(widget.inquiry.latitude!, widget.inquiry.longitude!),
+                      LocationUtil.getZoomLevelForRadius(
+                        widget.inquiry.searchRadiusMeters!.toDouble(), 
+                        LatLng(widget.inquiry.latitude!, widget.inquiry.longitude!),
+                        MediaQuery.of(context).size.width,
+                      )
+                    ),
+                  );
+                },
                 showZoomControls: true,
               ),
             ), // Map
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.separated(
-                itemCount: answers.length,
-                separatorBuilder: (context, index) => const Divider(),
-                itemBuilder: (context, index) {
-                  final answer = answers[index];
-                  return ListTile(
-                    title: Text(answer.storeName),
-                    onTap: () => _mapController.animateCamera(
-                        CameraUpdate.newLatLngZoom(
-                          LatLng(answer.latitude, answer.longitude),
-                          15,
-                        ),
-                      ),
-                  );
-                },
-              ),
+              child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : answers.isEmpty 
+                  ? const Text('No responses have been made.',)
+                  : ListView.separated(
+                      itemCount: answers.length,
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final answer = answers[index];
+                        return ListTile(
+                          title: Text(answer.storeName),
+                          // trailing: const Icon(Icons.eye),
+                          onTap: () => _mapController.animateCamera(
+                              CameraUpdate.newLatLng(
+                                LatLng(answer.latitude, answer.longitude),
+                              ),
+                            ),
+                        );
+                      },
+                    ),
             ), 
           ],
         ),
