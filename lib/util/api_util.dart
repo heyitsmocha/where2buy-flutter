@@ -25,10 +25,10 @@ class ApiUtil {
       final response = await onTry();
       return Result.success(response.data ?? [] as T);
     } on DioException catch (e) {
-        onDioError?.call(e);
+      onDioError?.call(e);
       return Result.error(e.message ?? e.toString());
     } on Exception catch (e) {
-        onError?.call(e);
+      onError?.call(e);
       return Result.error(e.toString());
     } finally {
       onFinally?.call();

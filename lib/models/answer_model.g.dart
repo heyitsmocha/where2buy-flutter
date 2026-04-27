@@ -12,7 +12,7 @@ Answer _$AnswerFromJson(Map<String, dynamic> json) => Answer(
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       storeName: json['store_name'] as String,
-      storeAddress: json['store_address'] as String,
+      storeAddress: json['store_address'] as String?,
       additionalInfo: json['additional_info'] as String?,
       likeCount: (json['like_count'] as num?)?.toInt(),
       imageUrl: json['image_url'] as String?,

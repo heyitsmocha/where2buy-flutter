@@ -102,7 +102,7 @@ class _MainAppState extends State<MainApp> {
             );
           case '/inquiry/responses':
             return MaterialPageRoute(
-              builder: (context) => InquiryResponsesPage(inquiry: settings.arguments as Inquiry), // Pass the inquiry data to the InquiryResponsesPage
+              builder: (context) => InquiryResponsesPage(widget.dio, inquiry: settings.arguments as Inquiry), // Pass the inquiry data to the InquiryResponsesPage
               settings: settings, // Pass the settings to the new route
             );
           default:

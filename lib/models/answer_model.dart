@@ -11,7 +11,7 @@ class Answer {
   final double longitude;
   
   final String storeName;
-  final String storeAddress;
+  final String? storeAddress;
   final String? additionalInfo;
 
   final int? likeCount;
@@ -23,7 +23,7 @@ class Answer {
     required this.latitude,
     required this.longitude,
     required this.storeName,
-    required this.storeAddress,
+    this.storeAddress,
     this.additionalInfo,
     this.likeCount,
     this.imageUrl,
