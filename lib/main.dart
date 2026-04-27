@@ -97,7 +97,7 @@ class _MainAppState extends State<MainApp> {
         switch(settings.name) {
           case '/respond/add':
             return MaterialPageRoute(
-              builder: (context) => AddResponsePage(inquiry: settings.arguments as NearbyInquiry), // Pass the inquiry data to the AddResponsePage
+              builder: (context) => AddResponsePage(widget.dio, inquiry: settings.arguments as NearbyInquiry), // Pass the inquiry data to the AddResponsePage
               settings: settings, // Pass the settings to the new route
             );
           case '/inquiry/responses':
