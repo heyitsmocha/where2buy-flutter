@@ -80,7 +80,9 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
       return '${(searchRangeKm * 1000).round()} m';
     }
   }
-  
+
+  ValueNotifier<double> pixelRadiusNotifier = ValueNotifier(0);
+
   GoogleMapController? _mapController;
   set mapController(GoogleMapController? controller) {
     _mapController = controller;
@@ -143,5 +145,11 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     } else {
       _mapController!.moveCamera(cameraUpdate);
     }
+  }
+
+  double calculatePixelRadius(double meters, double latitude, double zoom) {
+    // 156543.03392 is the equatorial circumference / 256
+    double metersPerPixel = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom);
+    return meters/metersPerPixel;
   }
 }

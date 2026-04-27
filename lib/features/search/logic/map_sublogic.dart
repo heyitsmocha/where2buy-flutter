@@ -15,8 +15,17 @@ class MapSubLogic {
   }
 
   /// Stores the map controller reference when the map is created.
-  void handleMapCreated(GoogleMapController controller) {
+  void handleMapCreated(GoogleMapController controller) async {
     _parent.mapController = controller;
+
+    _parent.state.currentZoom = await controller.getZoomLevel();
+
+    // Calculate the initial pixel radius for the search area based on the initial zoom level and search radius
+    _parent.pixelRadiusNotifier.value = _parent.calculatePixelRadius(
+      _parent.searchRangeKm * 1000, // Convert km to meters
+      _parent.state.searchLatLng.latitude,
+      await controller.getZoomLevel(),
+    );
   }
 
   /// Stores the camera position and updates the search center if the search area is unlocked when the camera moves.
@@ -24,12 +33,16 @@ class MapSubLogic {
     // Update the camera position
     state.cameraLatLng = position.target;
 
-    // Also update the search center if not locked
+    // Also update the search area if not locked
     if (!state.lockSearchArea) {
       state.searchLatLng = position.target;
 
-      // Notify listener to make the circle follow the camera
-      _parent.notifyListeners();
+      // Update the pixel radius for the search area based on the new zoom level and search radius
+      _parent.pixelRadiusNotifier.value = _parent.calculatePixelRadius(
+        _parent.searchRangeKm * 1000, // Convert km to meters
+        state.searchLatLng.latitude,
+        position.zoom,
+      );
     }
   }
   

@@ -16,6 +16,13 @@ class SecondaryButtonsSubLogic {
 
       // Set search center to current map center
       state.searchLatLng = state.cameraLatLng;
+
+      // Recalculate the pixel radius for the search area based on the current zoom level and search radius
+      _parent.pixelRadiusNotifier.value = _parent.calculatePixelRadius(
+        _parent.searchRangeKm * 1000, // Convert km to meters
+        state.searchLatLng.latitude,
+        state.currentZoom,
+      );
     }
     _parent.notifyListeners();
   }

@@ -161,8 +161,9 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                 ),
                 // Selected search result chip
                 // TODO: confirm if chip works as intended when the search result name is long, maybe set a max width and use ellipsis if it exceeds that
-                if (controller.state.hasSelectedSearchResult)
-                  Padding(
+                Visibility(
+                  visible: controller.state.hasSelectedSearchResult,
+                  child: Padding(
                     padding: const EdgeInsets.only(left: 64.0),
                     child: AnimatedBuilder(
                       animation: _animationController,
@@ -174,8 +175,9 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                             borderRadius: BorderRadius.all(Radius.circular(32.0)),
                           ),
                           label: Text(controller.searchBarSubLogic.selectedSuggestion!.modelName),
-                        deleteIcon: const Icon(Icons.close),
-                        onDeleted: controller.searchBarSubLogic.handleClearSelectedSuggestion,
+                          deleteIcon: const Icon(Icons.close),
+                          onDeleted: controller.searchBarSubLogic.handleClearSelectedSuggestion,
+                        ),
                       ),
                     ),
                   ),
@@ -215,16 +217,38 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                       onMapCreated: controller.mapSubLogic.handleMapCreated,
                       onCameraMove: controller.mapSubLogic.handleCameraMove,
                       onCameraIdle: controller.mapSubLogic.handleCameraIdle,
-                      circles: {controller.searchRangeCircle},
+                      // Pass circle if search area is locked, otherwise pass empty set to hide it
+                      circles: controller.state.lockSearchArea ? { controller.searchRangeCircle } : {},
                       markers: controller.state.markers.toSet(),
                     ),
-                    if (controller.state.hasSelectedSearchResult)
-                      Positioned(
+                    Visibility(
+                      visible: !controller.state.lockSearchArea,
+                      child: IgnorePointer(
+                        child: Center(
+                          child: ValueListenableBuilder(
+                            valueListenable: controller.pixelRadiusNotifier,
+                            builder: (context, pixelRadius, child) => Container(
+                              width: pixelRadius,
+                              height: pixelRadius ,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blueAccent.withOpacity(0.1),
+                                border: Border.all(color: Colors.blueAccent, width: 2),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),  
+                    Visibility(
+                      visible: controller.state.hasSelectedSearchResult,
+                      child: Positioned(
                         child: Chip(
                           backgroundColor: _colorAnimation.value,
                           label: Text("Search result: ${controller.searchBarSubLogic.isSearchingForAnswers ? 'Searching...' : '${controller.state.markers.length} found'}" ),
                         )
-                      )
+                      ),
+                    )
                   ]
                 ),
               ),
