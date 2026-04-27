@@ -89,7 +89,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   Circle get searchRangeCircle => Circle(
     circleId: const CircleId('search_range'),
     center: state.searchLatLng,
-    radius: _searchRangeKm * 1000, // in meters
+    radius: (_searchRangeKm * 1000) / 2, // Divide by 2 to make the radius represent the distance from the center to the edge of the circle, rather than the diameter
     fillColor: Colors.blue.withOpacity(0.1),
     strokeColor: Colors.blue.withOpacity(0.5),
     strokeWidth: 2,

@@ -51,7 +51,7 @@ class LocationUtil {
   /// Uses the Mercator meters-per-pixel formula:
   ///   metersPerPixel = 156543.03392 * cos(lat) / 2^zoom
   /// Solved for zoom with a padding factor so the radius fills ~80% of width.
-  static double getZoomLevelForRadius(double radiusMeters, LatLng lat, double mapWidthPx, {double paddingFactor = 0.8}) {
+  static double getZoomLevelForRadius(double radiusMeters, LatLng lat, double mapWidthPx, {double paddingFactor = 1.5}) {
     if (mapWidthPx <= 0 || radiusMeters <= 0) return 17;
     final latRad = lat.latitude * math.pi / 180.0;
     final coverageMeters = (radiusMeters * 2) / paddingFactor; // total width to cover
