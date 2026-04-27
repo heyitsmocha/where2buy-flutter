@@ -6,7 +6,14 @@ class LoggerInterceptor extends Interceptor {
     print('--- HTTP Request ---');
     print("Request: ${options.method} ${options.uri}");
     print("Headers: ${options.headers}");
-    print("Data: ${options.data}");
+
+    if (options.data is FormData) {
+      FormData formData = options.data as FormData;
+      print("Data: FormData with fields: ${formData.fields}");
+    } else {
+      print("Data: ${options.data}");
+    }
+
     super.onRequest(options, handler);
   }
 
