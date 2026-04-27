@@ -550,12 +550,12 @@ class _AnswerApiService implements AnswerApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Answer> createAnswer({required FormData data}) async {
+  Future<ApiResponse<Answer>> createAnswer({required FormData data}) async {
     final _extra = <String, dynamic>{'requiresAuth': true};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = data;
-    final _options = _setStreamType<Answer>(Options(
+    final _options = _setStreamType<ApiResponse<Answer>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -573,9 +573,12 @@ class _AnswerApiService implements AnswerApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Answer _value;
+    late ApiResponse<Answer> _value;
     try {
-      _value = Answer.fromJson(_result.data!);
+      _value = ApiResponse<Answer>.fromJson(
+        _result.data!,
+        (json) => Answer.fromJson(json as Map<String, dynamic>),
+      );
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

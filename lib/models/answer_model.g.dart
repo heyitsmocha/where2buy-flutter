@@ -29,3 +29,24 @@ Map<String, dynamic> _$AnswerToJson(Answer instance) => <String, dynamic>{
       'like_count': instance.likeCount,
       'image_url': instance.imageUrl,
     };
+
+CreateAnswerRequest _$CreateAnswerRequestFromJson(Map<String, dynamic> json) =>
+    CreateAnswerRequest(
+      inquiryId: (json['inquiry_id'] as num).toInt(),
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      storeName: json['store_name'] as String,
+      storeAddress: json['store_address'] as String?,
+      additionalInfo: json['additional_info'] as String?,
+    );
+
+Map<String, dynamic> _$CreateAnswerRequestToJson(
+        CreateAnswerRequest instance) =>
+    <String, dynamic>{
+      'inquiry_id': instance.inquiryId,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'store_name': instance.storeName,
+      'store_address': instance.storeAddress,
+      'additional_info': instance.additionalInfo,
+    };

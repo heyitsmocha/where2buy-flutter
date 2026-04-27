@@ -120,7 +120,7 @@ abstract class AnswerApiService {
   @POST("")
   @Extra({"requiresAuth": true})
   @MultiPart()
-  Future<Answer> createAnswer({
+  Future<ApiResponse<Answer>> createAnswer({
     @Body() required FormData data,
   });
 
