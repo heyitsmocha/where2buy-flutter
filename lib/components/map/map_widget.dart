@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget_mixin.dart';
 
@@ -50,30 +51,30 @@ class _MapWidgetState extends State<MapWidget> with MapWidgetMixin {
     return Stack(
       children: [
         // Loading indicator or Google Map
-        isInitializing
-          ? const Row(
-            children: [
-              Expanded(child: Center(child: CircularProgressIndicator())),
-            ])
-          : GoogleMap(
-              myLocationEnabled: widget.showMyLocationIndicator,
-              initialCameraPosition: CameraPosition(
-                target: currentCameraPosition.target,
-                zoom: currentCameraPosition.zoom,
-              ),
-              onMapCreated: handleMapCreated,
-              myLocationButtonEnabled: false, // Disable the default My Location button since we have a custom one
-              zoomControlsEnabled: false, // Disable default zoom controls since we have custom ones
-              onCameraMoveStarted: () {
-                widget.onCameraMoveStarted?.call();
-              },
-              onCameraMove: handleCameraMove,
-              onCameraIdle: () {
-                widget.onCameraIdle?.call();
-              },
-              circles: widget.circles,
-              markers: widget.markers,
+        Choose(
+          condition: isInitializing, 
+          ifTrue: (context) => const Center(child: CircularProgressIndicator()), 
+          ifFalse: (context) => GoogleMap(
+            mapToolbarEnabled: false, // Disable the default Google Maps toolbar that appears when tapping on a marker. 
+            myLocationEnabled: widget.showMyLocationIndicator,
+            initialCameraPosition: CameraPosition(
+              target: currentCameraPosition.target,
+              zoom: currentCameraPosition.zoom,
             ),
+            onMapCreated: handleMapCreated,
+            myLocationButtonEnabled: false, // Disable the default My Location button since we have a custom one
+            zoomControlsEnabled: false, // Disable default zoom controls since we have custom ones
+            onCameraMoveStarted: () {
+              widget.onCameraMoveStarted?.call();
+            },
+            onCameraMove: handleCameraMove,
+            onCameraIdle: () {
+              widget.onCameraIdle?.call();
+            },
+            circles: widget.circles,
+            markers: widget.markers,
+          ),
+        ),
         // Buttons on top of the map
         Row(
           mainAxisSize: MainAxisSize.max,
