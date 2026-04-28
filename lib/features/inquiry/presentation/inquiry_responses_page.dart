@@ -28,6 +28,9 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
   late GoogleMapController _mapController;
 
   bool _isLoading = true;
+
+  bool _isCameraMovedProgrammatically = false; // Flag to track whether the camera is being moved programmatically
+  int? _currentlyViewingStoreIndex;
   
   @override
   void initState() {
@@ -82,6 +85,11 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
             markerId: MarkerId(answer.id.toString()),
             position: LatLng(answer.latitude, answer.longitude),
             infoWindow: InfoWindow(title: answer.storeName, snippet: answer.storeAddress),
+            onTap: () {
+              // When a marker is tapped, find the corresponding answer in the list and set the currently viewing store index to show the eye icon in the ListTile
+              int index = answers.indexOf(answer);
+              _centerCameraToMarker(index, answer);
+            }
           )).forEach((marker) => markers.add(marker));
         });
         break;
@@ -113,6 +121,7 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
               height: 300,
               child: MapWidget(
                 showMyLocationIndicator: true,
+                showZoomControls: true,
                 markers: markers,
                 circles: circles,
                 extraButtons: [
@@ -148,7 +157,15 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
                     ),
                   );
                 },
-                showZoomControls: true,
+                onCameraMoveStarted: () {
+                  // If the camera move was not triggered by tapping on an answer in the list, reset the index to remove the eye icon in the ListTile
+                  if (!_isCameraMovedProgrammatically && _currentlyViewingStoreIndex != null) {
+                    setState(() {
+                      _currentlyViewingStoreIndex = null;
+                    });
+                  }
+                },
+                onCameraIdle: () => _isCameraMovedProgrammatically = false, // Reset the flag when the camera stops moving
               ),
             ), // Map
             const SizedBox(height: 16),
@@ -164,18 +181,26 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
                         final answer = answers[index];
                         return ListTile(
                           title: Text(answer.storeName),
-                          // trailing: const Icon(Icons.eye),
-                          onTap: () => _mapController.animateCamera(
-                              CameraUpdate.newLatLng(
-                                LatLng(answer.latitude, answer.longitude),
-                              ),
-                            ),
+                          trailing: _currentlyViewingStoreIndex == index ? const Icon(Icons.visibility) : null,
+                          onTap: () => _centerCameraToMarker(index, answer),
                         );
                       },
                     ),
             ), 
           ],
         ),
+      ),
+    );
+  }
+
+  void _centerCameraToMarker(int index, Answer answer) {
+    setState(() {
+      _currentlyViewingStoreIndex = index;
+      _isCameraMovedProgrammatically = true;
+    });
+    _mapController.animateCamera(
+      CameraUpdate.newLatLng(
+        LatLng(answer.latitude, answer.longitude),
       ),
     );
   }
