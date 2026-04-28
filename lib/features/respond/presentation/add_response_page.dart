@@ -92,6 +92,7 @@ class _AddResponsePageState extends State<AddResponsePage> {
                   child: PinAnimationWidget(
                     onControllerInitialized: (pinAnimationController) => _pinAnimationController = pinAnimationController,
                     child: MapWidget(
+                      showMyLocationIndicator: true,
                       showZoomControls: true,
                       onLocationInitialized: (position) => _currentLatLng = position,
                       onMapCreated: (mapController) => _mapController = mapController,

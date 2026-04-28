@@ -112,6 +112,7 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
             SizedBox(
               height: 300,
               child: MapWidget(
+                showMyLocationIndicator: true,
                 markers: markers,
                 circles: circles,
                 extraButtons: [

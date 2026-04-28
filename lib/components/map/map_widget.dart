@@ -7,8 +7,9 @@ class MapWidget extends StatefulWidget{
   const MapWidget(
     {super.key, 
     this.showZoomControls = false, 
-    this.showMyLocationButton = 
-    true, this.extraButtons = const [],
+    this.showMyLocationButton = true, 
+    this.showMyLocationIndicator = false,
+    this.extraButtons = const [],
     this.circles = const {},
     this.markers = const {},
     this.onLocationInitialized,
@@ -21,7 +22,8 @@ class MapWidget extends StatefulWidget{
 
   final bool
     showZoomControls,
-    showMyLocationButton;
+    showMyLocationButton,
+    showMyLocationIndicator;
 
   final Set<Circle> circles;
   final Set<Marker> markers;
@@ -54,13 +56,14 @@ class _MapWidgetState extends State<MapWidget> with MapWidgetMixin {
               Expanded(child: Center(child: CircularProgressIndicator())),
             ])
           : GoogleMap(
+              myLocationEnabled: widget.showMyLocationIndicator,
               initialCameraPosition: CameraPosition(
                 target: currentCameraPosition.target,
                 zoom: currentCameraPosition.zoom,
               ),
               onMapCreated: handleMapCreated,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
+              myLocationButtonEnabled: false, // Disable the default My Location button since we have a custom one
+              zoomControlsEnabled: false, // Disable default zoom controls since we have custom ones
               onCameraMoveStarted: () {
                 widget.onCameraMoveStarted?.call();
               },
