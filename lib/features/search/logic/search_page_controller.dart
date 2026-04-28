@@ -33,6 +33,8 @@ class SearchPageState {
   LatLng searchLatLng;
   List<Marker> markers = [];
 
+  String snackbarMessage = '';
+
   SearchPageState({
     this.isLoggedIn = false,
     this.hasSelectedSearchResult = false,

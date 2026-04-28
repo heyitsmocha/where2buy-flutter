@@ -46,7 +46,8 @@ class SearchBarSubLogic {
 
   Future<void> handleSendNewRequest() async {
     final CreateInquiryRequest inquiry = CreateInquiryRequest(
-      name: _selectedSuggestion?.modelName ?? '',
+      itemId: _selectedSuggestion?.modelId,
+      name: _selectedSuggestion?.modelName ?? searchText,
       // description: _selectedSuggestion?. ?? '',
       latitude: _parent.state.searchLatLng.latitude,
       longitude: _parent.state.searchLatLng.longitude,
@@ -63,8 +64,17 @@ class SearchBarSubLogic {
 
       _parent.emitEvent(SearchPageUiEvent.newRequestPosted);
     } on DioException catch (e) {
-      print('Error creating inquiry: ' + e.toString());
+      print('Error creating inquiry:  ${(e.response?.data.toString() ?? e.message)}');
+      
+      if (e.response != null) {
+        if (e.response!.data.toString().contains("field is required")) {
+          _parent.state.snackbarMessage = 'Failed to post new item request. Please ensure all required fields are filled.';
+        }
+      } else {
+        _parent.state.snackbarMessage = 'Failed to post new item request. Please try again.';
+      }
       _parent.emitEvent(SearchPageUiEvent.newRequestFailed);
+      _parent.state.snackbarMessage = ''; // Clear the snackbar message after emitting the event to prevent stale messages from being shown later
       return;
     }
   }
@@ -76,6 +86,7 @@ class SearchBarSubLogic {
   /// If the input is less than 3 characters, it clears suggestions and does not make an API call. <br>
   /// If the input is 3 or more characters, it fetches suggestions from the server
   Future<void> handleSearchInputChanged(String value) async {
+    searchText = value;
     if (value.length < 3) {
       // Debounce to avoid flooding the server with requests on every keystroke
       _searchSuggestionDebounceTimer?.cancel();
@@ -83,7 +94,6 @@ class SearchBarSubLogic {
       // Cancel any ongoing search suggestions request before starting a new one
       _searchSuggestionsCancelToken?.cancel("Input changed to less than 3 characters");
 
-      searchText = value;
       _searchSuggestions.clear();
       _parent.notifyListeners();
       return; 
