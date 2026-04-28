@@ -64,20 +64,20 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     secondaryButtonsSubLogic = SecondaryButtonsSubLogic(this, state);
   }
 
-  final double _maxRangeKm = 80;
-  double get maxRangeKm => _maxRangeKm;
+  final double _maxRadiusKm = 50;
+  double get maxRadiusKm => _maxRadiusKm;
 
   // Calculate the actual range to make the slider exponential (smaller increments at the start, larger increments at the end)
-  double get _searchRangeKm => _maxRangeKm * math.pow(state.currentSliderValue, 2);
-  double get searchRangeKm => _searchRangeKm;
+  double get _searchRadiusKm => _maxRadiusKm * math.pow(state.currentSliderValue, 2);
+  double get searchRadiusKm => _searchRadiusKm;
 
-  String get searchRangeText {
-    if (searchRangeKm == 0) {
+  String get searchRadiusText {
+    if (searchRadiusKm == 0) {
       return 'Exact Location';
-    } else if (searchRangeKm >= 1) {
-      return '${searchRangeKm.round()} km';
+    } else if (searchRadiusKm >= 1) {
+      return '${searchRadiusKm.round()} km';
     } else {
-      return '${(searchRangeKm * 1000).round()} m';
+      return '${(searchRadiusKm * 1000).round()} m';
     }
   }
 
@@ -91,7 +91,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   Circle get searchRangeCircle => Circle(
     circleId: const CircleId('search_range'),
     center: state.searchLatLng,
-    radius: (_searchRangeKm * 1000) / 2, // Divide by 2 to make the radius represent the distance from the center to the edge of the circle, rather than the diameter
+    radius: (_searchRadiusKm * 1000),
     fillColor: Colors.blue.withOpacity(0.1),
     strokeColor: Colors.blue.withOpacity(0.5),
     strokeWidth: 2,
@@ -102,7 +102,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   void handleRangeSliderChanged(double value, double mapWidth) {
     state.currentSliderValue = value;
     // update zoom to match the new range (value in km -> meters)
-    state.currentZoom = LocationUtil.getZoomLevelForRadius(_searchRangeKm * 1000, state.cameraLatLng, mapWidth);
+    state.currentZoom = LocationUtil.getZoomLevelForRadius(_searchRadiusKm * 1000, state.cameraLatLng, mapWidth);
 
     notifyListeners();
 
@@ -131,7 +131,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     // if (!mounted) return;
     if (_mapController == null) return;
 
-    final zoom = LocationUtil.getZoomLevelForRadius(searchRangeKm * 1000, state.searchLatLng, mapWidth);
+    final zoom = LocationUtil.getZoomLevelForRadius(searchRadiusKm * 1000, state.searchLatLng, mapWidth);
 
     state.currentZoom = zoom;
     notifyListeners();

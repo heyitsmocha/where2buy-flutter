@@ -8,7 +8,7 @@ class SearchRangeSlider extends StatelessWidget {
     required this.sliderValue,
     required this.onSliderChanged,
     this.onSliderChangeEnd,
-    required this.searchRangeText,
+    required this.searchRadiusText,
   });
 
   /// A Listenable (e.g. ValueNotifier, BaseController) that triggers a rebuild of the slider when its value changes. This is used to update the slider position and displayed range text when the search range is changed from other parts of the UI (e.g. map interactions).
@@ -18,7 +18,7 @@ class SearchRangeSlider extends StatelessWidget {
   final double Function() sliderValue;
 
   /// Callback instead of direct String value to ensure the latest value is always used when the slider is built
-  final String Function() searchRangeText;
+  final String Function() searchRadiusText;
 
   final Function(double) onSliderChanged;
   final Function(double)? onSliderChangeEnd;
@@ -30,7 +30,7 @@ class SearchRangeSlider extends StatelessWidget {
       builder: (context, _) => Column(
         children: [
           // If range is 0, show "Exact Location", else show range in km or m
-          Text('Search Range: ${searchRangeText()}'),
+          Text('Search Radius: ${searchRadiusText()}'),
           Slider(
             value: sliderValue(),
             min: 0.08,

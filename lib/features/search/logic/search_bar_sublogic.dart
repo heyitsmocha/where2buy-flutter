@@ -50,7 +50,7 @@ class SearchBarSubLogic {
       // description: _selectedSuggestion?. ?? '',
       latitude: _parent.state.searchLatLng.latitude,
       longitude: _parent.state.searchLatLng.longitude,
-      searchRadiusMeters: (_parent.searchRangeKm * 1000).toInt(),
+      searchRadiusMeters: (_parent.searchRadiusKm * 1000).toInt(),
       // sameCountryOnly: true,
       // anywhere: true,
     );
@@ -180,7 +180,7 @@ class SearchBarSubLogic {
         item: _selectedSuggestion!.modelId,
         latitude: _parent.state.searchLatLng.latitude,
         longitude: _parent.state.searchLatLng.longitude,
-        range: _parent.searchRangeKm * 1000,
+        range: _parent.searchRadiusKm * 1000,
       )
     );
 

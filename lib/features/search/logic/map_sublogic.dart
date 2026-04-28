@@ -22,7 +22,7 @@ class MapSubLogic {
 
     // Calculate the initial pixel radius for the search area based on the initial zoom level and search radius
     _parent.pixelRadiusNotifier.value = _parent.calculatePixelRadius(
-      _parent.searchRangeKm * 1000, // Convert km to meters
+      _parent.searchRadiusKm * 1000, // Convert km to meters
       _parent.state.searchLatLng.latitude,
       await controller.getZoomLevel(),
     );
@@ -39,7 +39,7 @@ class MapSubLogic {
 
       // Update the pixel radius for the search area based on the new zoom level and search radius
       _parent.pixelRadiusNotifier.value = _parent.calculatePixelRadius(
-        _parent.searchRangeKm * 1000, // Convert km to meters
+        _parent.searchRadiusKm * 1000, // Convert km to meters
         state.searchLatLng.latitude,
         position.zoom,
       );

@@ -73,7 +73,7 @@ class _NewInquiryFormState extends State<NewInquiryForm> {
               SearchRangeSlider(
                 listenable: widget.listenable,
                 sliderValue: widget.sliderValue, 
-                searchRangeText: widget.searchRangeText,
+                searchRadiusText: widget.searchRangeText,
                 onSliderChanged: widget.onSliderChanged 
               ),
               // Image upload button

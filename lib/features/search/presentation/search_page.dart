@@ -115,17 +115,23 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
     showModalBottomSheet(
       context: context, 
       isScrollControlled: true,
-      builder: (context) => NewInquiryForm(
-        itemName: controller.searchBarSubLogic.searchText,
-        // description: controller.searchBarSubLogic.description,
-        onItemNameChanged: (value) => controller.searchBarSubLogic.searchText = value,
-        onDescriptionChanged: (value) {},
-        onSubmit: () => controller.searchBarSubLogic.handleSendNewRequest(),
-
-        listenable: controller,
-        sliderValue: () =>controller.state.currentSliderValue,
-        onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
-        searchRangeText: () => controller.searchRangeText,
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5 + MediaQuery.of(context).viewInsets.bottom + 16,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: NewInquiryForm(
+            itemName: controller.searchBarSubLogic.searchText,
+            // description: controller.searchBarSubLogic.description,
+            onItemNameChanged: (value) => controller.searchBarSubLogic.searchText = value,
+            onDescriptionChanged: (value) {},
+            onSubmit: () => controller.searchBarSubLogic.handleSendNewRequest(),
+          
+            listenable: controller,
+            sliderValue: () => controller.state.currentSliderValue,
+            onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
+            searchRadiusText: () => controller.searchRadiusText,
+          ),
+        ),
       )
     );
   }
@@ -263,7 +269,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                 sliderValue: () => controller.state.currentSliderValue,
                 onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
                 onSliderChangeEnd: (value) => controller.handleRangeSliderChangeEnd(value),
-                searchRangeText: () => controller.searchRangeText,
+                searchRadiusText: () => controller.searchRadiusText,
               ),
             ),
           ),

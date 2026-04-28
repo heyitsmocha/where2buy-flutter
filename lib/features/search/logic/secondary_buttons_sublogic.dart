@@ -19,7 +19,7 @@ class SecondaryButtonsSubLogic {
 
       // Recalculate the pixel radius for the search area based on the current zoom level and search radius
       _parent.pixelRadiusNotifier.value = _parent.calculatePixelRadius(
-        _parent.searchRangeKm * 1000, // Convert km to meters
+        _parent.searchRadiusKm * 1000, // Convert km to meters
         state.searchLatLng.latitude,
         state.currentZoom,
       );
