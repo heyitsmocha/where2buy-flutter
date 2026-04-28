@@ -65,7 +65,7 @@ class _MainAppState extends State<MainApp> {
   ];
 
   final List<Widget> _destinations = const [
-    NavigationDestination(icon: Icon(Icons.chat_outlined), selectedIcon: Icon(Icons.chat), label: 'Respond'),
+    NavigationDestination(icon: Icon(Icons.sms_failed_outlined), selectedIcon: Icon(Icons.sms_failed), label: 'Respond'),
     NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'Search'),
     NavigationDestination(icon: Icon(Icons.list_alt_outlined), selectedIcon: Icon(Icons.list_alt), label: 'My Requests'),
   ];

@@ -25,13 +25,15 @@ class MapWidget extends StatefulWidget{
   final Set<Circle> circles;
   final Set<Marker> markers;
 
+  /// List of extra buttons that'll be displayed in a column horizontally next to the base buttons.
   final List<MapSecondaryButton> extraButtons;
 
-  final Function(LatLng position)? onLocationInitialized;
-  final Function(GoogleMapController)? onMapCreated;
-  final Function()? onCameraMoveStarted;
-  final Function()? onCameraIdle;
-  final Function(CameraPosition)? onCameraMove;
+  /// Callback for when the user's location is first initialized. This will only be called once when the location is first retrieved, and will not be called again if the location is updated later. This is useful for setting the initial camera position of the map to the user's location.
+  final void Function(LatLng position)? onLocationInitialized;
+  final void Function(GoogleMapController)? onMapCreated;
+  final void Function()? onCameraMoveStarted;
+  final void Function()? onCameraIdle;
+  final void Function(CameraPosition)? onCameraMove;
 
   @override
   State<StatefulWidget> createState() => _MapWidgetState();

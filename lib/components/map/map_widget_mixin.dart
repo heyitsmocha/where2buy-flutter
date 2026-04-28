@@ -22,6 +22,7 @@ mixin MapWidgetMixin on State<MapWidget> {
       _enabledBaseButtons.addAll(
         [
           IconButton.filled(
+            tooltip: 'Zoom In',
             icon: const Icon(Icons.zoom_in),
             onPressed: () {
               setState(() => _currentCameraPosition = CameraPosition(target: _currentCameraPosition.target, zoom: _currentCameraPosition.zoom+1));
@@ -29,6 +30,7 @@ mixin MapWidgetMixin on State<MapWidget> {
             } 
           ),
           IconButton.filled(
+            tooltip: 'Zoom Out',
             icon: const Icon(Icons.zoom_out),
             onPressed: () {
               setState(() => _currentCameraPosition = CameraPosition(target: _currentCameraPosition.target, zoom: _currentCameraPosition.zoom-1));
@@ -41,6 +43,7 @@ mixin MapWidgetMixin on State<MapWidget> {
     if (widget.showMyLocationButton) {
       _enabledBaseButtons.add(
         IconButton.filled(
+          tooltip: 'My Location',
           icon: _isLoading ? const SizedBox(width:24, height:24, child: CircularProgressIndicator(strokeWidth:2.5)) : const Icon(Icons.my_location),
           onPressed: _isLoading 
             ? null 
