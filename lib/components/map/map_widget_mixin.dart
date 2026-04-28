@@ -106,6 +106,7 @@ mixin MapWidgetMixin on State<MapWidget> {
       if (isInitializing) {
         widget.onLocationInitialized?.call(currentLocation);
       }
+      widget.onLocationRetrieved?.call(currentLocation);
     
       return currentLocation;
     } catch (e) {

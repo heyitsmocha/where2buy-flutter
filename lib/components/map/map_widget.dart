@@ -12,6 +12,7 @@ class MapWidget extends StatefulWidget{
     this.circles = const {},
     this.markers = const {},
     this.onLocationInitialized,
+    this.onLocationRetrieved,
     this.onMapCreated,
     this.onCameraMoveStarted,
     this.onCameraIdle,
@@ -30,6 +31,8 @@ class MapWidget extends StatefulWidget{
 
   /// Callback for when the user's location is first initialized. This will only be called once when the location is first retrieved, and will not be called again if the location is updated later. This is useful for setting the initial camera position of the map to the user's location.
   final void Function(LatLng position)? onLocationInitialized;
+  /// Callback for when the user's location is retrieved. This will be called every time the location is updated.
+  final void Function(LatLng position)? onLocationRetrieved;
   final void Function(GoogleMapController)? onMapCreated;
   final void Function()? onCameraMoveStarted;
   final void Function()? onCameraIdle;
