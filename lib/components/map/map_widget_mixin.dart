@@ -73,7 +73,7 @@ mixin MapWidgetMixin on State<MapWidget> {
     super.initState();
 
     // Get the current location and initialize camera position
-    _getCurrentLocation(onLocationInitialized: widget.onLocationInitialized)
+    _getCurrentLocation()
       .then((location) {
           _currentCameraPosition = CameraPosition(
             target: location,
@@ -95,7 +95,7 @@ mixin MapWidgetMixin on State<MapWidget> {
   }
 
   /// Get the current location of the user
-  Future<LatLng> _getCurrentLocation({Function(LatLng position)? onLocationInitialized}) async {
+  Future<LatLng> _getCurrentLocation() async {
     if (!mounted) return Future.value(const LatLng(0,0));
     // Trigger UI rebuild to disable the My Location button
     setState(() => _isLoading = true);
@@ -104,7 +104,7 @@ mixin MapWidgetMixin on State<MapWidget> {
       Position position = await LocationUtil.getCurrentLocation();
       LatLng currentLocation = LatLng(position.latitude, position.longitude);
       if (isInitializing) {
-        onLocationInitialized?.call(currentLocation);
+        widget.onLocationInitialized?.call(currentLocation);
       }
     
       return currentLocation;
