@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/core/network_results.dart';
@@ -170,22 +171,26 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
             ), // Map
             const SizedBox(height: 16),
             Expanded(
-              child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : answers.isEmpty 
-                  ? const Text('No responses have been made.',)
-                  : ListView.separated(
-                      itemCount: answers.length,
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final answer = answers[index];
-                        return ListTile(
-                          title: Text(answer.storeName),
-                          trailing: _currentlyViewingStoreIndex == index ? const Icon(Icons.visibility) : null,
-                          onTap: () => _centerCameraToMarker(index, answer),
-                        );
-                      },
-                    ),
+              child: Choose(
+                condition: _isLoading,
+                ifTrue: (context) => const Center(child: CircularProgressIndicator()),
+                ifFalse: (context) => Choose(
+                  condition: answers.isEmpty, 
+                  ifTrue: (context) => const Text('No responses have been made.'), 
+                  ifFalse: (context) => ListView.separated(
+                    itemCount: answers.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final answer = answers[index];
+                      return ListTile(
+                        title: Text(answer.storeName),
+                        trailing: _currentlyViewingStoreIndex == index ? const Icon(Icons.visibility) : null,
+                        onTap: () => _centerCameraToMarker(index, answer),
+                      );
+                    },
+                  ),
+                ),
+              ),
             ), 
           ],
         ),
