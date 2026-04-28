@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/components/search_range_slider.dart';
+import 'package:w2b_flutter/models/item_model.dart';
 
 class NewInquiryForm extends StatefulWidget {
+  final ItemSearchSuggestion? item;
   final String? itemName, description;
-  final Function(String value) onItemNameChanged, onDescriptionChanged;
+  final Function(String value)? onItemNameChanged, onDescriptionChanged;
   final Function()? onSubmit;
 
   final Listenable listenable;
   final double Function() sliderValue;
   final Function(double) onSliderChanged;
-  final String Function() searchRangeText;
+  final String Function() searchRadiusText;
 
   
   const NewInquiryForm({
     super.key, 
+    this.item,
     this.itemName, 
     this.description, 
-    required this.onItemNameChanged, 
-    required this.onDescriptionChanged,
+    this.onItemNameChanged, 
+    this.onDescriptionChanged,
     this.onSubmit,
 
     // Search range slider parameters
     required this.listenable,
     required this.sliderValue,
     required this.onSliderChanged,
-    required this.searchRangeText,
+    required this.searchRadiusText,
   });
   
   @override
@@ -73,7 +76,7 @@ class _NewInquiryFormState extends State<NewInquiryForm> {
               SearchRangeSlider(
                 listenable: widget.listenable,
                 sliderValue: widget.sliderValue, 
-                searchRadiusText: widget.searchRangeText,
+                searchRadiusText: widget.searchRadiusText,
                 onSliderChanged: widget.onSliderChanged 
               ),
               // Image upload button
