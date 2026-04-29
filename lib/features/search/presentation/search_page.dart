@@ -198,10 +198,33 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
               child: ListenableBuilder(
                 listenable: controller,
                 builder: (context, _) => Stack(
-                  children: [
-                      MapWidget(
+                  children: [ // Map and the search result chip
+                    MapWidget(
                       showMyLocationButton: true,
                       showZoomControls: true,
+                      mapOverlayLayer: Visibility( // Search circle
+                        visible: !controller.state.lockSearchArea,
+                        child: IgnorePointer(
+                          child: OverflowBox(
+                            maxWidth: double.infinity,
+                            maxHeight: double.infinity,
+                            child: Center(
+                              child: ValueListenableBuilder(
+                                valueListenable: controller.searchRadiusPixelsNotifier,
+                                builder: (context, searchRadiusPixels, child) => Container(
+                                  width: searchRadiusPixels * 2, // Diameter is twice the radius
+                                  height: searchRadiusPixels * 2,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.blueAccent.withOpacity(0.1),
+                                    border: Border.all(color: Colors.blueAccent, width: 2),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                       extraButtons: [
                         MapSecondaryButton(
                           icon: Icon(controller.state.lockSearchArea ? Icons.lock : Icons.lock_open),
@@ -227,26 +250,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                       circles: controller.state.lockSearchArea ? { controller.searchRangeCircle } : {},
                       markers: controller.state.markers.toSet(),
                     ),
-                    Visibility(
-                      visible: !controller.state.lockSearchArea,
-                      child: IgnorePointer(
-                        child: Center(
-                          child: ValueListenableBuilder(
-                            valueListenable: controller.searchRadiusPixelsNotifier,
-                            builder: (context, searchRadiusPixels, child) => Container(
-                              width: searchRadiusPixels * 2, // Diameter is twice the radius
-                              height: searchRadiusPixels * 2,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.blueAccent.withOpacity(0.1),
-                                border: Border.all(color: Colors.blueAccent, width: 2),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),  
-                    Visibility(
+                    Visibility( // Search result count chip
                       visible: controller.state.hasSelectedSearchResult,
                       child: Positioned(
                         child: Chip(

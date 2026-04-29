@@ -18,13 +18,17 @@ class MapWidget extends StatefulWidget{
     this.onMapCreated,
     this.onCameraMoveStarted,
     this.onCameraIdle,
-    this.onCameraMove
+    this.onCameraMove,
+    this.mapOverlayLayer,
   });
 
   final bool
     showZoomControls,
     showMyLocationButton,
     showMyLocationIndicator;
+
+  /// An optional widget that will be displayed on top of the map but below the buttons. This can be used to display things like a search radius circle or other map overlays. 
+  final Widget? mapOverlayLayer;
 
   final Set<Circle> circles;
   final Set<Marker> markers;
@@ -48,52 +52,55 @@ class MapWidget extends StatefulWidget{
 class _MapWidgetState extends State<MapWidget> with MapWidgetMixin {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Loading indicator or Google Map
-        Choose(
-          condition: isInitializing, 
-          ifTrue: (context) => const Center(child: CircularProgressIndicator()), 
-          ifFalse: (context) => GoogleMap(
-            mapToolbarEnabled: false, // Disable the default Google Maps toolbar that appears when tapping on a marker. 
-            myLocationEnabled: widget.showMyLocationIndicator,
-            initialCameraPosition: CameraPosition(
-              target: currentCameraPosition.target,
-              zoom: currentCameraPosition.zoom,
+    return ClipRect(
+      child: Stack(
+        children: [
+          // Loading indicator or Google Map
+          Choose(
+            condition: isInitializing, 
+            ifTrue: (context) => const Center(child: CircularProgressIndicator()), 
+            ifFalse: (context) => GoogleMap(
+              mapToolbarEnabled: false, // Disable the default Google Maps toolbar that appears when tapping on a marker. 
+              myLocationEnabled: widget.showMyLocationIndicator,
+              initialCameraPosition: CameraPosition(
+                target: currentCameraPosition.target,
+                zoom: currentCameraPosition.zoom,
+              ),
+              onMapCreated: handleMapCreated,
+              myLocationButtonEnabled: false, // Disable the default My Location button since we have a custom one
+              zoomControlsEnabled: false, // Disable default zoom controls since we have custom ones
+              onCameraMoveStarted: () {
+                widget.onCameraMoveStarted?.call();
+              },
+              onCameraMove: handleCameraMove,
+              onCameraIdle: () {
+                widget.onCameraIdle?.call();
+              },
+              circles: widget.circles,
+              markers: widget.markers,
             ),
-            onMapCreated: handleMapCreated,
-            myLocationButtonEnabled: false, // Disable the default My Location button since we have a custom one
-            zoomControlsEnabled: false, // Disable default zoom controls since we have custom ones
-            onCameraMoveStarted: () {
-              widget.onCameraMoveStarted?.call();
-            },
-            onCameraMove: handleCameraMove,
-            onCameraIdle: () {
-              widget.onCameraIdle?.call();
-            },
-            circles: widget.circles,
-            markers: widget.markers,
           ),
-        ),
-        // Buttons on top of the map
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if(widget.extraButtons.isNotEmpty) 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: widget.extraButtons.reversed.toList(),
-              ),
-            if(enabledBaseButtons.isNotEmpty) 
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: enabledBaseButtons,
-              ),
-          ],
-        ),
-      ],
+          if(widget.mapOverlayLayer != null) widget.mapOverlayLayer!,
+          // Buttons on top of the map
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if(widget.extraButtons.isNotEmpty) 
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: widget.extraButtons.reversed.toList(),
+                ),
+              if(enabledBaseButtons.isNotEmpty) 
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: enabledBaseButtons,
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
