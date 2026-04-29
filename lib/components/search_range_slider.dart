@@ -33,7 +33,7 @@ class SearchRangeSlider extends StatelessWidget {
           Text('Search Radius: ${searchRadiusText()}'),
           Slider(
             value: sliderValue(),
-            min: 0.08,
+            min: 0,
             max: 1,
             onChanged: onSliderChanged,
             onChangeEnd: onSliderChangeEnd,

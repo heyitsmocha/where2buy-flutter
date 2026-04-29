@@ -66,12 +66,14 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     secondaryButtonsSubLogic = SecondaryButtonsSubLogic(this);
   }
 
-  final double _maxRadiusKm = 50;
-  double get maxRadiusKm => _maxRadiusKm;
+  final double minRadiusKm = 0.5;
+  final double maxRadiusKm = 50;
 
   // Calculate the actual range to make the slider exponential (smaller increments at the start, larger increments at the end)
-  double get _searchRadiusKm => _maxRadiusKm * math.pow(state.currentSliderValue, 2);
-  double get searchRadiusKm => _searchRadiusKm;
+  double get searchRadiusKm {
+    final t = math.pow(state.currentSliderValue, 2);
+    return minRadiusKm + (maxRadiusKm - minRadiusKm) * t;
+  }
 
   String get searchRadiusText {
     if (searchRadiusKm == 0) {
@@ -94,7 +96,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   Circle get searchRangeCircle => Circle(
     circleId: const CircleId('search_range'),
     center: state.searchLatLng,
-    radius: (_searchRadiusKm * 1000),
+    radius: (searchRadiusKm * 1000),
     fillColor: Colors.blue.withOpacity(0.1),
     strokeColor: Colors.blue.withOpacity(0.5),
     strokeWidth: 2,
@@ -143,7 +145,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     // 156543.03392 is the equatorial circumference / 256
     double metersPerPixel = 156543.03392 * math.cos(state.searchLatLng.latitude * math.pi / 180) / math.pow(2, zoom ?? state.currentZoom);
 
-    double searchRadiusMeters = _searchRadiusKm * 1000;
+    double searchRadiusMeters = searchRadiusKm * 1000;
 
     searchRadiusPixelsNotifier.value = searchRadiusMeters/metersPerPixel;
     // return meters/metersPerPixel;
