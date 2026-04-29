@@ -61,9 +61,9 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
       cameraLatLng: const LatLng(3.157445974699537, 101.71153740166021),
       searchLatLng: const LatLng(3.157445974699537, 101.71153740166021),
     );
-    searchBarSubLogic = SearchBarSubLogic(this, state);
-    mapSubLogic = MapSubLogic(this, state);
-    secondaryButtonsSubLogic = SecondaryButtonsSubLogic(this, state);
+    searchBarSubLogic = SearchBarSubLogic(this);
+    mapSubLogic = MapSubLogic(this);
+    secondaryButtonsSubLogic = SecondaryButtonsSubLogic(this);
   }
 
   final double _maxRadiusKm = 50;
@@ -83,6 +83,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     }
   }
 
+  // TODO: initial circle is too small, find out why
   ValueNotifier<double> pixelRadiusNotifier = ValueNotifier(0);
 
   GoogleMapController? _mapController;
@@ -103,19 +104,8 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   /// Updates the slider value and adjusts the map zoom accordingly.
   void handleRangeSliderChanged(double value, double mapWidth) {
     state.currentSliderValue = value;
-    // update zoom to match the new range (value in km -> meters)
-    state.currentZoom = LocationUtil.getZoomLevelForRadius(_searchRadiusKm * 1000, state.cameraLatLng, mapWidth);
-
-    notifyListeners();
-
-    // animate the camera to the new zoom
-    if (_mapController != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: state.cameraLatLng, zoom: state.currentZoom),
-        ),
-      );
-    }
+    
+    moveCameraToSearchLocation(mapWidth);
   }
 
   void handleRangeSliderChangeEnd(double value) {
@@ -134,7 +124,6 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     if (_mapController == null) return;
 
     final zoom = LocationUtil.getZoomLevelForRadius(searchRadiusKm * 1000, state.searchLatLng, mapWidth);
-
     state.currentZoom = zoom;
     notifyListeners();
 
@@ -149,9 +138,14 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     }
   }
 
-  double calculatePixelRadius(double meters, double latitude, double zoom) {
+  /// Recalculates the pixel radius for the search area based on the zoom provided. <br> If no zoom is provided, it uses the current zoom level from the state.
+  void recalculatePixelRadius({double? zoom}) {
     // 156543.03392 is the equatorial circumference / 256
-    double metersPerPixel = 156543.03392 * math.cos(latitude * math.pi / 180) / math.pow(2, zoom);
-    return meters/metersPerPixel;
+    double metersPerPixel = 156543.03392 * math.cos(state.searchLatLng.latitude * math.pi / 180) / math.pow(2, zoom ?? state.currentZoom);
+
+    double searchRadiusMeters = _searchRadiusKm * 1000;
+
+    pixelRadiusNotifier.value = searchRadiusMeters/metersPerPixel;
+    // return meters/metersPerPixel;
   }
 }
