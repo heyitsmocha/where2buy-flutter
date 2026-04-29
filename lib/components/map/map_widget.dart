@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
 import 'package:w2b_flutter/components/map/map_widget_mixin.dart';
+import 'package:w2b_flutter/components/show_when.dart';
 
 class MapWidget extends StatefulWidget{
   const MapWidget(
@@ -80,7 +81,10 @@ class _MapWidgetState extends State<MapWidget> with MapWidgetMixin {
               markers: widget.markers,
             ),
           ),
-          if(widget.mapOverlayLayer != null) widget.mapOverlayLayer!,
+          ShowWhen(
+            condition: widget.mapOverlayLayer != null, 
+            ifTrue: (context) => widget.mapOverlayLayer!
+          ),
           // Buttons on top of the map
           Row(
             mainAxisSize: MainAxisSize.max,
