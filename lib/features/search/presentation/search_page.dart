@@ -120,6 +120,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
         child: Scaffold(
           backgroundColor: Colors.transparent,
           body: NewInquiryForm(
+            item: controller.searchBarSubLogic.selectedSuggestion,
             itemName: controller.searchBarSubLogic.searchText,
             // description: controller.searchBarSubLogic.description,
             onItemNameChanged: (value) => controller.searchBarSubLogic.searchText = value,
@@ -129,6 +130,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
             listenable: controller,
             sliderValue: () => controller.state.currentSliderValue,
             onSliderChanged: (value) => controller.handleRangeSliderChanged(value),
+            onSliderChangeEnd: (_) => controller.handleRangeSliderChangeEnd(mapWidth),
             searchRadiusText: () => controller.searchRadiusText,
           ),
         ),
