@@ -40,7 +40,7 @@ class SearchPageState {
     this.hasSelectedSearchResult = false,
     this.lockSearchArea = true,
     this.isCameraMovedFromSlider = false,
-    this.currentSliderValue = 0.08,
+    this.currentSliderValue = 0,
     this.currentZoom = 12,
     required this.cameraLatLng,
     required this.searchLatLng,
@@ -85,7 +85,6 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     }
   }
 
-  // TODO: initial circle is too small, find out why
   ValueNotifier<double> searchRadiusPixelsNotifier = ValueNotifier(0);
 
   GoogleMapController? _mapController;
