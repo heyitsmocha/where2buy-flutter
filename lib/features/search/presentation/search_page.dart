@@ -128,7 +128,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
           
             listenable: controller,
             sliderValue: () => controller.state.currentSliderValue,
-            onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
+            onSliderChanged: (value) => controller.handleRangeSliderChanged(value),
             searchRadiusText: () => controller.searchRadiusText,
           ),
         ),
@@ -271,8 +271,8 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
               child: SearchRangeSlider(
                 listenable: controller,
                 sliderValue: () => controller.state.currentSliderValue,
-                onSliderChanged: (value) => controller.handleRangeSliderChanged(value, mapWidth),
-                onSliderChangeEnd: (value) => controller.handleRangeSliderChangeEnd(value),
+                onSliderChanged: (value) => controller.handleRangeSliderChanged(value),
+                onSliderChangeEnd: (value) => controller.handleRangeSliderChangeEnd(mapWidth),
                 searchRadiusText: () => controller.searchRadiusText,
               ),
             ),

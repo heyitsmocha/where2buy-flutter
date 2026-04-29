@@ -87,10 +87,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
 
   ValueNotifier<double> searchRadiusPixelsNotifier = ValueNotifier(0);
 
-  GoogleMapController? _mapController;
-  set mapController(GoogleMapController? controller) {
-    _mapController = controller;
-  }
+  GoogleMapController? mapController;
 
   Circle get searchRangeCircle => Circle(
     circleId: const CircleId('search_range'),
@@ -102,14 +99,14 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   );
 
   // -------- Slider handlers --------
-  /// Updates the slider value and adjusts the map zoom accordingly.
-  void handleRangeSliderChanged(double value, double mapWidth) {
+  /// Updates the slider value and notifies ensure the slider is rebuilt with the latest value.
+  void handleRangeSliderChanged(double value) {
     state.currentSliderValue = value;
-    
-    moveCameraToSearchLocation(mapWidth);
+    notifyListeners();
   }
 
-  void handleRangeSliderChangeEnd(double value) {
+  /// Searches for answers if needed and moves the camera to the search location
+  void handleRangeSliderChangeEnd(double mapWidth) {
     // When the user finishes changing the slider, if they have already selected a search result, we should update the search results to reflect the new range
     if (state.hasSelectedSearchResult) {
       // Set flag to indicate camera movement is from slider
@@ -117,12 +114,14 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
       state.isCameraMovedFromSlider = true; 
       searchBarSubLogic.performSearchForAnswers();
     }
+    moveCameraToSearchLocation(mapWidth);
   }
-    /// Move or animate the map camera to the current location when possible.
+  
+  /// Move or animate the map camera to the current location when possible.
   // Safe to call from either `initState` (after location) or `onMapCreated`.
   void moveCameraToSearchLocation(double mapWidth, {bool animate = true}) {
     // if (!mounted) return;
-    if (_mapController == null) return;
+    if (mapController == null) return;
 
     final zoom = LocationUtil.getZoomLevelForRadius(searchRadiusKm * 1000, state.searchLatLng, mapWidth);
     state.currentZoom = zoom;
@@ -133,9 +132,9 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     );
 
     if (animate) {
-      _mapController!.animateCamera(cameraUpdate);
+      mapController!.animateCamera(cameraUpdate);
     } else {
-      _mapController!.moveCamera(cameraUpdate);
+      mapController!.moveCamera(cameraUpdate);
     }
   }
 
@@ -147,6 +146,5 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     double searchRadiusMeters = searchRadiusKm * 1000;
 
     searchRadiusPixelsNotifier.value = searchRadiusMeters/metersPerPixel;
-    // return meters/metersPerPixel;
   }
 }
