@@ -65,36 +65,40 @@ class _PinAnimationWidgetState extends State<PinAnimationWidget>
         children: [
           child!,
           // Pin Icon
-          Padding(
-            padding: const EdgeInsets.only(bottom: 32.0),
-            child: Center(
-              child: Transform(
-                alignment: Alignment.bottomCenter,
-                transform: _pinTransform,
-                child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+          IgnorePointer(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32.0),
+              child: Center(
+                child: Transform(
+                  alignment: Alignment.bottomCenter,
+                  transform: _pinTransform,
+                  child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+                ),
               ),
             ),
           ),
           // Pin Shadow
-          Transform.translate(
-            offset: const Offset(0, 4),
-            child: Opacity(
-              opacity: _shadowOpacity.value,
-              child: Center(
-                child: Transform.scale(
-                  scale: _shadowScale.value,
-                  child: Container(
-                    width: 20,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: const BorderRadius.all(Radius.elliptical(12, 4)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 4,
-                        )
-                      ]
+          IgnorePointer(
+            child: Transform.translate(
+              offset: const Offset(0, 4),
+              child: Opacity(
+                opacity: _shadowOpacity.value,
+                child: Center(
+                  child: Transform.scale(
+                    scale: _shadowScale.value,
+                    child: Container(
+                      width: 20,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: const BorderRadius.all(Radius.elliptical(12, 4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                          )
+                        ]
+                      ),
                     ),
                   ),
                 ),
