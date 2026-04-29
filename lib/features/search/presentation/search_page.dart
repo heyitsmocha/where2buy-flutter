@@ -232,10 +232,10 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                       child: IgnorePointer(
                         child: Center(
                           child: ValueListenableBuilder(
-                            valueListenable: controller.pixelRadiusNotifier,
-                            builder: (context, pixelRadius, child) => Container(
-                              width: pixelRadius,
-                              height: pixelRadius ,
+                            valueListenable: controller.searchRadiusPixelsNotifier,
+                            builder: (context, searchRadiusPixels, child) => Container(
+                              width: searchRadiusPixels * 2, // Diameter is twice the radius
+                              height: searchRadiusPixels * 2,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.blueAccent.withOpacity(0.1),

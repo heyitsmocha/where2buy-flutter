@@ -84,7 +84,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   }
 
   // TODO: initial circle is too small, find out why
-  ValueNotifier<double> pixelRadiusNotifier = ValueNotifier(0);
+  ValueNotifier<double> searchRadiusPixelsNotifier = ValueNotifier(0);
 
   GoogleMapController? _mapController;
   set mapController(GoogleMapController? controller) {
@@ -145,7 +145,7 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
 
     double searchRadiusMeters = _searchRadiusKm * 1000;
 
-    pixelRadiusNotifier.value = searchRadiusMeters/metersPerPixel;
+    searchRadiusPixelsNotifier.value = searchRadiusMeters/metersPerPixel;
     // return meters/metersPerPixel;
   }
 }
