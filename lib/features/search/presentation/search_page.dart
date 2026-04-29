@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:w2b_flutter/base_state.dart';
 
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/responsive_bottom_sheet_scaffold.dart';
 import 'package:w2b_flutter/components/search_range_slider.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
@@ -115,26 +116,24 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
     showModalBottomSheet(
       context: context, 
       isScrollControlled: true,
-      builder: (context) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.5 + MediaQuery.of(context).viewInsets.bottom + 16,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: NewInquiryForm(
-            item: controller.searchBarSubLogic.selectedSuggestion,
-            itemName: controller.searchBarSubLogic.searchText,
-            // description: controller.searchBarSubLogic.description,
-            onItemNameChanged: (value) => controller.searchBarSubLogic.searchText = value,
-            onDescriptionChanged: (value) {},
-            onSubmit: () => controller.searchBarSubLogic.handleSendNewRequest(),
-          
-            listenable: controller,
-            sliderValue: () => controller.state.currentSliderValue,
-            onSliderChanged: (value) => controller.handleRangeSliderChanged(value),
-            onSliderChangeEnd: (_) => controller.handleRangeSliderChangeEnd(mapWidth),
-            searchRadiusText: () => controller.searchRadiusText,
-          ),
+      builder: (context) => ResponsiveBottomSheetScaffold(
+        title: 'New Item Request',
+        screenHeightFactor: 0.55,
+        child: NewInquiryForm(
+          item: controller.searchBarSubLogic.selectedSuggestion,
+          itemName: controller.searchBarSubLogic.searchText,
+          // description: controller.searchBarSubLogic.description,
+          onItemNameChanged: (value) => controller.searchBarSubLogic.searchText = value,
+          onDescriptionChanged: (value) {},
+          onSubmit: () => controller.searchBarSubLogic.handleSendNewRequest(),
+        
+          listenable: controller,
+          sliderValue: () => controller.state.currentSliderValue,
+          onSliderChanged: (value) => controller.handleRangeSliderChanged(value),
+          onSliderChangeEnd: (_) => controller.handleRangeSliderChangeEnd(mapWidth),
+          searchRadiusText: () => controller.searchRadiusText,
         ),
-      )
+      ),
     );
   }
 
