@@ -102,6 +102,9 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
   /// Updates the slider value and notifies ensure the slider is rebuilt with the latest value.
   void handleRangeSliderChanged(double value) {
     state.currentSliderValue = value;
+    if (!state.lockSearchArea) {
+      recalculatePixelRadius();
+    }
     notifyListeners();
   }
 

@@ -26,6 +26,7 @@ class MapSubLogic {
   void handleCameraMove(CameraPosition position) {
     // Update the camera position
     _parent.state.cameraLatLng = position.target;
+    _parent.state.currentZoom = position.zoom;
 
     // Also update the search area if not locked
     if (!_parent.state.lockSearchArea) {
