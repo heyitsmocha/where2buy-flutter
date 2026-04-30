@@ -17,7 +17,15 @@ class BaseLayout extends StatelessWidget {
         left: leftPadding ? 8.0 : 0.0,
         right: rightPadding ? 8.0 : 0.0,
       ),
-      child: child,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SizedBox(
+            width: constraints.maxWidth,
+            height: constraints.maxHeight,
+            child: child,
+          );
+        },
+      ),
     );
   }
 }
