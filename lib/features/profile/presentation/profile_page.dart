@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/util/api_util.dart';
@@ -17,7 +19,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool _isLoggedIn = false;
   bool _isLoading = false;
   String _username = 'Guest';
   String _email = '';
@@ -26,18 +27,17 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     
-    // Determine login status from existence of access token
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkLoginStatus();
-    });
-    
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final tempAuthState = Provider.of<AuthState>(context, listen: false);
+        _updateUserDetails(tempAuthState.isLoggedIn);
+      });
   }
 
-  void _checkLoginStatus() async {
+  void _updateUserDetails(bool loggedIn) async {
     print('Checking login status in ProfilePage...');
     const storage = FlutterSecureStorage();
     bool hasToken = await storage.containsKey(key: 'auth_token');
-    if (hasToken) {
+    if (loggedIn && hasToken) {
       print('Auth token found, user is logged in');
       String tempName, tempEmail;
       // Name and email from sharedprefs
@@ -45,14 +45,12 @@ class _ProfilePageState extends State<ProfilePage> {
       tempName = prefs.getString('username') ?? 'Guest';
       tempEmail = prefs.getString('email') ?? '';
       setState(() {
-        _isLoggedIn = true;
         _username = tempName;
         _email = tempEmail;
       });
     } else {
       print('No auth token found, user is not logged in');
       setState(() {
-        _isLoggedIn = false;
         _username = 'Guest';
         _email = '';
       });
@@ -61,6 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final AuthState authState = Provider.of<AuthState>(context);
     return BaseLayout(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -91,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
           const Divider(height: 25,),
           ElevatedButton(
             onPressed: 
-              _isLoggedIn
+              authState.isLoggedIn
               ? () async { // Logout if logged in
                 setState(() {
                   _isLoading = true;
@@ -107,7 +106,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   print('DioException: Logout failed');
                 }
 
-                // Clear stored credentials on successful logout
+                // Assume logout is successful even if it failed to ensure user is logged out locally
+
+                // Notify the AuthState to update UI across the app
+                authState.logout();
+
                 const storage = FlutterSecureStorage();
                 storage.delete(key: 'auth_token');
 
@@ -115,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 prefs.remove('username');
                 prefs.remove('email');
 
-                _checkLoginStatus();
+                _updateUserDetails(false);
                 if (context.mounted) {
                   // Dismiss sidebar and show success message in main scaffold
                   Navigator.of(context).pop();
@@ -135,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Result loginResult = await AuthUtil.showAuthForm(
                   context,
                   widget.dio, 
-                  onAuthSuccess: (successMessage) => _checkLoginStatus(),
+                  onAuthSuccess: (successMessage) => _updateUserDetails(true),
                 );
 
                 // Dismiss the sidebar and show success message in the main scaffold
@@ -152,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
               },
             child: 
-              _isLoggedIn
+              authState.isLoggedIn
               ? _isLoading 
                 ? const CircularProgressIndicator()
                 : const Text('Logout', style: TextStyle(color: Colors.red),) 
