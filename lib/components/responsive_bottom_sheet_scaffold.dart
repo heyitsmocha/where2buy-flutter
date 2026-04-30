@@ -43,10 +43,10 @@ class ResponsiveBottomSheetScaffold extends StatelessWidget {
             )],
           ),
           backgroundColor: Colors.transparent,
-          body: SingleChildScrollView(
-            child: BaseLayout(
-              topPadding: false,
-              child: child
+          body: BaseLayout(
+            topPadding: false,
+            child: SingleChildScrollView(
+              child: child,
             ),
           ),
         ),
