@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/base_state.dart';
 
 import 'package:w2b_flutter/components/base_layout.dart';
@@ -139,6 +141,8 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
 
   @override
   Widget build(BuildContext context) {
+    final authState = Provider.of<AuthState>(context);
+
     return BaseLayout( 
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -156,7 +160,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                   hintText: controller.state.hasSelectedSearchResult ? '' :  'Search for items...',
                   trailing: [
                     IconButton(
-                      onPressed: controller.searchBarSubLogic.handleNewRequestButtonPressed, 
+                      onPressed: () => controller.searchBarSubLogic.handleNewRequestButtonPressed(authState.isLoggedIn), 
                       icon: const Icon(Icons.post_add), 
                       tooltip: "Request new item",
                     ),

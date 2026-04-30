@@ -10,7 +10,6 @@ import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/models/item_model.dart';
 import 'package:w2b_flutter/models/response_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
-import 'package:w2b_flutter/util/auth_util.dart';
 
 class SearchBarSubLogic {
   final SearchPageController _parent;
@@ -38,9 +37,8 @@ class SearchBarSubLogic {
   }
 
   /// Prompts the user to log in if not authenticated, else show the new request form.
-  void handleNewRequestButtonPressed() async {
-    final bool loggedIn = await AuthUtil.isLoggedIn();
-    _parent.emitEvent(loggedIn ? SearchPageUiEvent.showNewRequestConfirmationDialog : SearchPageUiEvent.showLoginSnackbar);
+  void handleNewRequestButtonPressed(bool isLoggedIn) async {
+    _parent.emitEvent(isLoggedIn ? SearchPageUiEvent.showNewRequestConfirmationDialog : SearchPageUiEvent.showLoginSnackbar);
   }
 
   Future<void> handleSendNewRequest() async {
