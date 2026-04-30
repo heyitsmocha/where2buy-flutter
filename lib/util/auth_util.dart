@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/responsive_bottom_sheet_scaffold.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/presentation/auth_success_page.dart';
 import 'package:w2b_flutter/features/login/presentation/login_page.dart';
@@ -31,61 +31,52 @@ class AuthUtil {
     await showModalBottomSheet<Result>(
       isScrollControlled: true,
       context: context, 
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (context) {
         PageController pageController = PageController(initialPage: 0);
 
-        return SizedBox(
-          height: (MediaQuery.of(context).size.height * 0.5) + MediaQuery.of(context).viewInsets.bottom,
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Colors.transparent,
-            body: BaseLayout(
-              child: PageView(
-                controller: pageController,
-                physics: const NeverScrollableScrollPhysics(), // Disable swipe to change pages
-                children: [
-                  LoginPage(
-                    dio,
-                    onGoToRegister: () {
-                      pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    },
-                    onLoginFailure: (message) {
-                      if (onAuthFailure != null) {
-                        onAuthFailure(message);
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text(message)
-                        ),
-                      );
-                    }, 
-                    onLoginSuccess: () {
-                      authMethodNotifier.value = "Login";
-                      return pageController.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    },
-                  ),
-                  RegisterPage(
-                    dio: dio,
-                    onGoToLogin: () {
-                      pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    },
-                    // Pop the modal and pass success Result with string to indicate registration success
-                    onRegisterSuccess: () {
-                      authMethodNotifier.value = "Register";
-                      pageController.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    },
-                  ),
-                  AuthSuccessPage(
-                    dataNotifier: authMethodNotifier,
-                    onAuthSuccess: onAuthSuccess,
-                  ),
-                ],
+        return ResponsiveBottomSheetScaffold(
+          showAppBar: false,
+          child: PageView(
+            controller: pageController,
+            physics: const NeverScrollableScrollPhysics(), // Disable swipe to change pages
+            children: [
+              LoginPage(
+                dio,
+                onGoToRegister: () {
+                  pageController.animateToPage(1, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                },
+                onLoginFailure: (message) {
+                  if (onAuthFailure != null) {
+                    onAuthFailure(message);
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Text(message)
+                    ),
+                  );
+                }, 
+                onLoginSuccess: () {
+                  authMethodNotifier.value = "Login";
+                  return pageController.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                },
               ),
-            ),
+              RegisterPage(
+                dio: dio,
+                onGoToLogin: () {
+                  pageController.animateToPage(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                },
+                // Pop the modal and pass success Result with string to indicate registration success
+                onRegisterSuccess: () {
+                  authMethodNotifier.value = "Register";
+                  pageController.animateToPage(2, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                },
+              ),
+              AuthSuccessPage(
+                dataNotifier: authMethodNotifier,
+                onAuthSuccess: onAuthSuccess,
+              ),
+            ],
           ),
         );
       }
