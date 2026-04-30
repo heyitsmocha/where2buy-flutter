@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/respond/presentation/respond_page_filter_drawer.dart';
@@ -87,32 +88,36 @@ class _RespondPageState extends State<RespondPage> {
         child: const Icon(Icons.refresh),
       ),
       body: BaseLayout(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // Search bar
-          BaseSearchBar(
-            listenable: _controller, 
-            hintText: 'Search for requests...',
-            onChanged: (value) {
-              // Handle search input change
-            },
-            onSubmitted: (value) {
-              // Handle search submission
-            },
-            trailing: [
-              IconButton(
-                onPressed: () => _respondScaffoldKey.currentState?.openEndDrawer(), 
-                icon: const Icon(Icons.filter_alt_outlined), 
-                tooltip: "Filter requests",
-              ),
-            ],
-          ),
-          // List of nearby requests
-          Expanded(
-            child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.separated(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search bar
+            BaseSearchBar(
+              listenable: _controller, 
+              hintText: 'Search for requests...',
+              onChanged: (value) {
+                // Handle search input change
+              },
+              onSubmitted: (value) {
+                // Handle search submission
+              },
+              trailing: [
+                IconButton(
+                  onPressed: () => _respondScaffoldKey.currentState?.openEndDrawer(), 
+                  icon: const Icon(Icons.filter_alt_outlined), 
+                  tooltip: "Filter requests",
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // List of nearby requests
+            Choose(
+              condition: _isLoading,
+              ifTrue: (context) => const Center(child: CircularProgressIndicator()),
+              ifFalse: (context) => Card(
+                child: ListView.separated(
+                  shrinkWrap: true,
                   itemCount: _nearbyInquiries.length,
                   separatorBuilder: (context, index) => const Divider(),
                   itemBuilder: (context, index) {
@@ -124,10 +129,11 @@ class _RespondPageState extends State<RespondPage> {
                     );
                   },
                 ),
-          ),
-        ],
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }

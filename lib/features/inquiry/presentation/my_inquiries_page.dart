@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:w2b_flutter/base_state.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/features/inquiry/logic/my_inquiries_page_controller.dart';
 
@@ -61,12 +62,15 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
               onSubmitted: (value) {},  
             ),
             const SizedBox(height: 16),
-            controller.isLoading
-              ? const Expanded(child: Center(child: CircularProgressIndicator())) 
-              : Expanded(
-                  child: controller.inquiries.isEmpty
-                  ? const Text('You have not made any requests yet.')
-                  : ListView.separated(
+            Choose(
+              condition: controller.isLoading,
+              ifTrue: (context) => const Expanded(child: Center(child: CircularProgressIndicator())) ,
+              ifFalse: (context) => Choose(
+                condition: controller.inquiries.isEmpty,
+                ifTrue: (context) => const Text('You have not made any requests yet.'),
+                ifFalse: (context) => Card(
+                  child: ListView.separated(
+                    shrinkWrap: true,
                     itemCount: controller.inquiries.length,
                     separatorBuilder: (context, index) => const Divider(),
                     itemBuilder: (context, index) {
@@ -88,6 +92,8 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
                     },
                   ),
                 ),
+              )
+            ),
           ],
         )
       ),
