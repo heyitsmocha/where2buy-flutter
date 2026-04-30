@@ -43,59 +43,62 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: controller,
-      builder: (context, child) =>
-       BaseLayout(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            BaseSearchBar(
-              listenable: controller,
-              hintText: 'Search Requests...',
-              trailing: [
-                controller.isLoading 
-                  ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())
-                  : IconButton(onPressed: () => controller.refresh(), icon: const Icon(Icons.refresh))     
-              ],
-              onChanged: (value) {},
-              onSubmitted: (value) {},  
-            ),
-            const SizedBox(height: 16),
-            Choose(
-              condition: controller.isLoading,
-              ifTrue: (context) => const Expanded(child: Center(child: CircularProgressIndicator())) ,
-              ifFalse: (context) => Choose(
-                condition: controller.inquiries.isEmpty,
-                ifTrue: (context) => const Text('You have not made any requests yet.'),
-                ifFalse: (context) => Card(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    itemCount: controller.inquiries.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final inquiry = controller.inquiries[index];
-                      return ListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(inquiry.itemName ?? 'No item name'),
-                            // Display the date the inquiry was created if available
-                            Text(inquiry.createdAt != null ? ' - ${inquiry.createdAt!.toLocal().toString().split(' ')[0]}' : '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                          ],
-                        ),
-                        subtitle: Text(inquiry.itemDescription ?? ''),
-                        onTap: () {
-                          Navigator.of(context).pushNamed('/inquiry/responses', arguments: inquiry);
-                        }
-                      );
-                    },
+    return BaseLayout(
+      child: SingleChildScrollView(
+        child: ListenableBuilder(
+          listenable: controller,
+          builder: (context, child) => Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              BaseSearchBar(
+                listenable: controller,
+                hintText: 'Search Requests...',
+                trailing: [
+                  controller.isLoading 
+                    ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())
+                    : IconButton(onPressed: () => controller.refresh(), icon: const Icon(Icons.refresh))     
+                ],
+                onChanged: (value) {},
+                onSubmitted: (value) {},  
+              ),
+              const SizedBox(height: 16),
+              Choose(
+                condition: controller.isLoading,
+                ifTrue: (context) => const Center(child: CircularProgressIndicator()) ,
+                ifFalse: (context) => Choose(
+                  condition: controller.inquiries.isEmpty,
+                  ifTrue: (context) => const Text('You have not made any requests yet.'),
+                  ifFalse: (context) => Card(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
+                      itemCount: controller.inquiries.length,
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final inquiry = controller.inquiries[index];
+                        return ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(inquiry.itemName ?? 'No item name'),
+                              // Display the date the inquiry was created if available
+                              Text(inquiry.createdAt != null ? ' - ${inquiry.createdAt!.toLocal().toString().split(' ')[0]}' : '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                            ],
+                          ),
+                          subtitle: Text(inquiry.itemDescription ?? ''),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.of(context).pushNamed('/inquiry/responses', arguments: inquiry);
+                          }
+                        );
+                      },
+                    ),
                   ),
-                ),
-              )
-            ),
-          ],
-        )
+                )
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

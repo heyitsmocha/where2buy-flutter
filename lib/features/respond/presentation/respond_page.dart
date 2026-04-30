@@ -70,7 +70,7 @@ class _RespondPageState extends State<RespondPage> {
             _isLoading = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to load nearby inquiries: ${message ?? 'Unknown error'}')),
+            SnackBar(content: Text('Failed to load nearby inquiries: $message')),
           );
         }
         break;
@@ -88,50 +88,54 @@ class _RespondPageState extends State<RespondPage> {
         child: const Icon(Icons.refresh),
       ),
       body: BaseLayout(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search bar
-            BaseSearchBar(
-              listenable: _controller, 
-              hintText: 'Search for requests...',
-              onChanged: (value) {
-                // Handle search input change
-              },
-              onSubmitted: (value) {
-                // Handle search submission
-              },
-              trailing: [
-                IconButton(
-                  onPressed: () => _respondScaffoldKey.currentState?.openEndDrawer(), 
-                  icon: const Icon(Icons.filter_alt_outlined), 
-                  tooltip: "Filter requests",
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // List of nearby requests
-            Choose(
-              condition: _isLoading,
-              ifTrue: (context) => const Center(child: CircularProgressIndicator()),
-              ifFalse: (context) => Card(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: _nearbyInquiries.length,
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final inquiry = _nearbyInquiries[index];
-                    return ListTile(
-                      title: Text(inquiry.itemName),
-                      subtitle: Text(inquiry.itemDescription ?? ''),
-                      onTap: () => Navigator.of(context).pushNamed('/respond/add', arguments: inquiry),
-                    );
-                  },
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search bar
+              BaseSearchBar(
+                listenable: _controller, 
+                hintText: 'Search for requests...',
+                onChanged: (value) {
+                  // Handle search input change
+                },
+                onSubmitted: (value) {
+                  // Handle search submission
+                },
+                // trailing: [
+                //   IconButton(
+                //     onPressed: () => _respondScaffoldKey.currentState?.openEndDrawer(), 
+                //     icon: const Icon(Icons.filter_alt_outlined), 
+                //     tooltip: "Filter requests",
+                //   ),
+                // ],
+              ),
+              const SizedBox(height: 16),
+              // List of nearby requests
+              Choose(
+                condition: _isLoading,
+                ifTrue: (context) => const Center(child: CircularProgressIndicator()),
+                ifFalse: (context) => Card(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
+                    itemCount: _nearbyInquiries.length,
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final inquiry = _nearbyInquiries[index];
+                      return ListTile(
+                        title: Text(inquiry.itemName),
+                        subtitle: Text(inquiry.itemDescription ?? ''),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.of(context).pushNamed('/respond/add', arguments: inquiry),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
