@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/logic/login_page_controller.dart';
 import 'package:w2b_flutter/models/user_model.dart';
@@ -53,6 +55,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    AuthState authState = Provider.of<AuthState>(context);
+
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -96,6 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                 Result<UserResponse> result = await controller.handleLogin();
                 switch (result) {
                   case Success():
+                    authState.login();
                     widget.onLoginSuccess();
                     break;
                   case Failure():
