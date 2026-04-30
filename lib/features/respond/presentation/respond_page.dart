@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/base_controller.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/choose_widget.dart';
@@ -34,14 +36,24 @@ class _RespondPageState extends State<RespondPage> {
 
   late RespondPageController _controller;
 
+  TextEditingController searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _controller = RespondPageController(widget.dio);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _refresh();
-    });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Need a separate instance of AuthState here because doing `late AuthState` and assign it in initState gives us uninitialized error.
+        final tempAuthState = Provider.of<AuthState>(context, listen: false);
+        if (tempAuthState.isLoggedIn) {
+          _refresh();
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      });
   }
 
   void _refresh() async {
@@ -79,11 +91,12 @@ class _RespondPageState extends State<RespondPage> {
 
   @override
   Widget build(BuildContext context) {
+    AuthState authState = Provider.of<AuthState>(context);
     return Scaffold(
       key: _respondScaffoldKey,
       endDrawer: const RespondPageFilterDrawer(),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isLoading ? null : _refresh,
+        onPressed: _isLoading || !authState.isLoggedIn ? null : _refresh,
         tooltip: 'Refresh',
         child: const Icon(Icons.refresh),
       ),
@@ -99,6 +112,9 @@ class _RespondPageState extends State<RespondPage> {
                 hintText: 'Search for requests...',
                 onChanged: (value) {
                   // Handle search input change
+                  if (!authState.isLoggedIn) {
+                    searchController.text = '';
+                  }
                 },
                 onSubmitted: (value) {
                   // Handle search submission
@@ -114,23 +130,27 @@ class _RespondPageState extends State<RespondPage> {
               const SizedBox(height: 16),
               // List of nearby requests
               Choose(
-                condition: _isLoading,
-                ifTrue: (context) => const Center(child: CircularProgressIndicator()),
-                ifFalse: (context) => Card(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
-                    itemCount: _nearbyInquiries.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      final inquiry = _nearbyInquiries[index];
-                      return ListTile(
-                        title: Text(inquiry.itemName),
-                        subtitle: Text(inquiry.itemDescription ?? ''),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => Navigator.of(context).pushNamed('/respond/add', arguments: inquiry),
-                      );
-                    },
+                condition: authState.isLoggedIn,
+                ifFalse: (context) => const Card(child: ListTile(title: Text('Please log in to see nearby requests.'))),
+                ifTrue: (context) => Choose(
+                  condition: _isLoading,
+                  ifTrue: (context) => const Center(child: CircularProgressIndicator()),
+                  ifFalse: (context) => Card(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
+                      itemCount: _nearbyInquiries.length,
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final inquiry = _nearbyInquiries[index];
+                        return ListTile(
+                          title: Text(inquiry.itemName),
+                          subtitle: Text(inquiry.itemDescription ?? ''),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => Navigator.of(context).pushNamed('/respond/add', arguments: inquiry),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
