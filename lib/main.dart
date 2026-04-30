@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:retrofit/retrofit.dart';
+import 'package:w2b_flutter/auth_state.dart';
+
 import 'package:w2b_flutter/core/app_keys.dart';
 import 'package:w2b_flutter/core/auth_interceptor.dart';
 import 'package:w2b_flutter/core/logger_interceptor.dart';
@@ -15,6 +18,11 @@ import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 
 Future<void> main() async {
+  // Ensure bindings are initialized before running the app, especially since we're doing async work before runApp
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final authState = AuthState();
+
   // Load api url from .env file
   await dotenv.load(fileName: ".env");
   
@@ -39,11 +47,17 @@ Future<void> main() async {
   // Test the API connection by making a simple request
   try {
     HttpResponse userResponse = await ApiService(dio).getUser();
+    authState.login();
   } on DioException catch (e) {
     print('Error fetching user data: ${e.message}');
   }
 
-  runApp(MainApp(dio: dio));
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => authState,
+      child: MainApp(dio: dio),
+    )
+  );
 }
 
 class MainApp extends StatefulWidget {
