@@ -32,7 +32,7 @@ class ResponsiveBottomSheetScaffold extends StatelessWidget {
         height: (MediaQuery.of(context).size.height * screenHeightFactor) + (MediaQuery.of(context).viewInsets.bottom / 2) + 16,
         child: Scaffold(
           key: scaffoldKey,
-          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomInset: true, // important to allow the child to scroll since they're usually wrapped in a SingleChildScrollView
           appBar: showAppBar 
             ? AppBar(
               backgroundColor: Colors.transparent,
