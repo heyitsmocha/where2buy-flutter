@@ -117,7 +117,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
       context: context, 
       isScrollControlled: true,
       builder: (context) => ResponsiveBottomSheetScaffold(
-        title: 'New Item Request',
+        appBarTitle: 'New Item Request',
         screenHeightFactor: 0.55,
         child: NewInquiryForm(
           item: controller.searchBarSubLogic.selectedSuggestion,
