@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:w2b_flutter/components/base_layout.dart';
 
 class AuthSuccessPage extends StatefulWidget {
   final ValueNotifier<String> dataNotifier;
@@ -35,45 +34,42 @@ class _AuthSuccessPageState extends State<AuthSuccessPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseLayout(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AppBar(
-            backgroundColor: Colors.transparent,
-            automaticallyImplyLeading: false,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.close), 
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
-          const SizedBox(height: 16),
-          ValueListenableBuilder<String>(
-            valueListenable: widget.dataNotifier,
-            builder: (context, value, child) {
-              return Text(
-                value == "Login" ? "Logged in successfully!" : "Account created successfully!",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              );
-            },
-          ),
-          const SizedBox(height: 16,),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(), 
-            child: const Text('Proceed')
-          ),
-          const SizedBox(height: 16,),
-          const Text(
-            'This page will close automatically. Alternatively, you can press the proceed button, tap outside this page or slide it down to close manually.',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        AppBar(
+          backgroundColor: Colors.transparent,
+          automaticallyImplyLeading: false,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.close), 
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+        const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
+        const SizedBox(height: 16),
+        ValueListenableBuilder<String>(
+          valueListenable: widget.dataNotifier,
+          builder: (context, value, child) {
+            return Text(
+              value == "Login" ? "Logged in successfully!" : "Account created successfully!",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            );
+          },
+        ),
+        const SizedBox(height: 16,),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(), 
+          child: const Text('Proceed')
+        ),
+        const SizedBox(height: 16,),
+        const Text(
+          'This page will close automatically. Alternatively, you can press the proceed button, tap outside this page or slide it down to close manually.',
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

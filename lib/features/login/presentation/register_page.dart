@@ -27,95 +27,90 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          AppBar(
-            title: const Text('Register'),
-            centerTitle: true,
-            backgroundColor: Colors.transparent,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back), 
-              onPressed: widget.onGoToLogin,
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.close), 
-                onPressed: () => Navigator.of(context).pop(),
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              title: const Text('Register'),
+              centerTitle: true,
+              backgroundColor: Colors.transparent,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back), 
+                onPressed: widget.onGoToLogin,
               ),
-            ],
-          ),
-          const SizedBox(height: 16.0),
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) => (value != null && value.contains('@')) ? null : 'Please enter a valid email',
-                  onChanged: (value) => _controller.email = value,
-                  autofillHints: const [AutofillHints.email],
-                ),
-                TextFormField(
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Username'),
-                  validator: (value) => (value != null && value.isNotEmpty) ? null : 'Please enter your username',
-                  onChanged: (value) => _controller.name = value,
-                  autofillHints: const [AutofillHints.username],
-                ),
-                TextFormField(
-                  textInputAction: TextInputAction.next,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  validator: (value) => (value != null && value.length >= 6) ? null : 'Password must be at least 6 characters',
-                  onChanged: (value) => _controller.password = value,
-                ),
-                TextFormField(
-                  textInputAction: TextInputAction.done,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Confirm Password'),
-                  validator: (value) {
-                    if (value != null && value != _controller.password) {
-                      return 'Passwords do not match';
-                    }
-                    return (value != null && value.length >= 6) ? null : 'Password must be at least 6 characters';
-                  },
-                  onChanged: (value) => _controller.confirmPassword = value,
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (!_formKey.currentState!.validate()) {
-                      return;
-                    } 
-                    
-                    Result<void> result = await _controller.handleRegister();
-                    switch (result) {
-                      case Success():
-                        if (widget.onRegisterSuccess != null) {
-                          widget.onRegisterSuccess!();
-                        }
-                        break;
-                      case Failure():
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text(result.errorMessage),
-                            ),
-                          );
-                        }
-                        break;
-                    }
-                  }, 
-                  child: const Text('Register')
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.close), 
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
-            ))
-        ],
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(labelText: 'Email'),
+              validator: (value) => (value != null && value.contains('@')) ? null : 'Please enter a valid email',
+              onChanged: (value) => _controller.email = value,
+              autofillHints: const [AutofillHints.email],
+            ),
+            TextFormField(
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(labelText: 'Username'),
+              validator: (value) => (value != null && value.isNotEmpty) ? null : 'Please enter your username',
+              onChanged: (value) => _controller.name = value,
+              autofillHints: const [AutofillHints.username],
+            ),
+            TextFormField(
+              textInputAction: TextInputAction.next,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Password'),
+              validator: (value) => (value != null && value.length >= 6) ? null : 'Password must be at least 6 characters',
+              onChanged: (value) => _controller.password = value,
+            ),
+            TextFormField(
+              textInputAction: TextInputAction.done,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Confirm Password'),
+              validator: (value) {
+                if (value != null && value != _controller.password) {
+                  return 'Passwords do not match';
+                }
+                return (value != null && value.length >= 6) ? null : 'Password must be at least 6 characters';
+              },
+              onChanged: (value) => _controller.confirmPassword = value,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (!_formKey.currentState!.validate()) {
+                  return;
+                } 
+                
+                Result<void> result = await _controller.handleRegister();
+                switch (result) {
+                  case Success():
+                    if (widget.onRegisterSuccess != null) {
+                      widget.onRegisterSuccess!();
+                    }
+                    break;
+                  case Failure():
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text(result.errorMessage),
+                        ),
+                      );
+                    }
+                    break;
+                }
+              }, 
+              child: const Text('Register')
+            )
+          ],
+        ),
       ),
     );
   }
