@@ -206,23 +206,38 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                       mapOverlayLayer: Visibility( // Search circle
                         visible: !controller.state.lockSearchArea,
                         child: IgnorePointer(
-                          child: OverflowBox(
-                            maxWidth: double.infinity,
-                            maxHeight: double.infinity,
-                            child: Center(
-                              child: ValueListenableBuilder(
-                                valueListenable: controller.searchRadiusPixelsNotifier,
-                                builder: (context, searchRadiusPixels, child) => Container(
-                                  width: searchRadiusPixels * 2, // Diameter is twice the radius
-                                  height: searchRadiusPixels * 2,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.blueAccent.withOpacity(0.1),
-                                    border: Border.all(color: Colors.blueAccent, width: 2),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              OverflowBox(
+                                maxWidth: double.infinity,
+                                maxHeight: double.infinity,
+                                child: Center(
+                                  child: ValueListenableBuilder(
+                                    valueListenable: controller.searchRadiusPixelsNotifier,
+                                    builder: (context, searchRadiusPixels, child) => Container(
+                                      width: searchRadiusPixels * 2, // Diameter is twice the radius
+                                      height: searchRadiusPixels * 2,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.blueAccent.withOpacity(0.1),
+                                        border: Border.all(color: Colors.blueAccent, width: 2),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                              Icon(
+                                Icons.add, 
+                                color: Colors.indigo.withOpacity(0.8),
+                                shadows: const [
+                                  Shadow(
+                                    color: Colors.white,
+                                    blurRadius: 4,
+                                  ),
+                                ],  
+                              ),
+                            ]
                           ),
                         ),
                       ),
