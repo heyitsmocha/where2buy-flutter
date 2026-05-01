@@ -141,7 +141,9 @@ class SearchPageController extends BaseController<SearchPageUiEvent> {
     }
   }
 
-  /// Recalculates the pixel radius for the search area based on the zoom provided. <br> If no zoom is provided, it uses the current zoom level from the state.
+  /// Recalculates the pixel radius for the search area based on the zoom provided. 
+  /// 
+  /// If no zoom is provided, it uses the current zoom level from the state.
   void recalculatePixelRadius({double? zoom}) {
     // 156543.03392 is the equatorial circumference / 256
     double metersPerPixel = 156543.03392 * math.cos(state.searchLatLng.latitude * math.pi / 180) / math.pow(2, zoom ?? state.currentZoom);

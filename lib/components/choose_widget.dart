@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// A simple widget that chooses between two widgets to display based on a boolean condition. This is useful for showing loading states, empty states, or toggling between different views without having to write if-else logic directly in the build method of the parent widget.<br><br>
-/// Usage: <br>
+/// A simple widget that chooses between two widgets to display based on a boolean condition. This is useful for showing loading states, empty states, or toggling between different views without having to write if-else logic directly in the build method of the parent widget.
+/// 
+/// Usage:
 /// ```dart
 /// Choose(
 ///   condition: isLoading,

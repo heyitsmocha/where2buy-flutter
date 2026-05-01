@@ -12,9 +12,9 @@ class BaseSearchBar<C extends BaseController> extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
-  /// Callback to do extra actions when tapping the search bar. <br><br>
+  /// Callback to do extra actions when tapping the search bar. 
   /// 
-  /// If provided, the return value will determine whether to open the SearchView (if [useSearchViewForSuggestions] is true). <br>
+  /// If provided, the return value will determine whether to open the SearchView (if [useSearchViewForSuggestions] is true). 
   /// Otherwise, default to opening the SearchView when the search bar is tapped.
   final bool Function()? onTap;
   // final FutureOr<Iterable<Widget>> Function(BuildContext, SearchController)? suggestionsBuilder;
@@ -27,10 +27,10 @@ class BaseSearchBar<C extends BaseController> extends StatefulWidget {
 
   final TextEditingController? searchController;
 
-  /// Whether to use the [SearchView] dialog to show search suggestions when the search bar is tapped. <br>
+  /// Whether to use the [SearchView] dialog to show search suggestions when the search bar is tapped.
   final bool useSearchViewForSuggestions;
 
-  /// The search bar used across the app, where the leading menu button opens the main drawer and the trailing widgets can be customized as needed. <br>
+  /// The search bar used across the app, where the leading menu button opens the main drawer and the trailing widgets can be customized as needed.
   /// Also supports search suggestions via the [suggestions] list.
   const BaseSearchBar({
     super.key,

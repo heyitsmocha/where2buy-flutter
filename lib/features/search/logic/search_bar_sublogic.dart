@@ -79,9 +79,10 @@ class SearchBarSubLogic {
   CancelToken? _searchSuggestionsCancelToken;
   Timer? _searchSuggestionDebounceTimer;
 
-  /// Provides search suggestions as the user types. <br> <br>
+  /// Provides search suggestions as the user types. 
+  /// 
   /// If the input is less than 3 characters, it clears suggestions and does not make an API call. <br>
-  /// If the input is 3 or more characters, it fetches suggestions from the server
+  /// Otherwise, it fetches suggestions from the server
   Future<void> handleSearchInputChanged(String value) async {
     searchText = value;
     if (value.length < 3) {
@@ -100,7 +101,8 @@ class SearchBarSubLogic {
     _searchSuggestionDebounceTimer = Timer(const Duration(milliseconds: 500), () async => await handleSearchSubmitted(value));
   }
 
-  /// Performs the search action when the user submits the search input. <br> <br>
+  /// Performs the search action when the user submits the search input.
+  /// 
   /// Unlike [handleSearchInputChanged], this does not check the length of the input and always attempts to fetch suggestions, allowing for searching with short inputs if desired.
   Future<void> handleSearchSubmitted(String value) async {    
     searchText = value;

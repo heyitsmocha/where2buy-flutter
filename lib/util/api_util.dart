@@ -10,10 +10,14 @@ import 'package:w2b_flutter/models/user_model.dart';
 part 'api_util.g.dart';
 
 class ApiUtil {
-  /// A helper method to safely call API methods and handle errors in a consistent way <br><br>
-  /// [onTry] is the API call to execute, which should return an ApiResponse\<T\> <br><br>
+  /// A helper method to safely call API methods and handle errors in a consistent way 
+  /// 
+  /// [onTry] is the API call to execute, which should return an ApiResponse\<T\> 
+  /// 
   /// [onDioError] and [onError] can be used to differentiate between DioExceptions (network errors, server errors, etc.) and other types of exceptions (parsing errors, etc.)<br>
-  /// Otherwise, after awaiting this method, you can check if the result is a Success or Failure and handle it accordingly. <br><br>
+  /// 
+  /// Otherwise, after awaiting this method, you can check if the result is a Success or Failure and handle it accordingly. 
+  /// 
   /// [onFinally] is an optional callback that will be called regardless of whether the API call succeeds or fails.
   static Future<Result<T>> safeApiCall<T>({
     required Future<ApiResponse<T>> Function() onTry,
