@@ -40,14 +40,35 @@ class _RespondPageState extends State<RespondPage> {
 
   late Position _userPosition;
 
+  // For use in initState and dispose to listen for changes in AuthState
+  late final AuthState _authSubscription;
+
   @override
   void initState() {
     super.initState();
     _controller = RespondPageController(widget.dio);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Listen for changes in the AuthState and update the list of nearby inquiries accordingly
+      _authSubscription = context.read<AuthState>();
+      _authSubscription.addListener(_updateList);
+
+      // Get the user's current location and fetch nearby inquiries
       _userPosition = await LocationUtil.getCurrentLocation(maxMinutes: 1);
+      _updateList();
     });
+  }
+
+  void _updateList() {
+    bool isLoggedIn = context.read<AuthState>().isLoggedIn;
+    if (isLoggedIn) {
+      _refresh();
+    } else {
+      setState(() {
+        _nearbyInquiries.clear();
+        _isLoading = false;
+      });
+    }
   }
 
   void _refresh() async {
@@ -65,7 +86,7 @@ class _RespondPageState extends State<RespondPage> {
     );
 
     // Only refresh if the user has moved a significant distance
-    if (distanceMeters > 5) {
+    if (distanceMeters > 5 || _nearbyInquiries.isEmpty) {
       _userPosition = fetchLocation;
 
       final result = await ApiUtil.safeApiCall(
@@ -102,12 +123,12 @@ class _RespondPageState extends State<RespondPage> {
 
   @override
   Widget build(BuildContext context) {
-    AuthState authState = Provider.of<AuthState>(context);
+    bool isLoggedIn = context.watch<AuthState>().isLoggedIn;
     return Scaffold(
       key: _respondScaffoldKey,
       endDrawer: const RespondPageFilterDrawer(),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isLoading || !authState.isLoggedIn ? null : _refresh,
+        onPressed: _isLoading || !isLoggedIn ? null : _refresh,
         tooltip: 'Refresh',
         child: const Icon(Icons.refresh),
       ),
@@ -123,7 +144,7 @@ class _RespondPageState extends State<RespondPage> {
                 hintText: 'Search for requests...',
                 onChanged: (value) {
                   // Handle search input change
-                  if (!authState.isLoggedIn) {
+                  if (!isLoggedIn) {
                     searchController.text = '';
                   }
                 },
@@ -141,7 +162,7 @@ class _RespondPageState extends State<RespondPage> {
               const SizedBox(height: 16),
               // List of nearby requests
               Choose(
-                condition: authState.isLoggedIn,
+                condition: isLoggedIn,
                 ifFalse: (context) => const Card(child: ListTile(title: Text('Please log in to see nearby requests.'))),
                 ifTrue: (context) => Choose(
                   condition: _isLoading,
@@ -174,5 +195,11 @@ class _RespondPageState extends State<RespondPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _authSubscription.removeListener(_updateList);
+    super.dispose();
   }
 }
