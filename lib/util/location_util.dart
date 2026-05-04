@@ -4,7 +4,11 @@ import 'dart:math' as math;
 
 class LocationUtil {
   /// Get the current location of the device, including handling permission
-  static Future<Position> getCurrentLocation() async {
+  /// 
+  /// [maxMinutes] specifies how recent the last known location must be to be considered valid. If the last known location is older than this, a new location will be fetched. This is to avoid unnecessary GPS fixes if we already have a recent location available.
+  /// 
+  /// Returns the last known position if it's recent enough to avoid unnecessary GPS fixes, otherwise gets the current position and returns that instead.
+  static Future<Position> getCurrentLocation({int maxMinutes = 3}) async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -36,14 +40,13 @@ class LocationUtil {
         'Location permissions are permanently denied, we cannot request permissions.');
     } 
 
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition(); 
-  }
-
-  /// Get the last known location of the device, or current location if last known is not available
-  static Future<Position> getLastKnownLocation() async {
-    return await Geolocator.getLastKnownPosition() ?? await getCurrentLocation();
+    // When we reach here, permissions are granted and we can continue accessing the position of the device.
+    // First try to get the last known position, which is faster and doesn't require a new GPS fix. If it's recent enough (e.g. within the last 3 minutes), use it. Otherwise, get the current position.
+    Position? position = await Geolocator.getLastKnownPosition(); 
+    if (position != null && DateTime.now().difference(position.timestamp) < Duration(minutes: maxMinutes)) {
+      return position;
+    }
+    return await Geolocator.getCurrentPosition();
   }
 
   /// Helper to compute a Google Maps zoom level that will approximately fit
