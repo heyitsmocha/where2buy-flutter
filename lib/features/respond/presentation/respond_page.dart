@@ -28,7 +28,10 @@ class RespondPage extends StatefulWidget {
   State<RespondPage> createState() => _RespondPageState();
 }
 
-class _RespondPageState extends State<RespondPage> {
+class _RespondPageState extends State<RespondPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final GlobalKey<ScaffoldState> _respondScaffoldKey = GlobalKey<ScaffoldState>();
 
   List<NearbyInquiry> _nearbyInquiries = [];
@@ -123,6 +126,8 @@ class _RespondPageState extends State<RespondPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // For AutomaticKeepAliveClientMixin to work
+
     bool isLoggedIn = context.watch<AuthState>().isLoggedIn;
     return Scaffold(
       key: _respondScaffoldKey,

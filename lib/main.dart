@@ -87,6 +87,7 @@ class _MainAppState extends State<MainApp> {
   void _onItemTapped(int index) {
     setState(() {
       _currentIndex = index;
+      _pageController.animateToPage(index, duration: Durations.short4, curve: Curves.easeInOut);
     });
   }
 
@@ -94,11 +95,7 @@ class _MainAppState extends State<MainApp> {
   // static const Color primaryColor = Color(0xFF3100A2);
   static const Color primaryColor = Color(0xFF4500E2);
 
-  @override
-  void initState() {
-    super.initState();
-
-  }
+  final PageController _pageController = PageController(initialPage: 1);
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +123,11 @@ class _MainAppState extends State<MainApp> {
       home: SafeArea(
         child: Scaffold(
           key: AppKeys.mainScaffoldKey,
-          body: _views[_currentIndex],
+          body: PageView(
+            physics: const NeverScrollableScrollPhysics(),
+            controller: _pageController,
+            children: _views,
+          ),
           drawer: Drawer(
             child: ProfilePage(dio: widget.dio),
           ),

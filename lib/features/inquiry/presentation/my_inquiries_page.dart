@@ -16,7 +16,10 @@ class MyInquiriesPage extends StatefulWidget {
   State<MyInquiriesPage> createState() => _MyInquiriesPageState();
 }
 
-class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageController, MyInquiriesPageUiEvent> {
+class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageController, MyInquiriesPageUiEvent> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   MyInquiriesPageController initController() => MyInquiriesPageController(widget.dio);
 
@@ -59,6 +62,8 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // For AutomaticKeepAliveClientMixin to work
+
     bool isLoggedIn = context.watch<AuthState>().isLoggedIn;
 
     return BaseLayout(

@@ -24,7 +24,10 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> with SingleTickerProviderStateMixin{
+class _SearchPageState extends BaseState<SearchPage, SearchPageController, SearchPageUiEvent> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin{
+  @override
+  bool get wantKeepAlive => true;
+
   final TextEditingController searchBarController = TextEditingController();
   
   @override
@@ -141,6 +144,8 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // For AutomaticKeepAliveClientMixin to work
+
     bool isLoggedIn = context.watch<AuthState>().isLoggedIn;
 
     return BaseLayout( 
