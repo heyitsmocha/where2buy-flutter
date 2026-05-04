@@ -53,57 +53,64 @@ class MapWidget extends StatefulWidget{
 class _MapWidgetState extends State<MapWidget> with MapWidgetMixin {
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: Stack(
-        children: [
-          // Loading indicator or Google Map
-          Choose(
-            condition: isInitializing, 
-            ifTrue: (context) => const Center(child: CircularProgressIndicator()), 
-            ifFalse: (context) => GoogleMap(
-              mapToolbarEnabled: false, // Disable the default Google Maps toolbar that appears when tapping on a marker. 
-              myLocationEnabled: widget.showMyLocationIndicator,
-              initialCameraPosition: CameraPosition(
-                target: currentCameraPosition.target,
-                zoom: currentCameraPosition.zoom,
+    return Card( // For the shadow
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+      child: ClipRRect( // To round the borders, since Container with BoxDecoration doesn't work with GoogleMap for some reason
+        borderRadius: BorderRadius.circular(16.0),
+        child: Stack(
+          children: [
+            // Loading indicator or Google Map
+            Choose(
+              condition: isInitializing, 
+              ifTrue: (context) => const Center(child: CircularProgressIndicator()), 
+              ifFalse: (context) => GoogleMap(
+                mapToolbarEnabled: false, // Disable the default Google Maps toolbar that appears when tapping on a marker. 
+                myLocationEnabled: widget.showMyLocationIndicator,
+                initialCameraPosition: CameraPosition(
+                  target: currentCameraPosition.target,
+                  zoom: currentCameraPosition.zoom,
+                ),
+                onMapCreated: handleMapCreated,
+                myLocationButtonEnabled: false, // Disable the default My Location button since we have a custom one
+                zoomControlsEnabled: false, // Disable default zoom controls since we have custom ones
+                onCameraMoveStarted: () {
+                  widget.onCameraMoveStarted?.call();
+                },
+                onCameraMove: handleCameraMove,
+                onCameraIdle: () {
+                  widget.onCameraIdle?.call();
+                },
+                circles: widget.circles,
+                markers: widget.markers,
               ),
-              onMapCreated: handleMapCreated,
-              myLocationButtonEnabled: false, // Disable the default My Location button since we have a custom one
-              zoomControlsEnabled: false, // Disable default zoom controls since we have custom ones
-              onCameraMoveStarted: () {
-                widget.onCameraMoveStarted?.call();
-              },
-              onCameraMove: handleCameraMove,
-              onCameraIdle: () {
-                widget.onCameraIdle?.call();
-              },
-              circles: widget.circles,
-              markers: widget.markers,
             ),
-          ),
-          ShowWhen(
-            condition: widget.mapOverlayLayer != null, 
-            ifTrue: (context) => widget.mapOverlayLayer!
-          ),
-          // Buttons on top of the map
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if(widget.extraButtons.isNotEmpty) 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: widget.extraButtons.reversed.toList(),
-                ),
-              if(enabledBaseButtons.isNotEmpty) 
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: enabledBaseButtons,
-                ),
-            ],
-          ),
-        ],
+            ShowWhen(
+              condition: widget.mapOverlayLayer != null, 
+              ifTrue: (context) => widget.mapOverlayLayer!
+            ),
+            // Buttons on top of the map
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if(widget.extraButtons.isNotEmpty) 
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: widget.extraButtons.reversed.toList(),
+                  ),
+                if(enabledBaseButtons.isNotEmpty) 
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: enabledBaseButtons,
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
