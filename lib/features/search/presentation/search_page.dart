@@ -236,16 +236,6 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                                   ),
                                 ),
                               ),
-                              Icon(
-                                Icons.add, 
-                                color: Colors.indigo.withOpacity(0.8),
-                                shadows: const [
-                                  Shadow(
-                                    color: Colors.white,
-                                    blurRadius: 4,
-                                  ),
-                                ],  
-                              ),
                             ]
                           ),
                         ),
@@ -274,6 +264,20 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                       // Pass circle if search area is locked, otherwise pass empty set to hide it
                       circles: controller.state.lockSearchArea ? { controller.searchRangeCircle } : {},
                       markers: controller.state.markers.toSet(),
+                    ),
+                    IgnorePointer(
+                      child: Center( // Crosshair to help indicate the center of the camera
+                        child: Icon(
+                          Icons.add, 
+                          color: Colors.indigo.withOpacity(controller.state.lockSearchArea ? 0.4 : 0.8),
+                          shadows: [
+                            Shadow(
+                              color: Colors.white,
+                              blurRadius: controller.state.lockSearchArea ? 2 : 4,
+                            ),
+                          ],  
+                        ),
+                      ),
                     ),
                     Visibility( // Search result count chip
                       visible: controller.state.hasSelectedSearchResult,
