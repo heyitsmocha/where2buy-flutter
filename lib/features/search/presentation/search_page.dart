@@ -141,7 +141,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
 
   @override
   Widget build(BuildContext context) {
-    final authState = Provider.of<AuthState>(context);
+    bool isLoggedIn = context.watch<AuthState>().isLoggedIn;
 
     return BaseLayout( 
       child: Column(
@@ -160,7 +160,7 @@ class _SearchPageState extends BaseState<SearchPage, SearchPageController, Searc
                   hintText: controller.state.hasSelectedSearchResult ? '' :  'Search for items...',
                   trailing: [
                     IconButton(
-                      onPressed: () => controller.searchBarSubLogic.handleNewRequestButtonPressed(authState.isLoggedIn), 
+                      onPressed: () => controller.searchBarSubLogic.handleNewRequestButtonPressed(isLoggedIn), 
                       icon: const Icon(Icons.post_add), 
                       tooltip: "Request new item",
                     ),
