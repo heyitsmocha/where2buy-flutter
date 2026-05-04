@@ -38,22 +38,16 @@ class _RespondPageState extends State<RespondPage> {
 
   TextEditingController searchController = TextEditingController();
 
+  late Position _userPosition;
+
   @override
   void initState() {
     super.initState();
     _controller = RespondPageController(widget.dio);
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Need a separate instance of AuthState here because doing `late AuthState` and assign it in initState gives us uninitialized error.
-        final tempAuthState = Provider.of<AuthState>(context, listen: false);
-        if (tempAuthState.isLoggedIn) {
-          _refresh();
-        } else {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _userPosition = await LocationUtil.getCurrentLocation(maxMinutes: 1);
+    });
   }
 
   void _refresh() async {
@@ -61,31 +55,48 @@ class _RespondPageState extends State<RespondPage> {
       _isLoading = true;
     });
     
-    final result = await ApiUtil.safeApiCall(
-      onTry: () async {
-        Position userLocation = await LocationUtil.getLastKnownLocation();
-        return await InquiryApiService(widget.dio).getNearbyInquiries(userLocation.latitude, userLocation.longitude);
-      });
+    // lower the maxMinutes in case the user is on the move while on the RespondPage, so that we can get a more accurate location and nearby inquiries.
+    Position fetchLocation = await LocationUtil.getCurrentLocation(maxMinutes: 1);
+    double distanceMeters = Geolocator.distanceBetween(
+        _userPosition.latitude, 
+        _userPosition.longitude, 
+        fetchLocation.latitude, 
+        fetchLocation.longitude
+    );
 
-    switch (result) {
-      case Success(value: final data):
-        if (mounted) {
-          setState(() {
-            _nearbyInquiries = data;
-            _isLoading = false;
-          });
-        }
-        break;
-      case Failure(errorMessage: final message):
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to load nearby inquiries: $message')),
-          );
-        }
-        break;
+    // Only refresh if the user has moved a significant distance
+    if (distanceMeters > 5) {
+      _userPosition = fetchLocation;
+
+      final result = await ApiUtil.safeApiCall(
+        onTry: () async => await InquiryApiService(widget.dio).getNearbyInquiries(_userPosition.latitude, _userPosition.longitude)
+      );
+
+      switch (result) {
+        case Success(value: final data):
+          if (mounted) {
+            setState(() {
+              _nearbyInquiries = data;
+              _isLoading = false;
+            });
+          }
+          break;
+        case Failure(errorMessage: final message):
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to load nearby inquiries: $message')),
+            );
+          }
+          break;
+      }
+    } else {
+      // If the user hasn't moved significantly, just stop the loading indicator without making an API call
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
