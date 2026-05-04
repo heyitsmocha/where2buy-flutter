@@ -136,20 +136,24 @@ class _RespondPageState extends State<RespondPage> {
                   condition: _isLoading,
                   ifTrue: (context) => const Center(child: CircularProgressIndicator()),
                   ifFalse: (context) => Card(
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
-                      itemCount: _nearbyInquiries.length,
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final inquiry = _nearbyInquiries[index];
-                        return ListTile(
-                          title: Text(inquiry.itemName),
-                          subtitle: Text(inquiry.itemDescription ?? ''),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => Navigator.of(context).pushNamed('/respond/add', arguments: inquiry),
-                        );
-                      },
+                    child: Choose(
+                      condition: _nearbyInquiries.isEmpty,
+                      ifTrue: (context) => const ListTile(title: Text('No nearby requests found.')),
+                      ifFalse: (context) => ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
+                        itemCount: _nearbyInquiries.length,
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemBuilder: (context, index) {
+                          final inquiry = _nearbyInquiries[index];
+                          return ListTile(
+                            title: Text(inquiry.itemName),
+                            subtitle: Text(inquiry.itemDescription ?? ''),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => Navigator.of(context).pushNamed('/respond/add', arguments: inquiry),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
