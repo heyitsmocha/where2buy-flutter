@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/base_state.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/choose_widget.dart';
@@ -35,14 +37,30 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
     }
   }
 
+  // For use outside of build()
+  late final AuthState _authSubscription;
+
   @override
   void initState() {
     super.initState();
-    controller.refresh();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _authSubscription = Provider.of<AuthState>(context, listen: false);
+      _authSubscription.addListener(_refresh);
+
+      _refresh();
+    });
+  }
+
+  void _refresh() {
+    bool isLoggedIn = context.read<AuthState>().isLoggedIn;
+    controller.refresh(isLoggedIn);
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isLoggedIn = context.watch<AuthState>().isLoggedIn;
+
     return BaseLayout(
       child: SingleChildScrollView(
         child: ListenableBuilder(
@@ -54,9 +72,7 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
                 listenable: controller,
                 hintText: 'Search Requests...',
                 trailing: [
-                  controller.isLoading 
-                    ? const Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())
-                    : IconButton(onPressed: () => controller.refresh(), icon: const Icon(Icons.refresh))     
+                  IconButton(onPressed: isLoggedIn && !controller.isLoading ? _refresh : null, icon: const Icon(Icons.refresh))     
                 ],
                 onChanged: (value) {},
                 onSubmitted: (value) {},  
@@ -66,32 +82,36 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
                 condition: controller.isLoading,
                 ifTrue: (context) => const Center(child: CircularProgressIndicator()) ,
                 ifFalse: (context) => Choose(
-                  condition: controller.inquiries.isEmpty,
-                  ifTrue: (context) => const Text('You have not made any requests yet.'),
-                  ifFalse: (context) => Card(
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
-                      itemCount: controller.inquiries.length,
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final inquiry = controller.inquiries[index];
-                        return ListTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(inquiry.itemName ?? 'No item name'),
-                              // Display the date the inquiry was created if available
-                              Text(inquiry.createdAt != null ? ' - ${inquiry.createdAt!.toLocal().toString().split(' ')[0]}' : '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                            ],
-                          ),
-                          subtitle: Text(inquiry.itemDescription ?? ''),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.of(context).pushNamed('/inquiry/responses', arguments: inquiry);
-                          }
-                        );
-                      },
+                  condition: isLoggedIn,
+                  ifFalse: (context) => const Card(child: ListTile(title: Text('Please log in to view your requests.'))),
+                  ifTrue: (context) => Choose(
+                    condition: controller.inquiries.isEmpty,
+                    ifTrue: (context) => const Text('You have not made any requests yet.'),
+                    ifFalse: (context) => Card(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(), // To prevent SingleChildScrollView from competing with ListView for scroll gestures
+                        itemCount: controller.inquiries.length,
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemBuilder: (context, index) {
+                          final inquiry = controller.inquiries[index];
+                          return ListTile(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(inquiry.itemName ?? 'No item name'),
+                                // Display the date the inquiry was created if available
+                                Text(inquiry.createdAt != null ? ' - ${inquiry.createdAt!.toLocal().toString().split(' ')[0]}' : '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              ],
+                            ),
+                            subtitle: Text(inquiry.itemDescription ?? ''),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () {
+                              Navigator.of(context).pushNamed('/inquiry/responses', arguments: inquiry);
+                            }
+                          );
+                        },
+                      ),
                     ),
                   ),
                 )
@@ -101,5 +121,11 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _authSubscription.removeListener(_refresh);
+    super.dispose();
   }
 }

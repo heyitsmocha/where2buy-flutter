@@ -21,33 +21,40 @@ class MyInquiriesPageController extends BaseController<MyInquiriesPageUiEvent> {
 
   MyInquiriesPageController(this._dio);
 
-  Future<void> refresh() async {
+  Future<void> refresh(bool isLoggedIn) async {
     if(isDisposed) return;
 
     _isLoading = true;
     notifyListeners();
 
-    final result = await ApiUtil.safeApiCall(
-      onTry: () async => await InquiryApiService(_dio).getMyInquiries(), 
-      onDioError: (error) {
-        emitEvent(MyInquiriesPageUiEvent.showNetworkErrorSnackbar);
-      }, 
-      onError: (error) {
-        emitEvent(MyInquiriesPageUiEvent.showUnexpectedErrorSnackbar);
-      }
-    );
+    if(!isLoggedIn) {
+      _inquiries.clear();
+      _isLoading = false;
+      notifyListeners();
+      return;
+    } else {
+      final result = await ApiUtil.safeApiCall(
+        onTry: () async => await InquiryApiService(_dio).getMyInquiries(), 
+        onDioError: (error) {
+          emitEvent(MyInquiriesPageUiEvent.showNetworkErrorSnackbar);
+        }, 
+        onError: (error) {
+          emitEvent(MyInquiriesPageUiEvent.showUnexpectedErrorSnackbar);
+        }
+      );
 
-    switch(result) {
-      case Success(value: final data):
-        _inquiries.clear();
-        _inquiries.addAll(data);
-        break;
-      case Failure():
-        // Errors are already handled in the onDioError and onError callbacks, so we don't need to do anything here
-        break;
+      switch(result) {
+        case Success(value: final data):
+          _inquiries.clear();
+          _inquiries.addAll(data);
+          break;
+        case Failure():
+          // Errors are already handled in the onDioError and onError callbacks, so we don't need to do anything here
+          break;
+      }
+      
+      _isLoading = false;
+      notifyListeners();
     }
-    
-    _isLoading = false;
-    notifyListeners();
   }
 }
