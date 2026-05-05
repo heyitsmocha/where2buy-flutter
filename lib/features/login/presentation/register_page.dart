@@ -14,7 +14,10 @@ class RegisterPage extends StatefulWidget {
   State<StatefulWidget> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterPageState extends State<RegisterPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late final RegisterPageController _controller;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -27,6 +30,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // For AutomaticKeepAliveClientMixin to work
+    
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
