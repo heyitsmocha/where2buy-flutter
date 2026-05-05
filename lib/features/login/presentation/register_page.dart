@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/logic/register_page_controller.dart';
 
@@ -32,6 +34,8 @@ class _RegisterPageState extends State<RegisterPage> with AutomaticKeepAliveClie
   Widget build(BuildContext context) {
     super.build(context); // For AutomaticKeepAliveClientMixin to work
     
+    final authState = context.read<AuthState>();
+
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
@@ -99,6 +103,7 @@ class _RegisterPageState extends State<RegisterPage> with AutomaticKeepAliveClie
                     if (widget.onRegisterSuccess != null) {
                       widget.onRegisterSuccess!();
                     }
+                    authState.login();
                     break;
                   case Failure():
                     if (context.mounted) {
