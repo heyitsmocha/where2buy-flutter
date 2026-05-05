@@ -26,7 +26,10 @@ class LoginPage extends StatefulWidget {
 }
 
 // class _LoginPageState extends BaseState<LoginPage, LoginPageController, LoginPageUiEvent> {
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late final LoginPageController controller;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -55,7 +58,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    AuthState authState = Provider.of<AuthState>(context);
+    super.build(context); // For AutomaticKeepAliveClientMixin to work
+    AuthState authState = context.read<AuthState>();
 
     return Form(
       key: _formKey,
