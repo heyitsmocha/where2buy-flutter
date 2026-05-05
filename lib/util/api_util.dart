@@ -92,8 +92,8 @@ abstract class InquiryApiService {
     @Query('longitude') double longitude,
   );
 
-  // @GET("{inquiry}")
-  // Future<ApiResponse<Inquiry>> getInquiryById(@Path("inquiry") int inquiry);
+  @GET("{inquiry}")
+  Future<ApiResponse<Inquiry>> getInquiryById(@Path("inquiry") int inquiry);
 
   @POST("")
   @Extra({"requiresAuth": true})
