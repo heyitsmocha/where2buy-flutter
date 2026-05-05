@@ -28,16 +28,16 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final tempAuthState = Provider.of<AuthState>(context, listen: false);
-        _updateUserDetails(tempAuthState.isLoggedIn);
+        _updateUserDetails();
       });
   }
 
-  void _updateUserDetails(bool loggedIn) async {
+  void _updateUserDetails() async {
+    bool isLoggedIn = context.read<AuthState>().isLoggedIn;
     print('Checking login status in ProfilePage...');
     const storage = FlutterSecureStorage();
     bool hasToken = await storage.containsKey(key: 'auth_token');
-    if (loggedIn && hasToken) {
+    if (isLoggedIn && hasToken) {
       print('Auth token found, user is logged in');
       String tempName, tempEmail;
       // Name and email from sharedprefs
@@ -59,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final AuthState authState = Provider.of<AuthState>(context);
+    final AuthState authState = context.read<AuthState>();
     return BaseLayout(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -86,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const Divider(height: 50,),
-          const Expanded(child: Text('Placeholder')),
+          const Expanded(child: Text('')),
           const Divider(height: 25,),
           ElevatedButton(
             onPressed: 
@@ -118,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 prefs.remove('username');
                 prefs.remove('email');
 
-                _updateUserDetails(false);
+                _updateUserDetails();
                 if (context.mounted) {
                   // Dismiss sidebar and show success message in main scaffold
                   Navigator.of(context).pop();
@@ -138,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Result loginResult = await AuthUtil.showAuthForm(
                   context,
                   widget.dio, 
-                  onAuthSuccess: (successMessage) => _updateUserDetails(true),
+                  onAuthSuccess: (successMessage) => _updateUserDetails(),
                 );
 
                 // Dismiss the sidebar and show success message in the main scaffold
