@@ -21,6 +21,7 @@ class MapWidget extends StatefulWidget{
     this.onCameraIdle,
     this.onCameraMove,
     this.mapOverlayLayer,
+    this.cameraTargetBounds = CameraTargetBounds.unbounded,
   });
 
   final bool
@@ -46,6 +47,8 @@ class MapWidget extends StatefulWidget{
   final void Function()? onCameraIdle;
   final void Function(CameraPosition)? onCameraMove;
 
+  final CameraTargetBounds cameraTargetBounds;
+
   @override
   State<StatefulWidget> createState() => _MapWidgetState();
 }
@@ -69,6 +72,7 @@ class _MapWidgetState extends State<MapWidget> with MapWidgetMixin {
               ifFalse: (context) => GoogleMap(
                 mapToolbarEnabled: false, // Disable the default Google Maps toolbar that appears when tapping on a marker. 
                 myLocationEnabled: widget.showMyLocationIndicator,
+                cameraTargetBounds: widget.cameraTargetBounds,
                 initialCameraPosition: CameraPosition(
                   target: currentCameraPosition.target,
                   zoom: currentCameraPosition.zoom,
