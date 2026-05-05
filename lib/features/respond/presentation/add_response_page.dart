@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/choose_widget.dart';
@@ -97,8 +98,7 @@ class _AddResponsePageState extends State<AddResponsePage> {
   void _checkBounds(CameraPosition position) {
     LatLng currentTarget = position.target;
 
-    LatLngBounds searchRadiusBounds = _createBounds(LatLng(_inquiry.latitude!, _inquiry.longitude!), _inquiry.searchRadiusMeters!.toDouble());
-    if (!searchRadiusBounds.contains(currentTarget)) {
+    if (Geolocator.distanceBetween(_inquiry.latitude!, _inquiry.longitude!, currentTarget.latitude, currentTarget.longitude) > _inquiry.searchRadiusMeters!) {
       // If the user moves the camera outside of the search radius bounds, move it back to the user's current location
       _mapController.animateCamera(CameraUpdate.newLatLng(_userLatLng));
     }
