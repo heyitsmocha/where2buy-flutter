@@ -21,12 +21,17 @@ class ApiUtil {
   /// [onFinally] is an optional callback that will be called regardless of whether the API call succeeds or fails.
   static Future<Result<T>> safeApiCall<T>({
     required Future<ApiResponse<T>> Function() onTry,
+    Function(T data)? onSuccess,
     Function(DioException e)? onDioError,
     Function(Exception exception)? onError,
     Function()? onFinally
   }) async {
     try {
       final response = await onTry();
+      if (response.data != null) {
+        onSuccess?.call(response.data as T);
+      }
+      
       return Result.success(response.data ?? [] as T);
     } on DioException catch (e) {
       onDioError?.call(e);
