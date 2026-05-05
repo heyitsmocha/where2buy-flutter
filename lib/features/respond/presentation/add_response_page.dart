@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
+import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/components/show_when.dart';
 import 'package:w2b_flutter/components/widget_with_button.dart';
@@ -10,6 +13,7 @@ import 'package:w2b_flutter/models/answer_model.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:dio/dio.dart';
 import 'package:w2b_flutter/util/api_util.dart';
+import 'package:w2b_flutter/util/location_util.dart';
 
 class AddResponsePage extends StatefulWidget {
   final NearbyInquiry inquiry;
@@ -33,15 +37,71 @@ class _AddResponsePageState extends State<AddResponsePage> {
   String _storeName = '';
 
   bool _isSubmitting = false; // Track whether the form is currently being submitted to prevent multiple submissions
+  bool _isLoading = true;
+
+  late final Inquiry _inquiry; // Store the inquiry details retrieved from the API, which may include additional information not included in the nearby inquiries response, such as the item name.
+
+  late CameraPosition _cameraPosition;
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Expand after the first frame is rendered to let users know that there is a collapsible map section
       _mapExpansionTileController.expand();
+      
+      final location = await LocationUtil.getCurrentLocation(maxMinutes: 0);
+      _userLatLng = LatLng(location.latitude, location.longitude);
+
+      await ApiUtil.safeApiCall(
+        onTry: () async => await InquiryApiService(widget.dio).getInquiryById(widget.inquiry.id),
+        onSuccess: (inquiry) {
+          if (mounted) {
+            setState(() => _inquiry = inquiry);
+          }
+        },
+        onError: (e) {
+          Navigator.pop(context); // Pop the page if there was an error retrieving the inquiry details, since we need that information to display the page properly
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error retrieving inquiry details: $e')),
+          );
+        },
+        onDioError: (e) {
+          Navigator.pop(context); // Pop the page if there was an error retrieving the inquiry details, since we need that information to display the page properly
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error retrieving inquiry details: ${e.message}')),
+          );
+        },
+        onFinally: () {
+          if (mounted) {
+            setState(() => _isLoading = false);
+          }
+        },
+      );
+      
     });
+  }
+
+  LatLngBounds _createBounds(LatLng center, double radiusMeters) {
+    final double latDelta = radiusMeters / 111320; // Roughly convert meters to degrees latitude
+    final double lngDelta = radiusMeters / (111320 * cos(center.latitude * pi / 180)); // Adjust longitude delta based on latitude
+
+    return LatLngBounds(
+      southwest: LatLng(center.latitude - latDelta, center.longitude - lngDelta),
+      northeast: LatLng(center.latitude + latDelta, center.longitude + lngDelta),
+    );
+  } 
+
+  /// Check if the current camera position is within the bounds of the inquiry's search radius, and if not, move it back to the center of the inquiry location. This is to prevent users from moving the camera too far away from the inquiry location and submitting a response with an inaccurate location.
+  void _checkBounds(CameraPosition position) {
+    LatLng currentTarget = position.target;
+
+    LatLngBounds searchRadiusBounds = _createBounds(LatLng(_inquiry.latitude!, _inquiry.longitude!), _inquiry.searchRadiusMeters!.toDouble());
+    if (!searchRadiusBounds.contains(currentTarget)) {
+      // If the user moves the camera outside of the search radius bounds, move it back to the user's current location
+      _mapController.animateCamera(CameraUpdate.newLatLng(_userLatLng));
+    }
   }
 
   @override
@@ -102,20 +162,46 @@ class _AddResponsePageState extends State<AddResponsePage> {
                 children: [
                   SizedBox(
                     height: 300,
-                    child: PinAnimationWidget(
-                      onControllerInitialized: (pinAnimationController) => _pinAnimationController = pinAnimationController,
-                      child: MapWidget(
-                        showMyLocationIndicator: true,
-                        showZoomControls: true,
-                        onLocationInitialized: (position) {
-                          _userLatLng = position;
-                          _currentLatLng = position;
-                        },
-                        onLocationRetrieved: (position) => _userLatLng = position,
-                        onMapCreated: (mapController) => _mapController = mapController,
-                        onCameraMoveStarted: () => _pinAnimationController.forward(),
-                        onCameraIdle: () => _pinAnimationController.reverse(),
-                        onCameraMove: (position) => _currentLatLng = position.target,
+                    child: Choose(
+                      condition: _isLoading,
+                      ifTrue: (context) => const Center(child: CircularProgressIndicator()),
+                      ifFalse: (context) => PinAnimationWidget(
+                        onControllerInitialized: (pinAnimationController) => _pinAnimationController = pinAnimationController,
+                        child: MapWidget(
+                          showMyLocationIndicator: true,
+                          showZoomControls: true,
+                          onLocationInitialized: (position) {
+                            _cameraPosition = CameraPosition(target: position, zoom: 14);
+                            _userLatLng = position;
+                            _currentLatLng = position;
+                          },
+                          onLocationRetrieved: (position) => _userLatLng = position,
+                          onMapCreated: (mapController) => _mapController = mapController,
+                          onCameraMoveStarted: () => _pinAnimationController.forward(),
+                          onCameraMove: (position) {
+                            _currentLatLng = position.target;
+                            _cameraPosition = position;
+                          },
+                          onCameraIdle: () {
+                            _pinAnimationController.reverse();
+                            _checkBounds(_cameraPosition);
+                          },
+                          // Set bounds to 1500m from the user's current location
+                          cameraTargetBounds: CameraTargetBounds(LatLngBounds(
+                            southwest: LatLng(_userLatLng.latitude - 0.015, _userLatLng.longitude - 0.015),
+                            northeast: LatLng(_userLatLng.latitude + 0.015, _userLatLng.longitude + 0.015),
+                          )),
+                          circles: {
+                            Circle(
+                              circleId: const CircleId('search_radius'),
+                              center: LatLng(_inquiry.latitude!, _inquiry.longitude!),
+                              radius: _inquiry.searchRadiusMeters!.toDouble(),
+                              fillColor: Colors.purple.withOpacity(0.2),
+                              strokeColor: Colors.purple.withOpacity(0.5),
+                              strokeWidth: 2,
+                            ),
+                          },
+                        ),
                       ),
                     ),
                   ),
