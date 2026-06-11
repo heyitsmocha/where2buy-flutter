@@ -208,7 +208,15 @@ class SearchBarSubLogic {
             _parent.state.markers.add(
               Marker(
                 markerId: MarkerId(answer.id.toString()),
+                infoWindow: InfoWindow(
+                  title: answer.storeName,
+                ),
                 position: LatLng(answer.latitude, answer.longitude),
+                onTap: () {
+                  // Lock the search area since tapping on a marker will center the camera to it
+                  _parent.state.lockSearchArea = true;
+                  _parent.notifyListeners();
+                }
               ),
             );
           }
