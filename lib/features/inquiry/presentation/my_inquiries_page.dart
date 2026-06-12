@@ -104,7 +104,12 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(inquiry.itemName ?? 'No item name'),
+                                Expanded(
+                                  child: Text(
+                                    inquiry.itemName ?? 'No item name',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                                 // Display the date the inquiry was created if available
                                 Text(inquiry.createdAt != null ? ' - ${inquiry.createdAt!.toLocal().toString().split(' ')[0]}' : '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                               ],
