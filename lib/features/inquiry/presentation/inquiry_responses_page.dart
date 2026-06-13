@@ -117,7 +117,6 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
       body: BaseLayout(
         child: Column(
           children: [
-            Text('Display responses for inquiry ID: ${widget.inquiry.id}'),
             SizedBox(
               height: 300,
               child: MapWidget(
@@ -170,7 +169,7 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
               ),
             ), // Map
             const SizedBox(height: 16),
-            Expanded(
+            Flexible(
               child: Choose(
                 condition: _isLoading,
                 ifTrue: (context) => const Center(child: CircularProgressIndicator()),
@@ -184,7 +183,7 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
                       final answer = answers[index];
                       return ListTile(
                         title: Text(answer.storeName),
-                        trailing: _currentlyViewingStoreIndex == index ? const Icon(Icons.visibility) : null,
+                        trailing: _currentlyViewingStoreIndex == index ? const Icon(Icons.visibility) : const Icon(Icons.visibility_outlined),
                         onTap: () => _centerCameraToMarker(index, answer),
                       );
                     },
