@@ -27,7 +27,7 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
   
   final String apiBaseUrl = dotenv.env['API_BASE_URL'] ?? "http://192.168.0.1:8000/api";
-  print('API Base URL: $apiBaseUrl');
+  // print('API Base URL: $apiBaseUrl');
 
   Dio dio = Dio(
     BaseOptions(
@@ -36,21 +36,16 @@ Future<void> main() async {
         // "Content-Type": "application/json",
         "Accept": "application/json",
         "X-Platform": "mobile-flutter",
-      }
+      },
+      connectTimeout: const Duration(seconds: 10),
+      sendTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
     ),
   );
 
   // Add the AuthInterceptor to automatically include the auth token in requests if needed
   dio.interceptors.add(AuthInterceptor());
   dio.interceptors.add(LoggerInterceptor());
-
-  // Test the API connection by making a simple request
-  try {
-    HttpResponse userResponse = await ApiService(dio).getUser();
-    authState.login();
-  } on DioException catch (e) {
-    print('Error fetching user data: ${e.message}');
-  }
 
   runApp(
     ChangeNotifierProvider(
@@ -70,6 +65,23 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrapAuth());
+  }
+
+  Future<void> _bootstrapAuth() async {
+    // Test the API connection by making a simple request
+    try {
+      HttpResponse userResponse = await ApiService(widget.dio).getUser();
+      if (!mounted) return;
+      context.read<AuthState>().login();
+    } on DioException catch (e) {
+      print('Error fetching user data: ${e.message}');
+    }
+  }
+
   int _currentIndex = 1;
 
   late final List<Widget> _views = [
