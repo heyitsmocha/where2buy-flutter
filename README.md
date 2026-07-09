@@ -5,12 +5,12 @@ One of my university projects, originally wrote for Android (Java) remade in Flu
 A crowdsourced mobile app to where users can post a question on where they could find an item, and other users can answer with the location.
 
 Technical Features:
-- Project Structure: MVC-like to separate the view from the logic
+- Project Structure: MVC-inspired separation of concerns
 - State Management: Provider for tracking authentication status across the app
 - REST API Integration: Retrofit to fetch and send data to the Laravel backend
 - Google Maps Integration: Google Maps to query and report locations
 
-This project requires [https://github.com/zemu-familia/where2buy-laravel] to function.
+This project requires [https://github.com/heyitsmocha/where2buy-laravel] to function.
 
 ## Demo
 <details>
@@ -39,6 +39,53 @@ This project requires [https://github.com/zemu-familia/where2buy-laravel] to fun
   https://github.com/user-attachments/assets/60379efb-3acf-4f07-aaa9-ea1da2cff1d3
 </details>
 
+## Prerequisites
+Before getting started, make sure you have:
+- Flutter SDK
+- Android Studio or Visual Studio Code with the Flutter extension
+- Android SDK
 
 ## Setup
-> This section will be expanded upon soon.
+1. Clone the repository:
+    ```
+    git clone https://github.com/heyitsmocha/where2buy-flutter
+    cd where2buy-flutter
+    ```
+2. Install dependencies:
+    ```
+    flutter pub get
+    ```
+3. Configure environment variables:
+    ```
+    cp .env.example .env
+    ```
+    Open the newly created `.env` file and set `API_BASE_URL` to point to your backend.
+
+4. Configure the Google Maps API key (Android):
+
+    This project uses the Google Maps SDK for Android.
+    
+    1. Create a Google Maps API key in the Google Cloud Console.
+    2. Enable **Maps SDK for Android**
+    3. Add your API key to `android/local.properties`:
+      ```properties
+      #Existing properties...
+      MAPS_API_KEY=your_api_key_here
+      ```
+  
+    > **Note:** The Google Maps API key is not read from `.env`, it must be provided to the Android build through `local.properties`.
+
+5. Enable **Developer options** and **USB Debugging** on your Android device, then run the app:
+    ```
+    flutter run
+    ```
+    > **Note:** Before running the app, make sure the backend server is running and accessible at the `API_BASE_URL` specified in your `.env` file.
+
+## Platform Support
+| Platform | Status |
+|----------|--------|
+| Android | ✅ Supported |
+| iOS | ⚠️ Not configured/tested |
+| Web | ⚠️ Not configured/tested |
+
+Currently, only Android has been configured and tested. iOS and web support has not yet been implemented.
