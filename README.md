@@ -1,16 +1,18 @@
 # Where2Buy (Mobile Client)
 
-One of my university projects, originally wrote for Android (Java) remade in Flutter.
+A crowdsourced mobile application where users can ask where to find a specific item, and other users can respond with locations and information.
 
-A crowdsourced mobile app to where users can post a question on where they could find an item, and other users can answer with the location.
+Originally developed as a university project using pure PHP and Java (native Android), this version was rebuilt with Laravel as a REST API backend and a React-based web interface. The API is shared between the React web application and the Flutter mobile application.
 
-Technical Features:
-- Project Structure: MVC-inspired separation of concerns
+This project consists of two applications:
+- Laravel + React web application [https://github.com/heyitsmocha/where2buy-laravel]
+- Flutter mobile application (this repository)
+
+## Technical Features
+- Architecture: Separation of UI and application logic using controller classes and mixins. Controllers extend `ChangeNotifier` to provide reactive state updates to the UI.
 - State Management: Provider for tracking authentication status across the app
-- REST API Integration: Retrofit to fetch and send data to the Laravel backend
-- Google Maps Integration: Google Maps to query and report locations
-
-This project requires [https://github.com/heyitsmocha/where2buy-laravel] to function.
+- REST API Integration: Retrofit and Dio to fetch and send data to the Laravel backend API
+- Maps and Location: Google Maps integration for displaying, querying, and reporting item locations
 
 ## Demo
 <details>
