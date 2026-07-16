@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:w2b_flutter/base_appbar_scaffold.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
@@ -106,13 +107,8 @@ class _AddResponsePageState extends State<AddResponsePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: const Text('Respond'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
-      backgroundColor: Theme.of(context).colorScheme.background,
+    return BaseAppbarScaffold(
+      title: 'Respond',
       body: BaseLayout(
         child: SingleChildScrollView(
           child: Column(
