@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/core/network_results.dart';
@@ -41,9 +40,8 @@ class _ProfilePageState extends State<ProfilePage> {
       print('Auth token found, user is logged in');
       String tempName, tempEmail;
       // Name and email from sharedprefs
-      final prefs = await SharedPreferences.getInstance();
-      tempName = prefs.getString('username') ?? 'Guest';
-      tempEmail = prefs.getString('email') ?? '';
+      tempName = await AuthUtil.getUsername();
+      tempEmail = await AuthUtil.getEmail();
       setState(() {
         _username = tempName;
         _email = tempEmail;
@@ -113,10 +111,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 const storage = FlutterSecureStorage();
                 storage.delete(key: 'auth_token');
-
-                final prefs = await SharedPreferences.getInstance();
-                prefs.remove('username');
-                prefs.remove('email');
+                storage.delete(key: 'username');
+                storage.delete(key: 'email');
 
                 _updateUserDetails();
                 if (context.mounted) {

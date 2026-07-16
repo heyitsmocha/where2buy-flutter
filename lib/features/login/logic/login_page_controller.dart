@@ -5,7 +5,6 @@ import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/models/user_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // enum LoginPageUiEvent implements UIEvent {
 //   showLoginSuccess,
@@ -37,14 +36,11 @@ class LoginPageController  {
             deviceName: "Mobile Device", // TODO: get actual device info
         ));
 
-      // Save email and username to userpreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', userResponse.name);
-      await prefs.setString('email', userResponse.email);
-
-      // Save token to secure storage
+      // Save token and user info to secure storage
       const storage = FlutterSecureStorage(); // TODO: move to utils if used in 3 different places
       await storage.write(key: 'auth_token', value: userResponse.token);
+      await storage.write(key: 'username', value: userResponse.name);
+      await storage.write(key: 'email', value: userResponse.email);
       
       // emitEvent(LoginPageUiEvent.showLoginSuccess);
       return Result.success(userResponse);

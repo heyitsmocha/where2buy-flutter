@@ -14,6 +14,18 @@ class AuthUtil {
     return token != null;
   }
 
+  static Future<String> getUsername() async {
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+    final String? username = await storage.read(key: 'username');
+    return username ?? 'Guest';
+  }
+
+  static Future<String> getEmail() async {
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+    final String? email = await storage.read(key: 'email');
+    return email ?? '';
+  }
+
   /// Shows the login/registration form as a bottom sheet. </br> </br>
   /// If the login/registration is successful, the bottom sheet will automatically dismiss after 3 seconds and return a [Result.success]. </br>
   /// Errors will be shown as snackbars within the bottom sheet. </br> </br>
