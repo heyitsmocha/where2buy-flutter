@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:w2b_flutter/base_appbar_scaffold.dart';
 import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/map/map_secondary_button.dart';
@@ -106,16 +107,12 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inquiry Responses'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+    return BaseAppbarScaffold(
+      title: 'Inquiry Responses',
       floatingActionButton: FloatingActionButton(
         onPressed: _isLoading ? null : refresh,
         child: const Icon(Icons.refresh),
       ),
-      backgroundColor: Theme.of(context).colorScheme.background,
       body: BaseLayout(
         child: Column(
           children: [
