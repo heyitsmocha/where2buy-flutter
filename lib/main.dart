@@ -16,6 +16,7 @@ import 'package:w2b_flutter/features/respond/presentation/respond_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
+import 'package:w2b_flutter/util/auth_util.dart';
 
 Future<void> main() async {
   // Ensure bindings are initialized before running the app, especially since we're doing async work before runApp
@@ -72,11 +73,16 @@ class _MainAppState extends State<MainApp> {
   }
 
   Future<void> _bootstrapAuth() async {
+    // Check if the user is logged in by verifying the presence of an auth token
+    bool isLoggedIn = await AuthUtil.isLoggedIn();
+    if (isLoggedIn && mounted) {
+      context.read<AuthState>().login();
+    }
+
     // Test the API connection by making a simple request
     try {
       HttpResponse userResponse = await ApiService(widget.dio).getUser();
       if (!mounted) return;
-      context.read<AuthState>().login();
     } on DioException catch (e) {
       print('Error fetching user data: ${e.message}');
     }
