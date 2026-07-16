@@ -7,6 +7,7 @@ import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/auth_util.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 class ProfilePage extends StatefulWidget {
   final Dio dio;
@@ -118,11 +119,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (context.mounted) {
                   // Dismiss sidebar and show success message in main scaffold
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      backgroundColor: Colors.green,
-                      content: Text("Logged out successfully")
-                    ),
+                  ShowSnackBar.success(
+                    context,
+                    'Logged out successfully',
                   );
                 }
                 setState(() {
@@ -141,11 +140,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (loginResult is Success) {
                    if(context.mounted) {
                     Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: Colors.green,
-                        content: Text(loginResult.value == "Login" ? "Logged in successfully. Welcome back!" : "Account created successfully. Welcome aboard!"),
-                      ),
+                    ShowSnackBar.success(
+                      context,
+                      loginResult.value == "Login" ? "Logged in successfully. Welcome back!" : "Account created successfully. Welcome aboard!",
                     );
                    }
                 }

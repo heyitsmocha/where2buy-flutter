@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:w2b_flutter/components/map/map_widget.dart';
 import 'package:w2b_flutter/util/location_util.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 mixin MapWidgetMixin on State<MapWidget> {
   bool 
@@ -111,8 +112,9 @@ mixin MapWidgetMixin on State<MapWidget> {
       return currentLocation;
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+        ShowSnackBar.error(
+          context,
+          e.toString(),
         );
       }
       return Future.value(const LatLng(0,0));

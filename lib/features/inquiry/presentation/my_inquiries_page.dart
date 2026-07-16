@@ -7,6 +7,7 @@ import 'package:w2b_flutter/components/base_layout.dart';
 import 'package:w2b_flutter/components/choose_widget.dart';
 import 'package:w2b_flutter/components/search/base_search_bar.dart';
 import 'package:w2b_flutter/features/inquiry/logic/my_inquiries_page_controller.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 class MyInquiriesPage extends StatefulWidget {
   const MyInquiriesPage(this.dio, {super.key});
@@ -25,16 +26,17 @@ class _MyInquiriesPageState extends BaseState<MyInquiriesPage, MyInquiriesPageCo
 
   @override
   void handleUIEvent(MyInquiriesPageUiEvent event) {
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     switch (event) {
       case MyInquiriesPageUiEvent.showNetworkErrorSnackbar:
-        messenger.showSnackBar(
-          const SnackBar(content: Text('A network error occurred. Please try again later.')),
+        ShowSnackBar.error(
+          context,
+          'A network error occurred. Please try again later.',
         );
         break;
       case MyInquiriesPageUiEvent.showUnexpectedErrorSnackbar:
-        messenger.showSnackBar(
-          const SnackBar(content: Text('An unexpected error occurred. Please try again later.')),
+        ShowSnackBar.error(
+          context,
+          'An unexpected error occurred. Please try again later.',
         );
         break;
     }

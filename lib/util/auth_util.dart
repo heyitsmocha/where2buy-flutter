@@ -6,6 +6,7 @@ import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/presentation/auth_success_page.dart';
 import 'package:w2b_flutter/features/login/presentation/login_page.dart';
 import 'package:w2b_flutter/features/login/presentation/register_page.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 class AuthUtil {
   static Future<bool> isLoggedIn() async {
@@ -61,11 +62,9 @@ class AuthUtil {
                   if (onAuthFailure != null) {
                     onAuthFailure(message);
                   }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: Colors.red,
-                      content: Text(message)
-                    ),
+                  ShowSnackBar.error(
+                    context,
+                    message,
                   );
                 }, 
                 onLoginSuccess: () {

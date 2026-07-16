@@ -12,6 +12,7 @@ import 'package:w2b_flutter/features/respond/presentation/respond_page_filter_dr
 import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/location_util.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 class RespondPageController extends BaseController {
   final Dio dio;
@@ -110,8 +111,9 @@ class _RespondPageState extends State<RespondPage> with AutomaticKeepAliveClient
             setState(() {
               _isLoading = false;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to load nearby inquiries: $message')),
+            ShowSnackBar.error(
+              context,
+              'Failed to load nearby inquiries: $message',
             );
           }
           break;

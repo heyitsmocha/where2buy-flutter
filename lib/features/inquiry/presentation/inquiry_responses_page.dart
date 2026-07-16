@@ -11,6 +11,7 @@ import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:dio/dio.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/location_util.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 class InquiryResponsesPage extends StatefulWidget {
   final Inquiry inquiry;
@@ -97,8 +98,9 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
         break;
       case Failure():
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to load responses. Please try again later.')),
+          ShowSnackBar.error(
+            context,
+            'Failed to load responses. Please try again later.',
           );
         }
         break;

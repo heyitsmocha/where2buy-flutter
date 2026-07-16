@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:w2b_flutter/auth_state.dart';
 import 'package:w2b_flutter/core/network_results.dart';
 import 'package:w2b_flutter/features/login/logic/register_page_controller.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key, required this.dio, this.onGoToLogin, this.onRegisterSuccess});
@@ -107,11 +108,9 @@ class _RegisterPageState extends State<RegisterPage> with AutomaticKeepAliveClie
                     break;
                   case Failure():
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          backgroundColor: Colors.red,
-                          content: Text(result.errorMessage),
-                        ),
+                      ShowSnackBar.error(
+                        context,
+                        result.errorMessage,
                       );
                     }
                     break;

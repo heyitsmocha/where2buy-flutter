@@ -16,6 +16,7 @@ import 'package:w2b_flutter/models/inquiry_model.dart';
 import 'package:dio/dio.dart';
 import 'package:w2b_flutter/util/api_util.dart';
 import 'package:w2b_flutter/util/location_util.dart';
+import 'package:w2b_flutter/util/snackbar_util.dart';
 
 class AddResponsePage extends StatefulWidget {
   final NearbyInquiry inquiry;
@@ -65,14 +66,16 @@ class _AddResponsePageState extends State<AddResponsePage> {
         },
         onError: (e) {
           Navigator.pop(context); // Pop the page if there was an error retrieving the inquiry details, since we need that information to display the page properly
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error retrieving inquiry details: $e')),
+          ShowSnackBar.error(
+            context,
+            'Error retrieving inquiry details: $e',
           );
         },
         onDioError: (e) {
           Navigator.pop(context); // Pop the page if there was an error retrieving the inquiry details, since we need that information to display the page properly
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error retrieving inquiry details: ${e.message}')),
+          ShowSnackBar.error(
+            context,
+            'Error retrieving inquiry details: ${e.message}',
           );
         },
         onFinally: () {
@@ -122,9 +125,9 @@ class _AddResponsePageState extends State<AddResponsePage> {
                     ifTrue: (context) => InkWell(
                       onTap: () {
                         // TODO: Expand image to full screen view
-                          
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Expand image to full screen view')),
+                        ShowSnackBar.info(
+                          context,
+                          'Expand image to full screen view',
                         );
                       },
                       child: Ink(
@@ -216,8 +219,9 @@ class _AddResponsePageState extends State<AddResponsePage> {
                       child: WidgetWithButton(
                         onPressed: () {
                           // TODO: Implement add photo functionality
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Launch camera')),
+                          ShowSnackBar.info(
+                            context,
+                            'Launch camera',
                           );
                         }, 
                         buttonIcon: const Icon(Icons.add_a_photo),
@@ -254,8 +258,9 @@ class _AddResponsePageState extends State<AddResponsePage> {
                           switch (result) {
                             case Success(value: var answer):
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Response submitted successfully')),
+                                ShowSnackBar.success(
+                                  context,
+                                  'Response submitted successfully',
                                 );
                                 setState(() {
                                   _isSubmitting = false;
@@ -266,8 +271,9 @@ class _AddResponsePageState extends State<AddResponsePage> {
                               }
                             case Failure(errorMessage: var errorMessage):
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(errorMessage)),
+                                ShowSnackBar.error(
+                                  context,
+                                  errorMessage,
                                 );
                                 setState(() {
                                   _isSubmitting = false;
