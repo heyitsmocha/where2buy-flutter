@@ -109,14 +109,25 @@ class _InquiryResponsesPageState extends State<InquiryResponsesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inquiry Responses'),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _isLoading ? null : refresh,
         child: const Icon(Icons.refresh),
       ),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: BaseLayout(
         child: Column(
           children: [
+            Text(
+              '${widget.inquiry.itemName}',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Text(
+              'Asked on: ${widget.inquiry.createdAt!.toLocal().toString().split(' ')[0]}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 8),
             SizedBox(
               height: 300,
               child: MapWidget(
