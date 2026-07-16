@@ -110,8 +110,9 @@ class _AddResponsePageState extends State<AddResponsePage> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Respond'),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: BaseLayout(
         child: SingleChildScrollView(
           child: Column(
